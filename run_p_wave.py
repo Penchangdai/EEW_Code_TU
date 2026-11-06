@@ -24,7 +24,8 @@ from p_wave import detect_p_wave
 # ======================================================================
 DATA_FILE = "BKKA_20250328_061959.txt"
 PROFILE = "regional"      # "regional" = สถานีไกล (> ~300 km), "local" = สถานีใกล้
-DATA_DIR = "station"
+DATA_DIR = "station"      # โฟลเดอร์ที่เก็บไฟล์ข้อมูล (อยู่ในโฟลเดอร์ code)
+
 
 def to_utc(t):
     return datetime.fromtimestamp(t, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
@@ -49,10 +50,13 @@ def main(path, profile="regional", plot=True):
     print(f"  sample index : {i}  (t = {i / fs:.2f} s จากต้นไฟล์)")
     print(f"  STA/LTA trig : {to_utc(rec['t0'] + p['trigger_index'] / fs)} UTC")
     print(f"  STA/LTA max  : {p['max_ratio']:.1f}")
-    print(f"  First motion : {'ขึ้น (Compression)' if p['polarity'] > 0 else 'ลง (Dilatation)'}")
-    noise = np.std(z[max(i - int(10 * fs), 0):i])
-    signal = np.max(np.abs(z[i:i + int(3 * fs)]))
-    print(f"  SNR (3 s)    : {signal / noise:.1f}")
+    fm = {1: "U = ขึ้น (Compression)", -1: "D = ลง (Dilatation)"}.get(p["polarity"], "? = ไม่ชัด")
+    onset = "i = impulsive (ชัด)" if p["onset"] == "i" else "e = emergent (ค่อย ๆ โผล่)"
+    print(f"  Onset        : {onset}")
+    print(f"  First motion : {fm}")
+    print(f"  SNR          : {p['snr']:.1f}")
+    print(f"  Weight       : {p['weight']}  (0 = ดีที่สุด ... 4 = ไม่ใช้), ±{p['uncertainty']:.2f} s")
+    print(f"  Pick label   : {p['label']}")
 
     if plot:
         try:
@@ -65,7 +69,7 @@ def main(path, profile="regional", plot=True):
         t = np.arange(len(z)) / fs
         fig, ax = plt.subplots(3, 1, figsize=(12, 8))
         ax[0].plot(t, z, lw=0.5)
-        ax[0].axvline(i / fs, color="r", label="P pick")
+        ax[0].axvline(i / fs, color="r", label=f"P pick ({p['label']})")
         ax[0].set_ylabel("Z (gal)"); ax[0].legend(); ax[0].set_title(f"{rec['station']} - full record")
         w = (t > i / fs - 20) & (t < i / fs + 20)
         ax[1].plot(t[w], z[w], lw=0.6)

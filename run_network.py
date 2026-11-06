@@ -1,39 +1,57 @@
 """
 run_network.py
-หาจุดศูนย์กลางแผ่นดินไหวจากข้อมูลหลายสถานีรวมกัน (Geiger's method)
-  1) อ่านไฟล์ของทุกสถานี แล้วหาเวลาคลื่น P และ S ของแต่ละสถานี
-  2) นำเวลา P, S ของทุกสถานีมาหาตำแหน่ง (lat, lon), ความลึก และเวลาเกิด พร้อมกัน
-  3) เทียบกับวิธีสถานีเดียว (Omori) ของแต่ละสถานี
+หาจุดศูนย์กลางแผ่นดินไหวจากหลายสถานี โดยใช้ทั้งคลื่น P และคลื่น S (Sg/Sn, Lg)
+ขั้นตอนทั้งหมดอยู่ใน pipeline.py (แบบเครือข่าย USGS/ANSS):
+  auto-pick P -> association -> P + S scan -> re-pick P -> pick S/Lg รอบเวลาที่คาด
+  -> Geiger (ทรงกลม + โลก 2 ชั้น) จาก P + S + Lg -> ตรวจทาน residual -> ทำซ้ำจนนิ่ง
 
-ต้องมีเวลาคลื่น (P+S) รวมกันอย่างน้อย 4 ค่า  แนะนำ 3 สถานีขึ้นไป
-ทุกไฟล์ต้องเป็นเหตุการณ์เดียวกัน และเวลาต้องเป็น UTC เหมือนกัน
-ใส่ได้ทั้งสถานีวัดอัตราเร่ง (ACC, m/s²) และสถานีตรวจวัดแผ่นดินไหว (VEL, m/s) ปนกัน
-data_loader.py แปลงเป็นความเร่งให้อัตโนมัติ
-
-รัน:  ใส่รายชื่อไฟล์และพิกัดใน STATIONS ด้านล่าง แล้วกด Run ใน VS Code
+รัน:  โยนไฟล์ข้อมูลเข้าโฟลเดอร์ station แล้วกด Run ใน VS Code
+ผลที่ได้:
+  - ตารางรายสถานีใน Terminal (pick, residual, ใช้/ไม่ใช้)
+  - network_location.png  ตำแหน่งสถานีและจุดศูนย์กลาง
+  - network_picks.png     กราฟตรวจ pick ของแต่ละสถานี (ดูว่าโปรแกรม pick ตรงจุดที่ควรเป็นไหม)
+  - network_picks.csv     ตาราง pick ทั้งหมด
+  - network_map.html      แผนที่จริง (ต้องติดตั้ง folium)
 """
+import csv
 import os
 
 import numpy as np
 
-import config as C
-from data_loader import load_station_txt, resolve_data_path, DATA_DIR
-from p_wave import detect_p_wave
-from s_wave import detect_s_wave
-from epicenter import geiger_locate, omori_distance
-from signal_utils import haversine_km, destination_point
-from run_p_wave import to_utc
+import pipeline as PL
+from data_loader import DATA_DIR
+from signal_utils import destination_point
 from station_db import get_coords
-from map_plot import make_multi_station_map
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
+# ======================================================================
+#  ตั้งค่า
+# ======================================================================
+# "auto" = ใช้ไฟล์ .txt ทุกไฟล์ที่มี "# Station:" ในโฟลเดอร์ station
+# หรือระบุเป็น list เช่น [{"file": "BKKA_20250328_061959.txt"}, {"file": "X.txt", "lat": 15.0, "lon": 100.0}]
+STATIONS = "auto"
+PROFILE = "regional"      # "regional" = สถานีไกล (> ~300 km), "local" = สถานีใกล้
+
+USE_S = True              # True = ใช้ทั้งคลื่น P และ S / Lg,  False = คลื่น P อย่างเดียว
+FIX_DEPTH_KM = 10.0       # ตรึงความลึก (km)  None = หาความลึกด้วย (ต้องมีสถานีใกล้จุดศูนย์กลาง)
+
+# จุดศูนย์กลางอ้างอิงไว้เทียบ (lat, lon, "ชื่อ")  ไม่ใช้ใส่ None
+REF_EPICENTER = (21.682, 96.121, "Reference")
+REF_ORIGIN_TIME = "2025-03-28T06:20:52"      # เวลาเกิดอ้างอิง (UTC)  ไม่ใช้ใส่ None
+
+MAKE_MAP = True           # แผนที่จริง network_map.html (ต้องติดตั้ง: pip install folium)
+PLOT = True               # กราฟ PNG
+SHOW_RINGS = False        # True = วาดวงกลมระยะจาก S-P / Lg-P ของแต่ละสถานีในกราฟ PNG
+SAVE_CSV = True
+
+# ค่าละเอียดของ pipeline (ไม่ต้องแก้ก็ได้) ดูความหมายใน pipeline.DEFAULTS เช่น
+#   {"s_win_sec": 15.0, "scan_s_weight": 3.0, "s_phases": ("S", "Lg")}
+PIPELINE_SETTINGS = {}
+
 
 def find_data_files(folder=None):
-    """
-    หาไฟล์ .txt ที่เป็นข้อมูลสถานี (บรรทัดแรกขึ้นต้นด้วย '# Station:')
-    ค้นในโฟลเดอร์ station ก่อน ถ้าไม่มีโฟลเดอร์นี้ จะค้นในโฟลเดอร์โค้ด
-    """
+    """หาไฟล์ .txt ที่เป็นข้อมูลสถานี (บรรทัดแรกขึ้นต้นด้วย '# Station:') ในโฟลเดอร์ station"""
     if folder is None:
         folder = DATA_DIR if os.path.isdir(DATA_DIR) else HERE
     print(f"ค้นหาไฟล์ข้อมูลใน : {folder}")
@@ -49,154 +67,99 @@ def find_data_files(folder=None):
             pass
     return files
 
-# ======================================================================
-#  เลือกไฟล์ข้อมูล
-#   "auto" = ใช้ไฟล์ .txt ทุกไฟล์ที่มี "# Station:" ใน header
-#            ค้นในโฟลเดอร์ "station" (ถ้ามี) ไม่อย่างนั้นค้นในโฟลเดอร์โค้ด
-#            (แค่โยนไฟล์เข้าโฟลเดอร์ station แล้วกด Run)
-#   หรือระบุเป็น list เช่น
-#   STATIONS = [
-#       {"file": "BKKA_20250328_061959.txt"},                          # พิกัดจาก stations.csv
-#       {"file": "XXXX_20250328_061959.txt", "lat": 15.0, "lon": 100.0}, # ใส่พิกัดเอง
-#   ]
-#  พิกัดดึงจาก stations.csv ตามชื่อสถานีใน header อัตโนมัติ
-# ======================================================================
-STATIONS = "auto"
-PROFILE = "regional"      # "regional" = สถานีไกล (> ~300 km), "local" = สถานีใกล้
 
-# แผนที่จริง (ไฟล์ network_map.html เปิดด้วย browser) ต้องติดตั้ง: pip install folium
-MAKE_MAP = True
-# จุดศูนย์กลางอ้างอิงไว้เทียบบนแผนที่ (lat, lon, "ชื่อ") เช่น (22.01, 95.92, "USGS")  ไม่ใช้ใส่ None
-REF_EPICENTER = None
+def save_csv(result, path="network_picks.csv"):
+    with open(path, "w", newline="", encoding="utf-8-sig") as f:
+        w = csv.writer(f)
+        w.writerow(["station", "lat", "lon", "dist_km", "phase", "phase_name", "time_utc", "label",
+                    "weight", "residual_s", "used", "note"])
+        for s in sorted(result["stations"], key=lambda q: q["dist_km"]):
+            for ph in ("P", "S", "Lg"):
+                if ph in s["picks"]:
+                    pk = s["picks"][ph]
+                    w.writerow([s["code"], s["lat"], s["lon"], round(s["dist_km"], 1), ph,
+                                s["phase_name"].get(ph, ph), PL.utc(pk["time"]), pk["label"], pk["weight"],
+                                round(s["residual"][ph], 2), ph in s["use"], s["notes"].get(ph, "")])
+    return path
 
 
-def pick_station(st, regional):
-    """อ่านไฟล์หนึ่งสถานี แล้วหาเวลา P และ S"""
-    path = resolve_data_path(st["file"])
-    rec = load_station_txt(path)
-    fs = rec["fs"]
-    if st.get("lat") is None or st.get("lon") is None:
-        c = get_coords(rec["station"])
-        if c is None:
-            print(f"⚠ ข้ามสถานี {rec['station']}: ไม่พบพิกัดใน stations.csv")
-            return None
-        st = {**st, "lat": c[0], "lon": c[1]}
-    p = detect_p_wave(rec["z"], fs, rec["t0"], **(C.P_REGIONAL if regional else {}))
-    out = {"code": rec["station"], "lat": st["lat"], "lon": st["lon"], "rec": rec,
-           "sensor": "ACC" if rec["sensor"] == "acceleration" else "VEL",
-           "tp": None, "ts": None}
-    if not p["detected"]:
-        return out
-    out["tp"] = p["time"]
-    s = detect_s_wave(rec["z"], rec["n"], rec["e"], fs, p["index"], rec["t0"],
-                      **(C.S_REGIONAL if regional else {}))
-    if s["detected"]:
-        out["ts"] = s["time"]
+def plot_location(result, out="network_location.png"):
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError:
+        return None
+    hypo, sts = result["hypo"], result["stations"]
+    fig, ax = plt.subplots(figsize=(9, 9))
+    th = np.linspace(0, 360, 361)
+    for s in sts:
+        used = bool(s["use"])
+        ax.plot(s["lon"], s["lat"], "^", color="k" if used else "0.7", ms=7 if len(sts) > 20 else 10)
+        if len(sts) <= 30:
+            ax.annotate(s["code"], (s["lon"], s["lat"]), textcoords="offset points", xytext=(5, 5), fontsize=8)
+        if SHOW_RINGS and s.get("delta_sp"):
+            ring = [destination_point(s["lat"], s["lon"], a, s["delta_sp"]) for a in th]
+            ax.plot([q[1] for q in ring], [q[0] for q in ring], "--", lw=0.6, alpha=0.6)
+    ax.plot([], [], "k^", label="Stations used")
+    ax.plot([], [], "^", color="0.7", label="Stations not used")
+    if result.get("hypo_p"):
+        hp = result["hypo_p"]
+        ax.plot(hp["lon"], hp["lat"], "o", mfc="none", mec="g", ms=12, label="P only")
+    ax.plot(hypo["lon"], hypo["lat"], "r*", ms=20, label="P + S (final)")
+    if REF_EPICENTER is not None:
+        ax.plot(REF_EPICENTER[1], REF_EPICENTER[0], "b*", ms=14, label=REF_EPICENTER[2])
+    pts = [(s["lat"], s["lon"]) for s in sts] + [(hypo["lat"], hypo["lon"])]
+    if REF_EPICENTER is not None:
+        pts.append(REF_EPICENTER[:2])
+    la = [p[0] for p in pts]; lo = [p[1] for p in pts]
+    ax.set_xlim(min(lo) - 2, max(lo) + 2); ax.set_ylim(min(la) - 2, max(la) + 2)
+    ax.set_xlabel("Longitude"); ax.set_ylabel("Latitude"); ax.set_aspect("equal")
+    ax.grid(alpha=0.3); ax.legend(loc="lower left")
+    nb = hypo.get("n_by_phase", {})
+    ax.set_title(f"Network location: {sum(1 for s in sts if s['use'])}/{len(sts)} stations used "
+                 f"(P {nb.get('P', 0)}, S {nb.get('S', 0)}, Lg {nb.get('Lg', 0)})\n"
+                 f"lat {hypo['lat']:.3f}, lon {hypo['lon']:.3f}, depth {hypo['depth']:.1f} km, "
+                 f"RMS {hypo['rms']:.2f} s")
+    fig.tight_layout()
+    fig.savefig(out, dpi=120)
+    plt.close(fig)
     return out
 
 
-def main(stations=STATIONS, profile=PROFILE, plot=True):
+def main(stations=STATIONS, profile=PROFILE, plot=PLOT):
     if stations == "auto":
         stations = find_data_files()
-    regional = profile == "regional"
-    vp, vs = (C.VPN_KM_S, C.VSN_KM_S) if regional else (C.VP_KM_S, C.VS_KM_S)
-    print(f"Profile : {profile}   (Vp = {vp}, Vs = {vs} km/s)")
-    print(f"จำนวนสถานี : {len(stations)}\n")
+    print(f"Profile : {profile}   จำนวนไฟล์ : {len(stations)}   "
+          f"ใช้คลื่น : {'P + S / Lg' if USE_S else 'P อย่างเดียว'}\n")
+    settings = dict(PIPELINE_SETTINGS, use_s=USE_S, fix_depth=FIX_DEPTH_KM)
+    result = PL.locate_event(stations, profile, get_coords, settings=settings)
+    PL.print_report(result, REF_EPICENTER, REF_ORIGIN_TIME)
 
-    # ---------- 1) หาเวลา P, S ของแต่ละสถานี ----------
-    picks = []
-    print(f"{'Station':<8}{'Type':<5}{'Lat':>8}{'Lon':>9}   {'P arrival (UTC)':<24}{'S arrival (UTC)':<24}{'S-P':>7}{'R_Omori':>9}")
-    for st in stations:
-        pk = pick_station(st, regional)
-        if pk is None:
-            continue
-        tp = to_utc(pk["tp"]) if pk["tp"] else "-"
-        ts = to_utc(pk["ts"]) if pk["ts"] else "-"
-        sp = (pk["ts"] - pk["tp"]) if pk["tp"] and pk["ts"] else None
-        pk["R_omori"] = omori_distance(sp, vp, vs) if sp else None
-        sp_txt = f"{sp:.2f}" if sp else "-"
-        r_txt = f"{pk['R_omori']:.0f}" if sp else "-"
-        print(f"{pk['code']:<8}{pk['sensor']:<5}{pk['lat']:8.3f}{pk['lon']:9.3f}   {tp:<24}{ts:<24}{sp_txt:>7}{r_txt:>9}")
-        if pk["tp"]:
-            picks.append(pk)
-
-    n_obs = sum(1 + (p["ts"] is not None) for p in picks)
-    print(f"\nสถานีที่หาคลื่น P ได้ : {len(picks)}   จำนวนเวลาคลื่น (P+S) : {n_obs}")
-    if n_obs < 4:
-        print("ข้อมูลไม่พอสำหรับ Geiger (ต้องมีเวลาคลื่นอย่างน้อย 4 ค่า)")
-        print("ถ้ามีสถานีเดียว ให้ใช้ run_epicenter.py แทน")
-        return None
-    if len(picks) < 3:
-        print("⚠ มีน้อยกว่า 3 สถานี ผลอาจไม่เสถียร ควรเพิ่มสถานี")
-
-    coords = {(round(p["lat"], 3), round(p["lon"], 3)) for p in picks}
-    if len(coords) < len(picks):
-        print("⚠ มีสถานีที่พิกัดซ้ำกัน ตรวจสอบค่า lat/lon ใน STATIONS (สถานีที่ตำแหน่งเดียวกันไม่ช่วยหาตำแหน่ง)")
-
-    # ---------- 2) Geiger's method ----------
-    hypo = geiger_locate(picks, vp=vp, vs=vs)
-    print("\n================ ผลจากหลายสถานี (Geiger) ================")
-    print(f"Epicenter   : lat {hypo['lat']:.3f}, lon {hypo['lon']:.3f}")
-    print(f"Depth       : {hypo['depth']:.1f} km")
-    print(f"Origin time : {to_utc(hypo['origin_time'])} UTC")
-    print(f"RMS residual: {hypo['rms']:.3f} s   (ยิ่งน้อยยิ่งดี)")
-    print(f"Error (1σ)  : x ±{hypo['err_x_km']:.1f} km, y ±{hypo['err_y_km']:.1f} km, "
-          f"z ±{hypo['err_z_km']:.1f} km, T0 ±{hypo['err_t0_s']:.2f} s")
-    if hypo["depth"] > 700 or not np.isfinite(hypo["err_x_km"]):
-        print("⚠ ผลนี้ไม่น่าเชื่อถือ (ความลึกเกิน 700 km หรือคำนวณความคลาดเคลื่อนไม่ได้)")
-        print("  สาเหตุที่พบบ่อย: สถานีน้อยเกินไป, พิกัดสถานีผิด/ซ้ำกัน, หรือ pick คลื่นผิด")
-
-    print("\nระยะทางจากจุดศูนย์กลางถึงแต่ละสถานี:")
-    for p in picks:
-        d = haversine_km(hypo["lat"], hypo["lon"], p["lat"], p["lon"])
-        r_om = f"{p['R_omori']:.0f} km" if p["R_omori"] else "-"
-        print(f"  {p['code']:<8} Geiger {d:7.1f} km   |   Omori (สถานีเดียว) {r_om}")
-    if regional:
-        print("\n* สถานีห่างกันหลายร้อยกิโลเมตร โค้ดคำนวณบนระนาบแบน (flat-earth) จึงคลาดเคลื่อนได้บ้าง")
-    if REF_EPICENTER is not None:
-        d = haversine_km(REF_EPICENTER[0], REF_EPICENTER[1], hypo["lat"], hypo["lon"])
-        print(f"ผล Geiger ห่างจาก {REF_EPICENTER[2]} {d:.0f} km")
-
-    # ---------- 3) แผนที่จริง: รัศมี Omori ของแต่ละสถานี + จุดศูนย์กลางจาก Geiger ----------
-    if MAKE_MAP:
-        rings = []
-        for p in picks:
-            d = None
-            if p["R_omori"]:
-                d = float(np.sqrt(max(p["R_omori"] ** 2 - min(hypo["depth"], p["R_omori"]) ** 2, 0.0)))
-            rings.append({"code": p["code"], "lat": p["lat"], "lon": p["lon"], "delta": d})
-        html = make_multi_station_map(
-            rings, "network_map.html",
-            geiger=(hypo["lat"], hypo["lon"], hypo["depth"]), ref_epicenter=REF_EPICENTER,
-            subtitle="วงกลม = รัศมีระยะทางจาก S-P (Omori) ของแต่ละสถานี, เป้าม่วง = จุดศูนย์กลางจาก Geiger")
-        if html:
-            print(f"\nบันทึกแผนที่จริง: {html}  (เปิดด้วย browser หรือพิมพ์ start {html})")
-
+    if SAVE_CSV:
+        print(f"\nบันทึกตาราง pick : {save_csv(result)}")
     if plot:
+        out = plot_location(result)
+        if out:
+            print(f"บันทึกกราฟ       : {out}")
+        out = PL.plot_record_section(result)
+        if out:
+            print(f"บันทึกกราฟ pick  : {out}  (เปิดดูว่าโปรแกรม pick ตรงจุดที่คลื่นเปลี่ยนจริงไหม)")
+    if MAKE_MAP:
         try:
-            import matplotlib
-            matplotlib.use("Agg")
-            import matplotlib.pyplot as plt
-        except ImportError:
-            return hypo
-        fig, ax = plt.subplots(figsize=(8, 8))
-        th = np.linspace(0, 360, 361)
-        for p in picks:
-            ax.plot(p["lon"], p["lat"], "k^", ms=10)
-            ax.annotate(p["code"], (p["lon"], p["lat"]), textcoords="offset points", xytext=(6, 6))
-            if p["R_omori"]:
-                ring = [destination_point(p["lat"], p["lon"], a, p["R_omori"]) for a in th]
-                ax.plot([q[1] for q in ring], [q[0] for q in ring], "--", lw=0.8, alpha=0.7)
-        ax.plot(hypo["lon"], hypo["lat"], "r*", ms=20, label="Epicenter (Geiger)")
-        ax.set_xlabel("Longitude"); ax.set_ylabel("Latitude"); ax.set_aspect("equal")
-        ax.grid(alpha=0.3); ax.legend(loc="lower left")
-        ax.set_title(f"Network location: {len(picks)} stations\n"
-                     f"lat {hypo['lat']:.3f}, lon {hypo['lon']:.3f}, depth {hypo['depth']:.1f} km "
-                     f"(dashed = Omori distance)")
-        fig.tight_layout()
-        fig.savefig("network_location.png", dpi=120)
-        print("\nบันทึกกราฟ: network_location.png")
-    return hypo
+            from map_plot import make_multi_station_map
+            hypo = result["hypo"]
+            rings = [{"code": s["code"], "lat": s["lat"], "lon": s["lon"], "delta": s.get("delta_sp")}
+                     for s in result["stations"] if s["use"]]
+            html = make_multi_station_map(
+                rings, "network_map.html", geiger=(hypo["lat"], hypo["lon"], hypo["depth"]),
+                ref_epicenter=REF_EPICENTER,
+                subtitle="วงกลม = ระยะจาก S-P หรือ Lg-P ของแต่ละสถานี, เป้า = จุดศูนย์กลางจาก P + S")
+            if html:
+                print(f"บันทึกแผนที่จริง : {html}  (เปิดด้วย browser หรือพิมพ์ start {html})")
+        except Exception as ex:                          # noqa: BLE001  แผนที่ไม่ควรทำให้ผลหลักหาย
+            print(f"(วาดแผนที่ไม่สำเร็จ: {ex})")
+    return result
 
 
 if __name__ == "__main__":

@@ -5,10 +5,14 @@ run_epicenter.py
   2) ระยะทาง (สูตร Omori)               R = k (Ts - Tp)
   3) ทิศทาง (PCA ของคลื่น P)            back-azimuth (กำกวม 180°) -> ตัวเลือก A, B
   4) หลายสถานี (LOCATE_METHOD):
+     "pipeline" (ค่าเริ่มต้น, 3 สถานีขึ้นไป) : ขั้นตอนแบบ USGS ใน pipeline.py ใช้ทั้งคลื่น P และ S / Lg
+                             (P + S scan -> re-pick P -> pick S/Lg รอบเวลาที่คาด -> Geiger P+S -> ตรวจทาน)
      "robust" (ค่าเริ่มต้น) : Robust grid search ใช้เวลา P, S ทุกสถานี + ทิศทาง PCA
                              ตัดสถานีที่เวลาคลื่นไม่สอดคล้องออก แล้วคำนวณใหม่
      "ab"                  : วิธีเดิม เลือกตัวเลือก A/B ที่ใกล้กันที่สุดแล้วเฉลี่ย
      SHOW_GEIGER = True     : คำนวณ Geiger (ระนาบแบน) เทียบด้วย เมื่อมี 3 สถานีขึ้นไป
+     ทั้ง robust และ Geiger ถ่วงน้ำหนักเวลาคลื่นตาม weight 0-4 ของ pick (แบบ Hypoinverse)
+     wP / wS ในตาราง = weight ของคลื่น P / S (0 ดีที่สุด, 4 = ไม่ใช้)
   5) วาดลงแผนที่จริง (epicenter_map_<สถานี>.html) ด้วย folium
 
 รัน:  ใส่รหัสสถานีใน SELECTED_STATIONS ด้านล่าง แล้วกด Run ใน VS Code
@@ -25,7 +29,8 @@ import config as C
 from data_loader import load_station_txt, resolve_data_path, find_station_file
 from p_wave import detect_p_wave
 from s_wave import detect_s_wave
-from epicenter import omori_distance, back_azimuth_pca, geiger_locate, grid_search_locate, travel_time_2layer
+from epicenter import (omori_distance, back_azimuth_pca, geiger_locate, grid_search_locate,
+                       travel_time_2layer, delta_from_sp)
 from signal_utils import destination_point, haversine_km, bandpass
 from station_db import get_coords
 from map_plot import make_epicenter_map, make_multi_station_map
@@ -35,7 +40,7 @@ from run_p_wave import to_utc
 #  ตั้งค่าตรงนี้
 # ======================================================================
 # รหัสสถานีที่ต้องการใช้ 1-5 สถานี (ต้องมีไฟล์ข้อมูลในโฟลเดอร์ station และพิกัดใน stations.csv)
-SELECTED_STATIONS = ["BKKA", "CMAI", "PHRA"]
+SELECTED_STATIONS = ["BKKA", "CMMT", "PHIT", "NAN", "PHEA"]
 # ตัวอย่างหลายสถานี:
 # SELECTED_STATIONS = ["BKKA", "BSPA", "CMAI"]
 
@@ -47,10 +52,15 @@ PROFILE = "regional"      # "regional" = สถานีไกล (> ~300 km), "
 # พิกัดที่ไม่มีใน stations.csv ใส่เองได้ที่นี่ เช่น {"XXXX": (15.123, 100.456)}
 STATION_COORDS_OVERRIDE = {}
 
+# วิธีแปลง S-P เป็นระยะทาง
+#   "2layer" = โลก 2 ชั้น (เปลือกโลก + เนื้อโลก) ใช้ได้ทั้งใกล้และไกล  <- แนะนำ
+#   "omori"  = D = k (Ts - Tp) แบบเดิม (สถานีไกลจะได้ระยะยาวเกินจริง ~60-70 km)
+DISTANCE_MODEL = "2layer"
 DEPTH_KM = 10.0           # ความลึกสมมติ (วิธีสถานีเดียวและ robust หาความลึกไม่ได้)
 
 # วิธีหาจุดศูนย์กลางเมื่อมี 2 สถานีขึ้นไป
-LOCATE_METHOD = "robust"  # "robust" (แนะนำ) หรือ "ab" (วิธีเดิม: เฉลี่ยตัวเลือก A/B ที่สอดคล้องกัน)
+LOCATE_METHOD = "pipeline"   # "pipeline" (แนะนำ, 3 สถานีขึ้นไป), "robust" หรือ "ab" (วิธีเดิม)
+USE_S = True              # pipeline: True = ใช้ทั้งคลื่น P และ S / Lg, False = คลื่น P อย่างเดียว
 USE_BAZ = True            # robust: ใช้ทิศทางจาก PCA ช่วย (สำคัญเมื่อสถานีอยู่ฝั่งเดียวกันของจุดศูนย์กลาง)
 SHOW_GEIGER = False       # True = คำนวณ Geiger เทียบด้วย (ระนาบแบน ไม่เหมาะกับสถานีไกลหลายร้อย km)
 MAX_STATIONS = 5
@@ -58,7 +68,7 @@ MAX_STATIONS = 5
 # แผนที่จริง (ไฟล์ .html เปิดด้วย browser) ต้องติดตั้ง: pip install folium
 MAKE_MAP = True
 # จุดศูนย์กลางอ้างอิงไว้เทียบบนแผนที่ (lat, lon, "ชื่อ") เช่น (22.01, 95.92, "USGS")  ไม่ใช้ใส่ None
-REF_EPICENTER = (22.013, 95.922, "USGS")
+REF_EPICENTER = (21.682, 96.121, "อ้างอิง")
 # เวลาเกิดอ้างอิง (UTC) ไว้เทียบ เช่น "2025-03-28T06:20:52"  ไม่ใช้ใส่ None
 REF_ORIGIN_TIME = "2025-03-28T06:20:52"
 
@@ -91,15 +101,23 @@ def analyze_station(path, profile, plot=True):
     if not s["detected"]:
         print("ไม่พบคลื่น S"); return None
     sp = s["sp_time"]
-    print(f"P-wave arrival : {to_utc(p['time'])} UTC")
-    print(f"S-wave arrival : {to_utc(s['time'])} UTC")
+    print(f"P-wave arrival : {to_utc(p['time'])} UTC   {p.get('label', '')}")
+    print(f"S-wave arrival : {to_utc(s['time'])} UTC   {s.get('label', '')}")
     print(f"S - P time     : {sp:.2f} s")
 
-    vp, vs = (C.VPN_KM_S, C.VSN_KM_S) if regional else (C.VP_KM_S, C.VS_KM_S)
-    R = omori_distance(sp, vp, vs)
-    delta = np.sqrt(max(R ** 2 - DEPTH_KM ** 2, 0.0))
-    t0 = p["time"] - R / vp
-    print(f"ระยะทาง R = {R:.0f} km, Δ = {delta:.0f} km, T0 ≈ {to_utc(t0)} UTC")
+    if DISTANCE_MODEL == "2layer":
+        # โลก 2 ชั้น: คิด intercept time ของ Pn/Sn (สูตร Omori แบบเส้นตรงให้ระยะยาวเกินจริงเมื่อสถานีไกล)
+        delta = delta_from_sp(sp, DEPTH_KM)
+        R = float(np.hypot(delta, DEPTH_KM))
+        t0 = p["time"] - float(travel_time_2layer(delta, DEPTH_KM, "P"))
+        how = "โลก 2 ชั้น"
+    else:
+        vp, vs = (C.VPN_KM_S, C.VSN_KM_S) if regional else (C.VP_KM_S, C.VS_KM_S)
+        R = omori_distance(sp, vp, vs)
+        delta = np.sqrt(max(R ** 2 - DEPTH_KM ** 2, 0.0))
+        t0 = p["time"] - R / vp
+        how = "Omori"
+    print(f"ระยะทาง ({how}) R = {R:.0f} km, Δ = {delta:.0f} km, T0 ≈ {to_utc(t0)} UTC")
 
     baz_params = C.BAZ_REGIONAL if regional else C.BAZ_LOCAL
     baz, rect = back_azimuth_pca(z, n, e, fs, p["index"], **baz_params)
@@ -112,6 +130,7 @@ def analyze_station(path, profile, plot=True):
 
     res = {"code": code, "lat": sta_lat, "lon": sta_lon, "tp": p["time"], "ts": s["time"],
            "sp": sp, "R": R, "delta": delta, "t0": t0, "rect": rect, "chosen": None,
+           "wp": p.get("weight"), "ws": s.get("weight"),          # weight 0-4 ใช้ถ่วงน้ำหนักตอนหาตำแหน่ง
            "cands": [{"name": "ตัวเลือก A", "lat": lat1, "lon": lon1, "az": baz},
                      {"name": "ตัวเลือก B", "lat": lat2, "lon": lon2, "az": baz2}]}
     if plot:
@@ -200,15 +219,21 @@ def relabel_as_lg(r):
         c["lat"], c["lon"] = destination_point(r["lat"], r["lon"], c["az"], d)
 
 
+def _w(code):
+    return "-" if code is None else str(code)
+
+
 def locate_robust(results):
     """Robust grid search: เวลา P, S ทุกสถานี (+ ทิศทาง PCA) ตัด outlier แล้วคำนวณใหม่"""
     picks = [{"code": r["code"], "lat": r["lat"], "lon": r["lon"], "tp": r["tp"], "ts": r["ts"],
+              "wp": r.get("wp"), "ws": r.get("ws"),
               "baz": r["cands"][0]["az"], "rect": r["rect"]} for r in results]
     if sum(2 for _ in picks) < 4:
         print("(robust ต้องมีเวลาคลื่นอย่างน้อย 4 ค่า = 2 สถานี)"); return None
     rob = grid_search_locate(picks, use_s=True, depth_km=DEPTH_KM, use_baz=USE_BAZ)
     print(f"วิธี: {rob['method']}")
-    print(f"\n{'Station':<8}{'S-P (s)':>9}{'Δ จาก S-P':>11}{'Δ ถึงผล':>10}{'res P (s)':>11}{'res S (s)':>11}{'เฟส S':>7}  สถานะ")
+    print(f"\n{'Station':<8}{'S-P (s)':>9}{'Δ จาก S-P':>11}{'Δ ถึงผล':>10}{'res P (s)':>11}{'res S (s)':>11}{'เฟส S':>7}"
+          f"{'wP':>4}{'wS':>4}  สถานะ")
     res = {(x["code"], x["phase"]): x for x in rob["residuals"]}
     for r in results:
         d = haversine_km(r["lat"], r["lon"], rob["lat"], rob["lon"])
@@ -221,7 +246,7 @@ def locate_robust(results):
             relabel_as_lg(r)
         print(f"{r['code']:<8}{r['sp']:9.1f}{r['delta']:9.0f} km{d:8.0f} km"
               f"{rp['residual'] if rp else float('nan'):11.1f}{rs['residual'] if rs else float('nan'):11.1f}"
-              f"{r['phase_s']:>7}  "
+              f"{r['phase_s']:>7}{_w(r.get('wp')):>4}{_w(r.get('ws')):>4}  "
               + ("ตัดคลื่น " + ",".join(bad) + " ออก (เวลาไม่สอดคล้อง)" if bad else "ใช้ได้"))
     if rob["baz_residuals"]:
         print("\nทิศทางจาก PCA เทียบกับทิศไปยังผลที่ได้ (ไม่สนหน้า/หลัง 180°):")
@@ -282,12 +307,33 @@ def main(stations=SELECTED_STATIONS, profile=PROFILE, plot=True):
         # ---------- รวมผลหลายสถานี ----------
         combined, spread = choose_consistent(results)
         print(f"\n================ ผลรวมจาก {len(results)} สถานี ================")
-        if LOCATE_METHOD == "robust":
+        if LOCATE_METHOD == "pipeline" and len(paths) < 3:
+            print("(pipeline ต้องมี 3 สถานีขึ้นไป ใช้วิธี robust แทน)")
+        if LOCATE_METHOD == "pipeline" and len(paths) >= 3:
+            import pipeline as PL
+            pr = PL.locate_event([{"file": p} for p in paths], profile, station_coords,
+                                 settings={"use_s": USE_S, "fix_depth": DEPTH_KM})
+            PL.print_report(pr, REF_EPICENTER, REF_ORIGIN_TIME)
+            if plot:
+                out = PL.plot_record_section(pr, "epicenter_picks.png")
+                if out:
+                    print(f"บันทึกกราฟ pick: {out}")
+            h = pr["hypo"]
+            combined = (h["lat"], h["lon"])
+            pst = {q["code"]: q for q in pr["stations"]}
+            for r in results:                           # ไว้แสดงบนแผนที่: ระยะและสถานะจาก pipeline
+                q = pst.get(r["code"])
+                if q is not None:
+                    r["delta"] = q.get("delta_sp") or q["dist_km"]
+                    r["outlier"] = not q["use"]
+            choose_nearest(results, combined)
+            rob = {"lat": h["lat"], "lon": h["lon"], "origin_time": h["origin_time"]}
+        elif LOCATE_METHOD == "robust" or (LOCATE_METHOD == "pipeline" and len(paths) < 3):
             rob = locate_robust(results)
             if rob is not None:
                 combined = (rob["lat"], rob["lon"])
                 choose_nearest(results, combined)        # ตัวเลือก A/B ที่ใกล้ผล robust (ไว้แสดงบนแผนที่)
-        if LOCATE_METHOD != "robust" or combined is None or rob is None:
+        if LOCATE_METHOD == "ab" or combined is None or rob is None:
             rob = None
             print(f"{'Station':<8}{'S-P (s)':>9}{'Δ (km)':>9}   {'ตัวเลือกที่สอดคล้อง':<20}{'lat':>9}{'lon':>10}")
             for r in results:
@@ -298,8 +344,8 @@ def main(stations=SELECTED_STATIONS, profile=PROFILE, plot=True):
 
         if SHOW_GEIGER and len(results) >= 3:
             vp, vs = (C.VPN_KM_S, C.VSN_KM_S) if profile == "regional" else (C.VP_KM_S, C.VS_KM_S)
-            g = geiger_locate([{"lat": r["lat"], "lon": r["lon"], "tp": r["tp"], "ts": r["ts"]}
-                               for r in results], vp=vp, vs=vs)
+            g = geiger_locate([{"lat": r["lat"], "lon": r["lon"], "tp": r["tp"], "ts": r["ts"],
+                                "wp": r.get("wp"), "ws": r.get("ws")} for r in results], vp=vp, vs=vs)
             geiger = (g["lat"], g["lon"], g["depth"])
             print(f"\nGeiger ({g['n_obs']} เวลาคลื่น) : lat {g['lat']:.3f}, lon {g['lon']:.3f}, "
                   f"ลึก {g['depth']:.1f} km, T0 {to_utc(g['origin_time'])} UTC, RMS {g['rms']:.3f} s")
@@ -308,7 +354,7 @@ def main(stations=SELECTED_STATIONS, profile=PROFILE, plot=True):
             if g["depth"] > 700 or not np.isfinite(g["err_x_km"]):
                 print("⚠ ผล Geiger ไม่น่าเชื่อถือ (ความลึกเกิน 700 km หรือคำนวณความคลาดเคลื่อนไม่ได้)")
 
-        if REF_EPICENTER is not None:
+        if REF_EPICENTER is not None and LOCATE_METHOD != "pipeline":
             compare_reference(combined, rob, results)
 
     # ---------- แผนที่จริง ----------
@@ -323,7 +369,8 @@ def main(stations=SELECTED_STATIONS, profile=PROFILE, plot=True):
             html = make_multi_station_map(
                 results, "epicenter_map_" + "_".join(r["code"] for r in results) + ".html",
                 combined=combined, geiger=geiger, ref_epicenter=REF_EPICENTER,
-                combined_label="ผล Robust" if rob is not None else "ตำแหน่งรวม",
+                combined_label=("ผล P + S" if LOCATE_METHOD == "pipeline" else "ผล Robust")
+                if rob is not None else "ตำแหน่งรวม",
                 subtitle=("วงกลม = ระยะ Δ จาก S−P, ดาวแดง = ผล Robust, สีเทา = สถานีที่ถูกตัดออก"
                           if rob is not None else None))
         if html:
