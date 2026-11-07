@@ -1,0 +1,9 @@
+.venv/
+station/
+global_vs30.grd
+SED-EEW-SeisComP-contributions/
+__pycache__/
+*.png
+*.html
+*.kml
+*.csv
