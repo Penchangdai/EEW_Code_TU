@@ -60,23 +60,31 @@ def allen_cf(x, K=None):
     return x ** 2 + K * dx ** 2
 
 
-def sta_lta(cf, fs, sta_sec, lta_sec):
+LTA_MIN_SEC = getattr(C, "LTA_MIN_SEC", 10.0)
+
+
+def sta_lta(cf, fs, sta_sec, lta_sec, lta_min_sec=None):
     """
     Classic STA/LTA
       STA(i) = ค่าเฉลี่ย CF ใน nsta จุดล่าสุด
       LTA(i) = ค่าเฉลี่ย CF ใน nlta จุดก่อนหน้าหน้าต่าง STA
       R(i)   = STA(i) / LTA(i)
+    ช่วงต้นไฟล์ที่ข้อมูลยังไม่ถึง nlta จุด ใช้ LTA จากข้อมูลที่มีทั้งหมด (อย่างน้อย lta_min_sec วินาที)
+      ไฟล์ที่เริ่มก่อนเกิดเหตุไม่นาน (เช่น 8 s) ถ้ารอให้ครบ LTA 60 s จะจับคลื่น P ที่มาก่อนนั้นไม่ได้เลย
+      (ทดสอบ M4.6 21 ส.ค. 2568: pick ช้า 20-40 s ทุกสถานี ตำแหน่งคลาด 150 km)
     """
     cf = np.asarray(cf, dtype=float)
     nsta, nlta = int(sta_sec * fs), int(lta_sec * fs)
+    nmin = min(int((LTA_MIN_SEC if lta_min_sec is None else lta_min_sec) * fs), nlta)
     n = len(cf)
     ratio = np.zeros(n)
-    if n < nsta + nlta:
+    if n < nsta + max(nmin, 1):
         return ratio
     c = np.concatenate(([0.0], np.cumsum(cf)))
-    i = np.arange(nsta + nlta - 1, n)
+    i = np.arange(nsta + max(nmin, 1) - 1, n)
     sta = (c[i + 1] - c[i + 1 - nsta]) / nsta
-    lta = (c[i + 1 - nsta] - c[i + 1 - nsta - nlta]) / nlta
+    m = np.minimum(i + 1 - nsta, nlta)                     # จำนวนจุดที่ใช้ทำ LTA
+    lta = (c[i + 1 - nsta] - c[i + 1 - nsta - m]) / m
     ratio[i] = sta / np.maximum(lta, 1e-20)
     return ratio
 

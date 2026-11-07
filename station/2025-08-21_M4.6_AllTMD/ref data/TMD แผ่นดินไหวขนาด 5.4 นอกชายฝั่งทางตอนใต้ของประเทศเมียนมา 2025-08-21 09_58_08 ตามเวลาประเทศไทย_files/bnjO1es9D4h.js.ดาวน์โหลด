@@ -1,0 +1,14 @@
+;/*FB_PKG_DELIM*/
+
+/**
+ * License: https://www.facebook.com/legal/license/V9vdYColc4k/
+ */
+/**
+ * THIS FILE HAS BEEN AUTOMATICALLY GENERATED AND IS NOT MEANT TO BE
+ * EDITED THROUGH NORMAL MEANS. PLEASE CHECK THE DOCUMENTATION FOR
+ * DETAILS AND GUIDANCE: http://fburl.com/js-libs-www
+ *
+ * @preserve-header
+ * @nolint
+ */__d("react-0.0.0",["React"],(function(_,n,p,d,u,m){"use strict";function o(t){return t&&typeof t=="object"&&"default"in t?t.default:t}var a=o(n("React")),i={},e={exports:i};function c(){e.exports=a}var r=!1;function f(){return r||(r=!0,c()),e.exports}function l(t){switch(t){case void 0:return f()}}u.exports=l}),null);
+__d("react",["react-0.0.0"],(function(t,e,c,l,r,o){r.exports=e("react-0.0.0")()}),null);

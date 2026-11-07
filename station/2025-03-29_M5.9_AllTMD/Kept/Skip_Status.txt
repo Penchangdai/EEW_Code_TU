@@ -1,0 +1,18 @@
+✅ สำเร็จ: 80
+⛔ ข้าม: 15
+ - HOTB: ไม่ครบ HNE/HNN/HNZ
+ - KHLT: ไม่ครบ HNE/HNN/HNZ
+ - KHOB: ไม่ครบ HNE/HNN/HNZ
+ - LAMP: ไม่ครบ HNE/HNN/HNZ
+ - MHMT: ไม่ครบ HNE/HNN/HNZ
+ - PANO: ไม่ครบ HNE/HNN/HNZ
+ - PTNB: ไม่มี scale
+ - RNTT: ไม่ครบ HNE/HNN/HNZ
+ - SAWA: ไม่ครบ HNE/HNN/HNZ
+ - SMSB: ไม่มี scale
+ - SRAK: ไม่มี scale
+ - SUAB: ไม่ครบ HNE/HNN/HNZ
+ - TMDA: ไม่มี scale
+ - TMDB: ไม่มี scale
+ - TSYB: ไม่ครบ HNE/HNN/HNZ
+🔚 เสร็จสิ้นใน 287.25 วินาที

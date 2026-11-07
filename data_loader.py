@@ -83,17 +83,46 @@ def load_station_txt(path):
     if sensor == "velocity":            # cm/s -> cm/s² (gal)
         e, n, z = differentiate(e, fs), differentiate(n, fs), differentiate(z, fs)
 
+    units_ok, units_note = check_units(header, n, fs)
     return {
+        "units_ok": units_ok,           # False = ค่าในไฟล์ไม่ใช่หน่วยจริง (เช่น ยังเป็น count) ไม่ควรใช้
+        "units_note": units_note,
         "station": header.get("Station", "UNKNOWN"),
+        "station_type": detect_station_type(header),   # "seismic" หรือ "strong_motion" (ประเภทสถานี)
         "start_datetime": start,
         "t0": start.timestamp(),        # epoch seconds ของ sample แรก
         "fs": fs,
-        "sensor": sensor,               # "acceleration" หรือ "velocity" (ข้อมูลต้นฉบับ)
+        "sensor": sensor,               # "acceleration" หรือ "velocity" (ชนิดข้อมูลในไฟล์นี้)
         "e": e,                         # คอลัมน์ที่ 1 (ตะวันออก)  หน่วย gal
         "n": n,                         # คอลัมน์ที่ 2 (เหนือ)     หน่วย gal
         "z": z,                         # คอลัมน์ที่ 3 (แนวดิ่ง)   หน่วย gal
         "header": header,
     }
+
+
+# noise ก่อนเกิดเหตุของเครื่องวัดความเร่งจริงอยู่ที่ระดับ 0.001-1 gal  ถ้าค่ากลางของ |a| ช่วงแรกเกินนี้
+# แปลว่าไฟล์ยังเป็นค่าดิบ (count) ที่ยังไม่ได้หารด้วย Scale Factor  (หน่วย gal)
+MAX_NOISE_GAL = 20.0
+
+
+def check_units(header, x_gal, fs, first_s=30.0):
+    """
+    ตรวจว่าค่าในไฟล์เป็นหน่วยจริงหรือไม่
+      - Scale Factor: 1 และ noise สูงผิดปกติ = ยังไม่ได้แปลงจาก count  (ไฟล์ที่แปลงแล้วมี Scale Factor ~10^5-10^6)
+      - noise ช่วง first_s วินาทีแรก (ค่ากลางของ |a − ค่าเฉลี่ย|) > MAX_NOISE_GAL = เป็นไปไม่ได้สำหรับ noise
+    return: (ok, หมายเหตุ)
+    """
+    seg = np.asarray(x_gal[: max(int(first_s * fs), 10)], float)
+    noise = float(np.median(np.abs(seg - seg.mean()))) if len(seg) else 0.0
+    try:
+        sf = float(header.get("Scale Factor", "nan"))
+    except ValueError:
+        sf = float("nan")
+    if noise > MAX_NOISE_GAL:
+        why = "Scale Factor = 1 (ยังไม่ได้แปลงจาก count)" if sf == 1 else f"Scale Factor = {header.get('Scale Factor', '?')}"
+        return False, (f"ค่าในไฟล์ไม่ใช่หน่วยจริง: noise ก่อนเกิดเหตุ {noise:,.0f} gal (ปกติ < 1 gal)  {why}"
+                       " ต้องแปลงไฟล์ใหม่ (หารด้วยค่าความไวของเครื่องวัด)")
+    return True, ""
 
 
 def detect_sensor_type(header):
@@ -113,3 +142,21 @@ def detect_sensor_type(header):
             if ch[1] in ("H", "L"):
                 return "velocity"
     return "acceleration"
+
+
+def detect_station_type(header):
+    """
+    ประเภทสถานี (ดูจากช่องที่สถานีมีทั้งหมดในบรรทัด '# Channels:' ตามรหัส SEED ตัวอักษรที่ 2)
+      "seismic"       = สถานีตรวจวัดแผ่นดินไหว : มีเครื่องวัดแผ่นดินไหว (seismometer)  ช่อง ?H? / ?L?
+                        เช่น HH? (broadband), EH? / SH? (คาบสั้น), BH?  (ส่วนใหญ่มีเครื่องวัดความเร่ง HN? ด้วย)
+      "strong_motion" = สถานีตรวจวัดอัตราเร่งของพื้นดิน : มีแค่เครื่องวัดความเร่ง (accelerometer)  ช่อง ?N?
+                        (ช่องอื่นเช่น HDF = ความดันอากาศ, HCA = สถานะเครื่อง ไม่นับ)
+    ถ้าไม่มีบรรทัด Channels ใช้ชนิดข้อมูลในไฟล์แทน (ความเร็ว = seismic)
+    """
+    chans = [c.strip().upper() for c in header.get("Channels", "").split(",") if c.strip()]
+    seed = [c for c in chans if len(c) == 3 and c.isalnum()]
+    if any(c[1] in ("H", "L") for c in seed):
+        return "seismic"
+    if any(c[1] == "N" for c in seed):
+        return "strong_motion"
+    return "seismic" if detect_sensor_type(header) == "velocity" else "strong_motion"

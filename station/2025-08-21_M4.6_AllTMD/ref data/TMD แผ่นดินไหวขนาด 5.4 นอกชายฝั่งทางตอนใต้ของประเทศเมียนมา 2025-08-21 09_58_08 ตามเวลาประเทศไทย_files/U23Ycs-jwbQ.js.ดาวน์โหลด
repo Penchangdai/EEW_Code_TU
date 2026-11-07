@@ -1,0 +1,3 @@
+;/*FB_PKG_DELIM*/
+
+__d("GeoPrivateLongLoadIndicator.react",["GeoPrivateMakeComponent","cr:10089","react","react-compiler-runtime"],(function(L,t,_,o,G,f,i){"use strict";var n,c=n||(n=o("react"));function d(u){var e=o("react-compiler-runtime").c(2),a=u.children,m=t("cr:10089")!=null?t("cr:10089"):c.Fragment,r;return e[0]!==a?(r=c.jsx(m,{children:a}),e[0]=a,e[1]=r):r=e[1],r}var l=o("GeoPrivateMakeComponent").makeGeoComponent("GeoLongLoadIndicator",d);i.default=l}),98);

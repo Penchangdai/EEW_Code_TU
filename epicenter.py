@@ -201,7 +201,8 @@ def observations(stations, use_weights=True, phases=("P", "S", "Lg")):
 
 
 def geiger_locate_2layer(stations, init_depths=(10, 30), max_iter=30, damping=1e-2, tol=1e-3,
-                         use_weights=True, fix_depth=None, init=None, phases=("P", "S", "Lg")):
+                         use_weights=True, fix_depth=None, init=None, phases=("P", "S", "Lg"),
+                         baz_obs=None, baz_s_per_deg=0.2, baz_max_dev=45.0):
     """
     Geiger's method บนผิวโลกทรงกลม + โลก 2 ชั้น ใช้ได้ทั้งคลื่น P, S (Sg/Sn) และ Lg พร้อมกัน
     เหมาะกับสถานีไกลหลายร้อย km: คิด intercept time ของคลื่น Pn/Sn ที่วิ่งใต้ Moho
@@ -210,15 +211,26 @@ def geiger_locate_2layer(stations, init_depths=(10, 30), max_iter=30, damping=1e
     fix_depth : ใส่ค่า (km) เพื่อตรึงความลึก เมื่อสถานีไกลมากจนหาความลึกไม่ได้
     init      : (lat, lon) จุดเริ่มต้น เช่น ผลจาก grid_search_locate  (None = ใกล้สถานีที่ P มาถึงก่อน)
     phases    : เฟสที่ใช้ เช่น ("P",) = ใช้แค่คลื่น P
+    baz_obs   : list ของ (lat, lon, back-azimuth จากคลื่น P องศา, น้ำหนัก) ใช้เป็นข้อมูลเพิ่ม
+                residual ของทิศแปลงเป็นวินาทีด้วย baz_s_per_deg (0.2 s/องศา = ทิศคลาด 10° เท่ากับเวลาคลาด 2 s)
+                ทิศที่ต่างจากตำแหน่งปัจจุบันเกิน baz_max_dev ไม่ใช้ในรอบนั้น
+                ช่วยมากเมื่อสถานีอยู่ด้านเดียว: เวลาคลื่นอย่างเดียวบอกตำแหน่งตามแนวโค้งรอบสถานีได้ไม่ดี
     """
     from signal_utils import haversine_km
     obs = observations(stations, use_weights, phases)
     n_free = 3 if fix_depth is not None else 4
     if len(obs) < n_free:
         raise ValueError(f"ต้องมีเวลาคลื่นอย่างน้อย {n_free} ค่า")
+    from signal_utils import azimuth_deg
     slat = np.array([o[2] for o in obs]); slon = np.array([o[3] for o in obs])
-    ph = np.array([o[1] for o in obs]); tobs = np.array([o[4] for o in obs])
-    wts = np.array([o[5] for o in obs])
+    ph = np.array([o[1] for o in obs]); t_only = np.array([o[4] for o in obs])
+    w_t = np.array([o[5] for o in obs])
+    nt = len(t_only)
+    bz = [b for b in (baz_obs or []) if b[2] is not None and np.isfinite(b[2])]
+    blat = np.array([b[0] for b in bz]); blon = np.array([b[1] for b in bz])
+    bdeg = np.array([b[2] for b in bz]); bw0 = np.array([b[3] for b in bz], float)
+    tobs = np.concatenate((t_only, bdeg * baz_s_per_deg))
+    wts = np.concatenate((w_t, bw0))
 
     def tcalc(m):
         d = haversine_km(m[0], m[1], slat, slon)
@@ -228,10 +240,21 @@ def geiger_locate_2layer(stations, init_depths=(10, 30), max_iter=30, damping=1e
             k = ph == p
             if k.any():
                 t[k] = phase_travel_time(d[k], z, p)
-        return m[3] + t
+        if not len(bz):
+            return m[3] + t
+        bp = azimuth_deg(blat, blon, m[0], m[1])
+        bp = bdeg + ((bp - bdeg + 180.0) % 360.0) - 180.0          # ให้ต่อเนื่องรอบค่าที่วัด (ไม่กระโดด 0/360)
+        return np.concatenate((m[3] + t, bp * baz_s_per_deg))
+
+    def baz_weights(m):
+        """ทิศที่ต่างจากตำแหน่งปัจจุบันเกิน baz_max_dev ไม่ใช้"""
+        if not len(bz):
+            return
+        dev = np.abs(tobs[nt:] - tcalc(m)[nt:]) / baz_s_per_deg
+        wts[nt:] = np.where(dev <= baz_max_dev, bw0, 0.0)
 
     def wrms(r):
-        return float(np.sqrt(np.sum(wts * r ** 2) / np.sum(wts)))
+        return float(np.sqrt(np.sum(w_t * r[:nt] ** 2) / np.sum(w_t)))
 
     free = [0, 1, 3] if fix_depth is not None else [0, 1, 2, 3]
     step = np.array([0.01, 0.01, 0.5, 0.01])
@@ -243,8 +266,9 @@ def geiger_locate_2layer(stations, init_depths=(10, 30), max_iter=30, damping=1e
             m = np.array([init[0], init[1], float(z_init), 0.0])
         else:
             m = np.array([first["lat"] + 0.5, first["lon"] - 0.5, float(z_init), 0.0])
-        m[3] = np.median(tobs - (tcalc(m) - m[3]))
+        m[3] = np.median(t_only - (tcalc(m)[:nt] - m[3]))
         for _ in range(max_iter):
+            baz_weights(m)
             r = tobs - tcalc(m)
             G = np.zeros((len(tobs), 4))
             for k in free:
@@ -262,6 +286,7 @@ def geiger_locate_2layer(stations, init_depths=(10, 30), max_iter=30, damping=1e
         if best is None or wrms(r) < best[1]:
             best = (m.copy(), wrms(r), r, G[:, free])
     m, rms, r, Gf = best
+    baz_weights(m)
     n_eff = np.sum(wts) ** 2 / np.sum(wts ** 2)
     dof = max(n_eff - len(free), 1)
     sigma2 = np.sum(wts * r ** 2) / np.sum(wts) * n_eff / dof
@@ -278,7 +303,8 @@ def geiger_locate_2layer(stations, init_depths=(10, 30), max_iter=30, damping=1e
     n_by = {p: int(np.sum(ph == p)) for p in ("P", "S", "Lg")}
     return {"lat": float(m[0]), "lon": float(m[1]), "depth": float(m[2]), "origin_time": float(m[3]),
             "rms": rms, "err_x_km": err[0], "err_y_km": err[1], "err_z_km": err[2], "err_t0_s": err[3],
-            "n_obs": len(tobs), "n_by_phase": n_by, "model": "2layer",
+            "n_obs": nt, "n_by_phase": n_by, "model": "2layer", "n_baz": int(np.sum(wts[nt:] > 0)),
+            "baz_res": (tobs[nt:] - tcalc(m)[nt:]) / baz_s_per_deg if len(bz) else np.array([]),
             "method": "Geiger (ทรงกลม + โลก 2 ชั้น)" + (", weighted" if use_weights else "")
                       + (f", ความลึกตรึง {fix_depth:g} km" if fix_depth is not None else "")
                       + f", P {n_by['P']} / S {n_by['S']} / Lg {n_by['Lg']}"}

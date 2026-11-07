@@ -29,7 +29,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 #  ตั้งค่า
 # ======================================================================
 # "auto" = ใช้ไฟล์ .txt ทุกไฟล์ที่มี "# Station:" ในโฟลเดอร์ station
-# หรือระบุเป็น list เช่น [{"file": "BKKA_20250328_061959.txt"}, {"file": "X.txt", "lat": 15.0, "lon": 100.0}]
+# ชื่อโฟลเดอร์ = ใช้ทุกไฟล์ในโฟลเดอร์นั้น เช่น "2026-05-18_M5.2_AllTMD" (อยู่ในโฟลเดอร์โค้ด) หรือ path เต็ม
+# หรือระบุเป็น list เช่น ["BKKA", "CMMT"], [{"file": "BKKA_20250328_061959.txt"}, {"file": "X.txt", "lat": 15.0, "lon": 100.0}]
 STATIONS = "auto"
 PROFILE = "regional"      # "regional" = สถานีไกล (> ~300 km), "local" = สถานีใกล้
 
@@ -130,6 +131,8 @@ def plot_location(result, out="network_location.png"):
 def main(stations=STATIONS, profile=PROFILE, plot=PLOT):
     if stations == "auto":
         stations = find_data_files()
+    else:
+        stations = PL.expand_specs(stations)          # ชื่อโฟลเดอร์ / ชื่อไฟล์ / รหัสสถานี -> รายการไฟล์
     print(f"Profile : {profile}   จำนวนไฟล์ : {len(stations)}   "
           f"ใช้คลื่น : {'P + S / Lg' if USE_S else 'P อย่างเดียว'}\n")
     settings = dict(PIPELINE_SETTINGS, use_s=USE_S, fix_depth=FIX_DEPTH_KM)

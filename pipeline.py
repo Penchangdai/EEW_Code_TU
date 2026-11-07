@@ -18,14 +18,16 @@ pipeline.py
 
 ค่าตั้งต้นทั้งหมดอยู่ใน DEFAULTS ด้านล่าง เปลี่ยนได้โดยส่ง settings={...} หรือเพิ่มชื่อเดียวกันใน config.py
 """
+import os
+
 import numpy as np
 
 import config as C
-from data_loader import load_station_txt, resolve_data_path
+from data_loader import load_station_txt, resolve_data_path, find_station_file
 from p_wave import detect_p_wave, pick_p_window
 from s_wave import detect_s_wave, pick_s_window
 from epicenter import (geiger_locate_2layer, grid_search_locate, predict_arrival, phase_name,
-                       pick_weight, azimuthal_gap)
+                       pick_weight, azimuthal_gap, back_azimuth_pca)
 from signal_utils import haversine_km, azimuth_deg, bandpass
 
 PHASE_KEYS = {"P": ("tp", "wp"), "S": ("ts", "ws"), "Lg": ("tlg", "wlg")}
@@ -47,9 +49,23 @@ DEFAULTS = {
     "s_win_sec": 10.0,         # หน้าต่าง ± (s) รอบเวลา S / Lg ที่คาด
     "s_iterations": 2,         # จำนวนรอบของขั้น 6-7
     "assoc_slack_sec": 5.0,    # Association: เวลา P สองสถานีต่างกันได้ไม่เกิน d/Vp + ค่านี้
-    "scan_s_weight": 3.0,      # ขั้น 3: น้ำหนักของคะแนนคลื่น S เทียบกับ misfit ของ P (s)  0 = ใช้แค่ P
+    "scan_s_weight": 1.0,      # ขั้น 3: น้ำหนักของคะแนนพลังงานคลื่น S (0-1)              0 = ไม่ใช้
+    "scan_baz_weight": 1.0,    # ขั้น 3: น้ำหนักของทิศจากคลื่น P (back-azimuth)            0 = ไม่ใช้
+    "scan_lg_weight": 2.0,     # ขั้น 3: น้ำหนักของเวลาพลังงานแนวราบสูงสุด (≈ คลื่น Lg)    0 = ไม่ใช้
+    "scan_lg_delay": 8.0,      # ขั้น 3: พลังงานสูงสุดมักมาหลังคลื่น Lg เริ่มประมาณนี้ (s)
+    "env_smooth_sec": 5.0,     # ขั้น 3: ความยาวหน้าต่างเฉลี่ยพลังงานแนวราบ (s)
+    "baz_regional": (20.0, (0.05, 0.2)),   # ทิศจากคลื่น P: (ช่วงคลื่น P ที่ใช้ s, ช่วงความถี่ Hz) สถานีไกล
+    "baz_local": (1.0, (0.5, 10.0)),       #                                                   สถานีใกล้
+    "geiger_baz_weight": 0.5,  # ขั้น 5-7: น้ำหนักของทิศจากคลื่น P ใน Geiger (เทียบ pick weight 0 = 1.0)  0 = ไม่ใช้
+    "baz_s_per_deg": 0.2,      # ทิศคลาด 1° นับเท่ากับเวลาคลาด 0.2 s (10° = 2 s)
+    "baz_max_dev": 45.0,       # ทิศที่ต่างจากตำแหน่งเกินนี้ (องศา) ไม่ใช้ (เช่น แก้ความกำกวม 180° ผิด)
     "scan_band": (0.5, 5.0),   # ขั้น 3: ช่วงความถี่ของพลังงานแนวราบ (Hz)
     "scan_pad_deg": 12.0,      # ขั้น 3: ขอบเขตตารางรอบสถานี (องศา)
+    "scan_min_lag": 6.0,       # ขั้น 3: ไม่นับพลังงานที่เพิ่มขึ้นในช่วงนี้หลังคลื่น P (s) (คือคลื่น P เอง)
+    "max_locate_dist_km": None,     # ใช้หาตำแหน่งเฉพาะสถานีที่ห่างจากตำแหน่งเริ่มต้นไม่เกินนี้ (km) เช่น 1000
+                                    #   None = ใช้ทุกสถานี  (ต้องเหลือคลื่น P อย่างน้อย min_locate_p สถานี)
+    "min_locate_p": 4,
+    "max_start_offset_sec": 600.0,   # ไฟล์ที่เวลาเริ่มต่างจากค่ากลางของทุกไฟล์เกินนี้ = คนละช่วงเวลา -> ไม่ใช้
 }
 
 
@@ -82,7 +98,12 @@ def _n_obs(stations, phases=("P", "S", "Lg")):
 
 def _locate(stations, cfg, init=None, phases=("P", "S", "Lg")):
     used = [_locator_dict(s) for s in stations if s["use"]]
-    return geiger_locate_2layer(used, fix_depth=cfg["fix_depth"], init=init, phases=phases)
+    baz = None
+    if cfg["geiger_baz_weight"] > 0:            # ทิศจากคลื่น P เป็นข้อมูลเพิ่ม (เฉพาะสถานีที่ใช้คลื่น P)
+        baz = [(s["lat"], s["lon"], s["baz_obs"], cfg["geiger_baz_weight"]) for s in stations
+               if "P" in s["use"] and s.get("baz_obs") is not None]
+    return geiger_locate_2layer(used, fix_depth=cfg["fix_depth"], init=init, phases=phases, baz_obs=baz,
+                                baz_s_per_deg=cfg["baz_s_per_deg"], baz_max_dev=cfg["baz_max_dev"])
 
 
 def _residuals(stations, hypo, only_used=False):
@@ -105,15 +126,102 @@ def _say(log, verbose, msg):
 # ======================================================================
 #  ขั้น 1  อ่านข้อมูล + auto-pick
 # ======================================================================
+def station_files_in(folder):
+    """ไฟล์ข้อมูลสถานีทั้งหมดในโฟลเดอร์ (บรรทัดแรก '# Station:')  สถานีซ้ำใช้ไฟล์แรก"""
+    out, seen = [], set()
+    for fn in sorted(os.listdir(folder), key=lambda x: (len(x), x)):
+        p = os.path.join(folder, fn)
+        if not (fn.lower().endswith(".txt") and os.path.isfile(p)):
+            continue
+        try:
+            with open(p, encoding="latin-1") as f:
+                first = f.readline()
+        except OSError:
+            continue
+        if first.startswith("# Station:"):
+            code = first.split(":", 1)[1].strip().upper()
+            if code not in seen:
+                seen.add(code)
+                out.append({"file": p})
+    return sorted(out, key=lambda d: d["file"])
+
+
+def _as_folder(s):
+    """ชื่อโฟลเดอร์ (path เต็ม หรือเทียบกับโฟลเดอร์โค้ด / โฟลเดอร์ station)  ไม่ใช่โฟลเดอร์ = None"""
+    here = os.path.dirname(os.path.abspath(__file__))
+    for cand in (s, os.path.join(here, s), os.path.join(here, "station", s)):
+        if os.path.isdir(cand):
+            return cand
+    return None
+
+
+def expand_specs(specs):
+    """
+    แปลงสิ่งที่ส่งมาเป็นรายการสถานี
+      "ชื่อโฟลเดอร์"        -> ทุกไฟล์สถานีในโฟลเดอร์นั้น (เช่น "2026-05-18_M5.2_AllTMD")
+      "ไฟล์.txt" / "BKKA"   -> สถานีเดียว
+      list ของแบบใดก็ได้ (dict / ชื่อไฟล์ / รหัส / โฟลเดอร์ / (ไฟล์, lat, lon))
+    """
+    if isinstance(specs, (str, os.PathLike)):
+        specs = [specs]
+    out = []
+    for sp in specs or []:
+        if isinstance(sp, (str, os.PathLike)):
+            folder = _as_folder(os.fspath(sp))
+            if folder:
+                found = station_files_in(folder)
+                if not found:
+                    print(f"⚠ ไม่พบไฟล์ข้อมูลสถานีในโฟลเดอร์ {sp}")
+                out.extend(found)
+                continue
+        d = normalize_spec(sp)
+        if d is not None:
+            out.append(d)
+    return out
+
+
+def normalize_spec(spec):
+    """
+    รับรายการสถานีได้หลายแบบ แล้วแปลงเป็น {"file": path, "lat"?, "lon"?}
+      {"file": "BKKA_....txt"}  /  "BKKA_....txt" หรือ path เต็ม  /  "BKKA" (รหัสสถานี)
+      ("BKKA_....txt", lat, lon)
+    """
+    if isinstance(spec, dict):
+        return spec if spec.get("file") else None
+    if isinstance(spec, (tuple, list)) and spec:
+        d = {"file": str(spec[0])}
+        if len(spec) >= 3:
+            d.update(lat=spec[1], lon=spec[2])
+        return normalize_spec(d)
+    if isinstance(spec, (str, os.PathLike)):
+        s = os.fspath(spec)
+        if os.path.isdir(s):
+            return None
+        if not s.lower().endswith(".txt") and not os.path.exists(s):     # รหัสสถานี เช่น "BKKA"
+            p = find_station_file(s)
+            if p is None:
+                print(f"⚠ ไม่พบไฟล์ข้อมูลของสถานี {s}")
+                return None
+            s = p
+        return {"file": s}
+    return None
+
+
 def load_stations(specs, profile, get_coords, log, verbose):
     regional = profile == "regional"
     p_par = C.P_REGIONAL if regional else {}
     s_par = C.S_REGIONAL if regional else {}
     out = []
     for spec in specs:
+        spec = normalize_spec(spec)
+        if spec is None:
+            continue
         path = resolve_data_path(spec["file"])
         rec = load_station_txt(path)
         code = rec["station"]
+        if not rec.get("units_ok", True):
+            _say(log, verbose, f"⚠ ข้ามสถานี {code}: {rec['units_note']}")
+            continue
         lat, lon = spec.get("lat"), spec.get("lon")
         if lat is None or lon is None:
             c = get_coords(code) if get_coords else None
@@ -142,6 +250,25 @@ def load_stations(specs, profile, get_coords, log, verbose):
             st["notes"]["P"] = f"weight {st['picks']['P']['weight']}"
         out.append(st)
     return out
+
+
+def check_time_coverage(stations, cfg, log, verbose):
+    """
+    ไฟล์ของเหตุการณ์เดียวกันควรเริ่มใกล้ ๆ กัน ถ้าไฟล์ใดเริ่มห่างจากค่ากลางของทุกไฟล์เกิน max_start_offset_sec
+    (เช่น เป็นคนละเหตุการณ์ / เวลาในไฟล์เป็นเวลาท้องถิ่นแทน UTC / นาฬิกาสถานีผิด) จะไม่ใช้สถานีนั้น
+    """
+    if len(stations) < 3:
+        return stations
+    med = float(np.median([s["rec"]["t0"] for s in stations]))
+    keep = []
+    for s in stations:
+        off = s["rec"]["t0"] - med
+        if abs(off) > cfg["max_start_offset_sec"]:
+            _say(log, verbose, f"⚠ ไม่ใช้สถานี {s['code']}: ไฟล์เริ่ม {utc(s['rec']['t0'])} UTC ต่างจากไฟล์อื่น "
+                               f"{off / 60:+.0f} นาที (คนละเหตุการณ์ หรือเวลาในไฟล์ไม่ใช่ UTC?)")
+            continue
+        keep.append(s)
+    return keep
 
 
 # ======================================================================
@@ -179,7 +306,7 @@ def review(stations, hypo, cfg, profile, phases, log, verbose, candidates=None):
     res_max = cfg["res_max"][profile]
     if candidates is None:
         candidates = {(j, ph) for j, s in enumerate(stations) for ph in s["picks"]
-                      if ph in phases and s["picks"][ph]["weight"] <= cfg["min_weight_used"]
+                      if ph in phases and s["picks"][ph]["weight"] <= cfg["min_weight_used"] and not s.get("far")
                       and not str(s["notes"].get(ph, "")).startswith("association")}
     n_cand = len(candidates)
     if n_cand <= cfg["small_net_obs"]:
@@ -269,6 +396,8 @@ def repick_p(stations, hypo, cfg, profile, log, verbose):
     res_max = cfg["res_max"][profile]["P"]
     n_fix = n_new = 0
     for s in stations:
+        if s.get("far"):
+            continue
         t_pred = predict_arrival(hypo, s["lat"], s["lon"], "P")
         old = s["picks"].get("P")
         if old is not None and abs(old["time"] - t_pred) <= res_max and old["weight"] <= cfg["min_weight_used"]:
@@ -294,6 +423,8 @@ def repick_p(stations, hypo, cfg, profile, log, verbose):
 def pick_s_all(stations, hypo, cfg, log, verbose):
     n = {ph: 0 for ph in cfg["s_phases"]}
     for s in stations:
+        if s.get("far"):
+            continue
         r = s["rec"]
         baz = float(azimuth_deg(s["lat"], s["lon"], hypo["lat"], hypo["lon"]))
         s["baz_true"] = baz
@@ -329,11 +460,13 @@ def pick_s_all(stations, hypo, cfg, log, verbose):
 # ======================================================================
 #  ขั้น 3  P + S scan
 # ======================================================================
-def _s_energy_cf(st, band, pre=5.0, post=3.0, dt=0.25, tmax=400.0):
+def _s_energy_cf(st, band, pre=5.0, post=3.0, dt=0.25, tmax=400.0, min_lag=6.0, p_guard=1.0):
     """
     ฟังก์ชันบอกว่า "พลังงานแนวราบเพิ่มขึ้นกี่เท่า" ณ เวลาหลังคลื่น P แต่ละค่า
-      CF(lag) = log10( RMS แนวราบ [t, t+post] / RMS แนวราบ [t-pre, t] ),  t = tP + lag
+      CF(lag) = log10( RMS แนวราบ [t, t+post] / RMS แนวราบ [max(t-pre, tP+p_guard), t] ),  t = tP + lag
     ใช้ N^2 + E^2 ซึ่งไม่ขึ้นกับทิศ (ยังไม่รู้ตำแหน่ง จึงยังหมุนแกน R/T ไม่ได้)
+    ช่วงเทียบไม่ย้อนไปก่อนคลื่น P และ lag < min_lag ให้ CF = 0
+      (ถ้าไม่ตัด คลื่น P เองจะทำให้ CF สูงมากที่ lag 1-4 s และ scan จะเลือกตำแหน่งที่ติดกับสถานี)
     """
     r = st["rec"]
     fs = r["fs"]
@@ -344,16 +477,51 @@ def _s_energy_cf(st, band, pre=5.0, post=3.0, dt=0.25, tmax=400.0):
     ip = int((st["picks"]["P"]["time"] - r["t0"]) * fs) - i0
     lags = np.arange(1.0, tmax, dt)
     idx = ip + (lags * fs).astype(int)
-    nb, na = int(pre * fs), int(post * fs)
-    ok = (idx - nb >= 0) & (idx + na < len(c) - 1)
+    na = int(post * fs)
+    b0 = np.maximum(idx - int(pre * fs), ip + int(p_guard * fs))       # ช่วงเทียบเริ่มหลังคลื่น P
+    nb = idx - b0
+    ok = (lags >= min_lag) & (nb >= int(1.0 * fs)) & (b0 >= 0) & (idx + na < len(c) - 1)
     cf = np.zeros(len(lags))
-    i = idx[ok]
-    cf[ok] = 0.5 * np.log10(((c[i + na] - c[i]) / na) / ((c[i] - c[i - nb]) / nb + 1e-30) + 1e-30)
+    i, j, w = idx[ok], b0[ok], nb[ok]
+    cf[ok] = 0.5 * np.log10(((c[i + na] - c[i]) / na) / ((c[i] - c[j]) / w + 1e-30) + 1e-30)
     return lags, cf
 
 
+def station_constraints(stations, cfg, profile="regional"):
+    """
+    ข้อมูลจากแต่ละสถานีที่ "ไม่ต้องรู้ตำแหน่งก่อน" ใช้ช่วยขั้น 3 (กันปัญหาวนกลับ: ตำแหน่งผิด -> pick S ผิด -> ตำแหน่งผิด)
+      baz_obs : ทิศจากสถานีไปจุดเกิด จากการสั่นของคลื่น P (PCA)  regional ใช้คาบยาว 20 s, 0.05-0.2 Hz
+      t_env   : เวลาที่พลังงานแนวราบ (0.5-5 Hz, เฉลี่ย 5 s) สูงสุดทั้งไฟล์ ≈ เวลาคลื่น Lg (ช้ากว่าเล็กน้อย)
+                ใช้ได้แม้สถานีที่ไม่มี pick คลื่น P
+    """
+    win, band = cfg["baz_regional"] if profile == "regional" else cfg["baz_local"]
+    for st in stations:
+        r, fs = st["rec"], st["rec"]["fs"]
+        st.pop("baz_obs", None)
+        if "P" in st["use"]:
+            ip = int(round((st["picks"]["P"]["time"] - r["t0"]) * fs))
+            if ip + int(win * fs) < len(r["z"]):
+                try:
+                    st["baz_obs"] = float(back_azimuth_pca(r["z"], r["n"], r["e"], fs, ip, win, band)[0])
+                except Exception:                                  # noqa: BLE001
+                    pass
+        try:
+            nf, ef = (bandpass(r[k], fs, *cfg["scan_band"]) for k in ("n", "e"))
+            w = max(int(cfg["env_smooth_sec"] * fs), 1)
+            sm = np.convolve(np.sqrt(nf ** 2 + ef ** 2), np.ones(w) / w, "same")
+            st["t_env"] = float(r["t0"] + int(np.argmax(sm)) / fs)
+        except Exception:                                          # noqa: BLE001
+            st.pop("t_env", None)
+
+
 def scan_locate(stations, cfg, use_s=True):
-    """ขั้น 3: grid search จากเวลา P (+ คะแนนพลังงานคลื่น S ที่เวลา S-P ที่ควรเป็น)"""
+    """
+    ขั้น 3: grid search หาตำแหน่งเริ่มต้น  cost = ค่าเฉลี่ยถ่วงของความคลาดแต่ละอย่าง (หน่วยเป็น "จำนวนเท่าของความคลาดปกติ")
+      P   : |เวลา P − ที่คาด| / 2 s                (ตัดที่ 5 s)          -> บอกทิศ/ตำแหน่งตามแนวขวาง
+      baz : |ทิศจากคลื่น P − ทิศที่คาด| / 15°      (ตัดที่ 60°)  x scan_baz_weight
+      Lg  : |t_env − T0 − tLg − delay| / 15 s      (ตัดที่ 60 s) x scan_lg_weight   -> บอกระยะ
+      S   : − คะแนนพลังงานแนวราบที่เพิ่มขึ้น ณ เวลา S / Lg ที่คาด (0-1) x scan_s_weight
+    """
     from epicenter import travel_time_2layer, phase_travel_time
     act = [s for s in stations if "P" in s["use"]]
     depth = cfg["fix_depth"] or 10.0
@@ -361,14 +529,35 @@ def scan_locate(stations, cfg, use_s=True):
     tp = np.array([s["picks"]["P"]["time"] for s in act])
     wp = np.array([pick_weight(s["picks"]["P"]["weight"]) for s in act])
     lam = cfg["scan_s_weight"] if use_s else 0.0
-    cfs = [_s_energy_cf(s, cfg["scan_band"]) for s in act] if lam > 0 else []
+    cfs = [_s_energy_cf(s, cfg["scan_band"], min_lag=cfg["scan_min_lag"]) for s in act] if lam > 0 else []
+    bz_st = [s for s in act if s.get("baz_obs") is not None] if use_s else []
+    blat = np.array([s["lat"] for s in bz_st]); blon = np.array([s["lon"] for s in bz_st])
+    bobs = np.array([s["baz_obs"] for s in bz_st])
+    env_st = [s for s in stations if s.get("t_env") is not None] if use_s else []
+    elat = np.array([s["lat"] for s in env_st]); elon = np.array([s["lon"] for s in env_st])
+    tenv = np.array([s["t_env"] for s in env_st])
+    wb, wl = cfg["scan_baz_weight"], cfg["scan_lg_weight"]
 
     def cost(LA, LO):
         D = haversine_km(LA[..., None], LO[..., None], slat, slon)
         tP = travel_time_2layer(D, depth, "P")
-        r = tp - tP
-        r = r - np.median(r, axis=-1)[..., None]
+        off = tp - tP
+        t0 = np.median(off, axis=-1)
+        r = off - t0[..., None]
         mis = np.sum(wp * np.minimum(np.abs(r), 5.0), axis=-1) / np.sum(wp)
+        tot = mis / 2.0
+        eb = np.zeros(LA.shape)
+        if len(bz_st) and wb > 0:
+            bp = azimuth_deg(blat, blon, LA[..., None], LO[..., None])
+            db = np.abs((bp - bobs + 180.0) % 360.0 - 180.0)
+            eb = np.mean(np.minimum(db, 60.0) / 15.0, axis=-1)
+            tot = tot + wb * eb
+        el = np.zeros(LA.shape)
+        if len(env_st) and wl > 0:
+            DE = haversine_km(LA[..., None], LO[..., None], elat, elon)
+            rl = tenv - t0[..., None] - phase_travel_time(DE, depth, "Lg")
+            el = np.mean(np.minimum(np.abs(rl - cfg["scan_lg_delay"]), 60.0) / 15.0, axis=-1)
+            tot = tot + wl * el
         sc = np.zeros(LA.shape)
         for k, (lags, cf) in enumerate(cfs):
             best = None
@@ -379,7 +568,7 @@ def scan_locate(stations, cfg, use_s=True):
             sc += np.clip(best, 0.0, 1.0)
         if cfs:
             sc /= len(cfs)
-        return mis - lam * sc, mis, sc
+        return tot - lam * sc, mis, sc, eb, el
 
     pad = cfg["scan_pad_deg"]
     lats = np.arange(slat.min() - pad, slat.max() + pad, 0.1)
@@ -389,13 +578,16 @@ def scan_locate(stations, cfg, use_s=True):
             lats = np.arange(la - half, la + half, step)
             lons = np.arange(lo - half, lo + half, step)
         LA, LO = np.meshgrid(lats, lons, indexing="ij")
-        tot, mis, sc = cost(LA, LO)
+        tot, mis, sc, eb, el = cost(LA, LO)
         i, j = np.unravel_index(np.argmin(tot), tot.shape)
         la, lo = float(lats[i]), float(lons[j])
     D = haversine_km(la, lo, slat, slon)
     t0 = float(np.median(tp - travel_time_2layer(D, depth, "P")))
     return {"lat": la, "lon": lo, "depth": depth, "origin_time": t0, "model": "2layer", "rms": 99.0,
-            "scan_p_misfit": float(mis[i, j]), "scan_s_score": float(sc[i, j])}
+            "scan_p_misfit": float(mis[i, j]), "scan_s_score": float(sc[i, j]),
+            "scan_baz_err": float(eb[i, j] * 15.0), "scan_lg_err": float(el[i, j] * 15.0),
+            "n_baz": len(bz_st), "n_env": len(env_st)}
+
 
 def delta_from_differential(dt, phase="S", depth_km=10.0):
     """ระยะบนผิวโลก Δ จากเวลาต่าง (S-P หรือ Lg-P) ด้วยแบบจำลองเดียวกับที่ใช้หาตำแหน่ง"""
@@ -422,19 +614,26 @@ def locate_event(specs, profile="regional", get_coords=None, settings=None, verb
     if profile == "local" and "s_phases" not in (settings or {}):
         cfg["s_phases"] = ("S",)          # สถานีใกล้: Lg ยังไม่แยกจาก Sg จึง pick แค่ S
     log = []
+    specs = expand_specs(specs)
+    if verbose and specs:
+        print(f"ไฟล์ข้อมูลที่ใช้ : {len(specs)} สถานี")
     stations = load_stations(specs, profile, get_coords, log, verbose)
+    stations = check_time_coverage(stations, cfg, log, verbose)
     associate(stations, cfg, log, verbose)
 
     n_p = sum(1 for s in stations if "P" in s["use"])
     if n_p < 2:
         raise ValueError("มีสถานีที่หาคลื่น P ได้น้อยกว่า 2 สถานี หาตำแหน่งไม่ได้")
+    station_constraints(stations, cfg, profile)
 
-    # ---------- ขั้น 3  จุดเริ่มต้น: P + S scan ----------
-    if n_p >= 3:
+    # ---------- ขั้น 3  จุดเริ่มต้น: P + ทิศ + เวลาคลื่น Lg + พลังงาน S ----------
+    if n_p >= 3 or cfg["use_s"]:
         hypo = scan_locate(stations, cfg, use_s=cfg["use_s"])
-        _say(log, verbose, f"ขั้น 3  จุดเริ่มต้น ({'P + S scan' if cfg['use_s'] else 'P scan'}): "
+        _say(log, verbose, f"ขั้น 3  จุดเริ่มต้น ({'P + ทิศ + Lg + S scan' if cfg['use_s'] else 'P scan'}): "
                            f"lat {hypo['lat']:.2f}, lon {hypo['lon']:.2f}"
-                           + (f"  (คะแนน S {hypo['scan_s_score']:.2f})" if cfg["use_s"] else ""))
+                           + (f"  (ทิศคลาด {hypo['scan_baz_err']:.0f}° จาก {hypo['n_baz']} สถานี, "
+                              f"เวลา Lg คลาด {hypo['scan_lg_err']:.0f} s จาก {hypo['n_env']} สถานี, "
+                              f"คะแนน S {hypo['scan_s_score']:.2f})" if cfg["use_s"] else ""))
     else:                                                      # 2 สถานี: ต้องใช้ auto-pick S ช่วย
         gs_in = [{"code": s["code"], "lat": s["lat"], "lon": s["lon"], "tp": s["picks"]["P"]["time"],
                   "ts": s["picks"].get("S_auto", {}).get("time")} for s in stations if "P" in s["use"]]
@@ -443,6 +642,22 @@ def locate_event(specs, profile="regional", get_coords=None, settings=None, verb
                 "model": "2layer", "rms": 99.0}
         _say(log, verbose, f"ขั้น 3  จุดเริ่มต้น (grid search, auto-pick P+S): lat {g['lat']:.2f}, lon {g['lon']:.2f}")
     start = dict(hypo)
+
+    # ---------- จำกัดระยะของสถานีที่ใช้หาตำแหน่ง ----------
+    #   ไกลกว่า ~1000 km คลื่น P วิ่งลึกลงในเนื้อโลก (เร็วกว่าแบบจำลอง 2 ชั้น) และคลื่น Lg ที่สถานีไกลมาจากส่วนของ
+    #   รอยเลื่อนที่แตกทีหลัง -> ดึงตำแหน่งไปตามทิศการแตก  สถานีเหล่านี้ยังใช้หาขนาด/ความรุนแรงได้ตามปกติ
+    dmax = cfg["max_locate_dist_km"]
+    if dmax:
+        far = [s for s in stations if haversine_km(start["lat"], start["lon"], s["lat"], s["lon"]) > dmax]
+        n_p_near = sum(1 for s in stations if "P" in s["use"] and s not in far)
+        if far and n_p_near >= cfg["min_locate_p"]:
+            for s in far:
+                for ph in list(s["use"]):
+                    s["notes"][ph] = f"ไกลเกิน {dmax:.0f} km (ไม่ใช้หาตำแหน่ง)"
+                s["use"] = set()
+                s["far"] = True
+            _say(log, verbose, f"ไม่ใช้ {len(far)} สถานีที่ไกลเกิน {dmax:.0f} km ในการหาตำแหน่ง "
+                               f"(เหลือคลื่น P {n_p_near} สถานี)")
 
     # ---------- ขั้น 4  Re-pick P รอบเวลาที่คาด ----------
     if cfg["repick_p"]:

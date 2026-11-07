@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_767e63e8b3cc14675c6b96a479bbedd8 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    <div style='position:fixed;top:10px;left:50px;z-index:9999;background:white;padding:6px 10px;border-radius:6px;box-shadow:0 1px 4px #888;font-size:13px'><b>เวลาคลื่นเดินทางและเวลาเตือนล่วงหน้า</b><br>บ้าน: เขียว = เตือนได้ ≥ 10 s, ส้ม = < 10 s, แดง = เตือนไม่ทัน; วงแดง = Blind zone; วงประ = แนวหน้าคลื่น S</div>
+    
+            <div class="folium-map" id="map_767e63e8b3cc14675c6b96a479bbedd8" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_767e63e8b3cc14675c6b96a479bbedd8 = L.map(
+                "map_767e63e8b3cc14675c6b96a479bbedd8",
+                {
+                    center: [21.49237333965685, 95.96141129930238],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 5,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+            L.control.scale().addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+
+            
+
+        
+    
+            var tile_layer_7d3b97bc5a95d2599425a2ab33c3d068 = L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "Esri, Maxar, Earthstar Geographics",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_7d3b97bc5a95d2599425a2ab33c3d068.addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            var tile_layer_d069f0a3e27892d2b8e30687a49e0a1c = L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "Esri",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            var tile_layer_58bb8aa7e7ec15dda5d76ba11aa16904 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; OpenStreetMap contributors \u0026copy; CARTO",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            var tile_layer_d7d3180a5b704f99569114561ae0b597 = L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "Esri",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_d7d3180a5b704f99569114561ae0b597.addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            var feature_group_2a387b64a6ff5020269b7b854385bc92 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var circle_4c1f5e0d1eee215ddb1ad99910f87ffd = L.circle(
+                [21.49237333965685, 95.96141129930238],
+                {"bubblingMouseEvents": true, "color": "#666666", "dashArray": "4 6", "dashOffset": null, "fill": false, "fillColor": "#666666", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 104522.72433326486, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2a387b64a6ff5020269b7b854385bc92);
+        
+    
+            circle_4c1f5e0d1eee215ddb1ad99910f87ffd.bindTooltip(
+                `<div>
+                     คลื่น S ที่ 30 s หลังเกิดเหตุ (รัศมี 105 km)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_11c748f2b82008ffa873a4c444a8db80 = L.circle(
+                [21.49237333965685, 95.96141129930238],
+                {"bubblingMouseEvents": true, "color": "#666666", "dashArray": "4 6", "dashOffset": null, "fill": false, "fillColor": "#666666", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 224829.21752023094, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2a387b64a6ff5020269b7b854385bc92);
+        
+    
+            circle_11c748f2b82008ffa873a4c444a8db80.bindTooltip(
+                `<div>
+                     คลื่น S ที่ 60 s หลังเกิดเหตุ (รัศมี 225 km)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_6b21f186cd55d6cc2a5269e5b41ffd43 = L.circle(
+                [21.49237333965685, 95.96141129930238],
+                {"bubblingMouseEvents": true, "color": "#666666", "dashArray": "4 6", "dashOffset": null, "fill": false, "fillColor": "#666666", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 362829.2175202309, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2a387b64a6ff5020269b7b854385bc92);
+        
+    
+            circle_6b21f186cd55d6cc2a5269e5b41ffd43.bindTooltip(
+                `<div>
+                     คลื่น S ที่ 90 s หลังเกิดเหตุ (รัศมี 363 km)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_182ab339c16c6579e07c7b52a3229fe7 = L.circle(
+                [21.49237333965685, 95.96141129930238],
+                {"bubblingMouseEvents": true, "color": "#666666", "dashArray": "4 6", "dashOffset": null, "fill": false, "fillColor": "#666666", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 500829.2175202309, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2a387b64a6ff5020269b7b854385bc92);
+        
+    
+            circle_182ab339c16c6579e07c7b52a3229fe7.bindTooltip(
+                `<div>
+                     คลื่น S ที่ 120 s หลังเกิดเหตุ (รัศมี 501 km)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_236303a35c1a66d829d502c5685c0ec4 = L.circle(
+                [21.49237333965685, 95.96141129930238],
+                {"bubblingMouseEvents": true, "color": "#666666", "dashArray": "4 6", "dashOffset": null, "fill": false, "fillColor": "#666666", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 638829.2175202309, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2a387b64a6ff5020269b7b854385bc92);
+        
+    
+            circle_236303a35c1a66d829d502c5685c0ec4.bindTooltip(
+                `<div>
+                     คลื่น S ที่ 150 s หลังเกิดเหตุ (รัศมี 639 km)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_0ea3eafc16571893ca9ccdb7fa7ebfdf = L.circle(
+                [21.49237333965685, 95.96141129930238],
+                {"bubblingMouseEvents": true, "color": "#666666", "dashArray": "4 6", "dashOffset": null, "fill": false, "fillColor": "#666666", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 776829.2175202309, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2a387b64a6ff5020269b7b854385bc92);
+        
+    
+            circle_0ea3eafc16571893ca9ccdb7fa7ebfdf.bindTooltip(
+                `<div>
+                     คลื่น S ที่ 180 s หลังเกิดเหตุ (รัศมี 777 km)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_a64c929e73719add9a3d16988fa283cc = L.circle(
+                [21.49237333965685, 95.96141129930238],
+                {"bubblingMouseEvents": true, "color": "#666666", "dashArray": "4 6", "dashOffset": null, "fill": false, "fillColor": "#666666", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 914829.2175202309, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2a387b64a6ff5020269b7b854385bc92);
+        
+    
+            circle_a64c929e73719add9a3d16988fa283cc.bindTooltip(
+                `<div>
+                     คลื่น S ที่ 210 s หลังเกิดเหตุ (รัศมี 915 km)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_6f7d6b90c4ee91b5867367a9c974322e = L.circle(
+                [21.49237333965685, 95.96141129930238],
+                {"bubblingMouseEvents": true, "color": "#666666", "dashArray": "4 6", "dashOffset": null, "fill": false, "fillColor": "#666666", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 1052829.217520231, "stroke": true, "weight": 1}
+            ).addTo(feature_group_2a387b64a6ff5020269b7b854385bc92);
+        
+    
+            circle_6f7d6b90c4ee91b5867367a9c974322e.bindTooltip(
+                `<div>
+                     คลื่น S ที่ 240 s หลังเกิดเหตุ (รัศมี 1053 km)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            feature_group_2a387b64a6ff5020269b7b854385bc92.addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            var circle_4ea6ea98d67bce198a108475282f40ec = L.circle(
+                [21.49237333965685, 95.96141129930238],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.12, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 213926.37576150292, "stroke": true, "weight": 2}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_4ea6ea98d67bce198a108475282f40ec.bindTooltip(
+                `<div>
+                     Blind zone: รัศมี 214 km (เตือนไม่ทัน)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_fb1a31db6060f32fd87b1b1c147b9e12 = L.marker(
+                [21.49237333965685, 95.96141129930238],
+                {
+}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            var icon_e99c6c34019d2188afe9b9739a33c6d5 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "star",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_cef5872731a3b5be81709fbc0375e0bf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_9700701181491f5186309df5ead1a3d0 = $(`<div id="html_9700701181491f5186309df5ead1a3d0" style="width: 100.0%; height: 100.0%;"><b>จุดศูนย์กลาง</b><br>lat 21.492<br>lon 95.961<br>ลึก 10 km</div>`)[0];
+                popup_cef5872731a3b5be81709fbc0375e0bf.setContent(html_9700701181491f5186309df5ead1a3d0);
+            
+        
+
+        marker_fb1a31db6060f32fd87b1b1c147b9e12.bindPopup(popup_cef5872731a3b5be81709fbc0375e0bf)
+        ;
+
+        
+    
+    
+            marker_fb1a31db6060f32fd87b1b1c147b9e12.bindTooltip(
+                `<div>
+                     จุดศูนย์กลาง
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_fb1a31db6060f32fd87b1b1c147b9e12.setIcon(icon_e99c6c34019d2188afe9b9739a33c6d5);
+            
+    
+            var circle_marker_7017c95cf2d88a883767e74536a68a3f = L.circleMarker(
+                [19.3148, 97.9632],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_7017c95cf2d88a883767e74536a68a3f.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ MHIT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_ba56581f2b9c6f2c36fe1d2b36b4efba = L.circleMarker(
+                [18.83089, 97.93572],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_ba56581f2b9c6f2c36fe1d2b36b4efba.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ KOOA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_7b1c7fca03bd0387ecf6a4f95e1fd1cc = L.circleMarker(
+                [20.126592, 99.809401],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_7b1c7fca03bd0387ecf6a4f95e1fd1cc.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ CRMJ
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_a692b8c1642016400f045a3ff8f31cc6 = L.circleMarker(
+                [19.6610094, 99.5345444],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_a692b8c1642016400f045a3ff8f31cc6.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SUAI
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_c74a09cc9df4a1b937a676a9e0f54207 = L.circleMarker(
+                [20.4276, 99.8865],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_c74a09cc9df4a1b937a676a9e0f54207.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ MAES
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_3420fc550f2f9e87d94518a5d3ab1967 = L.circleMarker(
+                [18.814363, 98.945008],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_3420fc550f2f9e87d94518a5d3ab1967.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ CMMT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_4b4c20829f52a2c8fc3f2dd8920db857 = L.circleMarker(
+                [18.4969257, 98.3732842],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_4b4c20829f52a2c8fc3f2dd8920db857.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ MAEC
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_6ce10b5ae2aaea674918af9cec3fea7e = L.circleMarker(
+                [19.360284, 99.869172],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_6ce10b5ae2aaea674918af9cec3fea7e.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ PAYA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_d5432afb474ad6cfdfe34af3b37a858f = L.circleMarker(
+                [18.77122, 98.969362],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_d5432afb474ad6cfdfe34af3b37a858f.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ CMCA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_c1e34c0e6fd181ad9494dbf3e2d4103a = L.circleMarker(
+                [18.8491, 99.0454],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_c1e34c0e6fd181ad9494dbf3e2d4103a.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SANA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_da51a54557fd28b6b0c4918e3859c67e = L.circleMarker(
+                [19.3471305, 99.5067736],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_da51a54557fd28b6b0c4918e3859c67e.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ PAOA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_51e59cea3cc9e6c47884bb137379b263 = L.circleMarker(
+                [19.8493426, 100.15378],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_51e59cea3cc9e6c47884bb137379b263.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ CRMM
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_18c73dcf00666a98076d70c2159f7a98 = L.circleMarker(
+                [17.798472, 98.432885],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_18c73dcf00666a98076d70c2159f7a98.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ OMKO
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_d00e84716ea19b5c67a369902bdf51cb = L.circleMarker(
+                [20.228927, 100.373434],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_d00e84716ea19b5c67a369902bdf51cb.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ CRAI
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_4cad0a3be9400f63a6fd65f27ed2030c = L.circleMarker(
+                [18.0659075, 99.2464531],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_4cad0a3be9400f63a6fd65f27ed2030c.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SOEA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_6031f7b53993b8ea48f3f8fecfc6b209 = L.circleMarker(
+                [19.283535, 100.911631],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_6031f7b53993b8ea48f3f8fecfc6b209.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ NAN
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_07048844a85eed3e6908730aa2584684 = L.circleMarker(
+                [18.498912, 100.229325],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_07048844a85eed3e6908730aa2584684.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ PHRA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_904eb05493f948467a4ed40c21bb3cfe = L.circleMarker(
+                [19.4084714, 100.882543],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_904eb05493f948467a4ed40c21bb3cfe.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ THUA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_582423abf5c006d9fdcd4638966a9436 = L.circleMarker(
+                [18.27819, 99.50656],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_582423abf5c006d9fdcd4638966a9436.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ LPGA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_2aee4055991cac64153ed1c092bda006 = L.circleMarker(
+                [18.863602, 100.741757],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_2aee4055991cac64153ed1c092bda006.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ NANS
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_990b573f33b6e357814b8e660261016d = L.circleMarker(
+                [17.227516, 98.22557],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_990b573f33b6e357814b8e660261016d.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ TSYA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_4a7183c35298d2ca15677c91cf83f9e4 = L.circleMarker(
+                [17.875397, 99.346323],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_4a7183c35298d2ca15677c91cf83f9e4.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ LPSP
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_91cfb45f7c8dce83ef0c1c5f547f73cc = L.circleMarker(
+                [16.70239, 98.541894],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_91cfb45f7c8dce83ef0c1c5f547f73cc.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SODA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_fc08fdb2825a7846ba21016b66a2548b = L.circleMarker(
+                [18.7672, 100.76333],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_fc08fdb2825a7846ba21016b66a2548b.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ NANA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_881e4fe81a3c264b521bbf7b57641ad9 = L.circleMarker(
+                [18.1288745, 100.162497],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_881e4fe81a3c264b521bbf7b57641ad9.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ PHRS
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_f93b440d7a9ce1b94d37dca06e93bcbd = L.circleMarker(
+                [18.1272, 100.1656],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_f93b440d7a9ce1b94d37dca06e93bcbd.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ PHEA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_a3ddb811a8c13f5001342b9fd37a3f75 = L.circleMarker(
+                [16.752257, 98.935172],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_a3ddb811a8c13f5001342b9fd37a3f75.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ MUSE
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_53807984f9cd2e7ac4807de7134e0461 = L.circleMarker(
+                [18.05051, 100.111368],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_53807984f9cd2e7ac4807de7134e0461.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SOOA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_39f2d5d54c90c88bbe7c912a4ab5aa17 = L.circleMarker(
+                [17.744258, 100.554083],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_39f2d5d54c90c88bbe7c912a4ab5aa17.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ UTTA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_d75056e87fa0ed282e5c6e61b93d352e = L.circleMarker(
+                [17.189269, 100.416499],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_d75056e87fa0ed282e5c6e61b93d352e.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ PHIT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_1b8a06ddf7cabb7b69d03c9e56269f81 = L.circleMarker(
+                [16.02574, 98.86028],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_1b8a06ddf7cabb7b69d03c9e56269f81.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ UMPA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_ab79d09d7d206b81ff28289bfaf5fe6c = L.circleMarker(
+                [18.02648, 101.068827],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_ab79d09d7d206b81ff28289bfaf5fe6c.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ KHOK
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_e10134daf90703dadc162ccc6e022cea = L.circleMarker(
+                [16.486447, 99.526915],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_e10134daf90703dadc162ccc6e022cea.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ KAMP
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_41a90ba1e6d90c38aa179fe2f12aa6bc = L.circleMarker(
+                [18.1751111, 102.167884],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_41a90ba1e6d90c38aa179fe2f12aa6bc.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ NONA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_52e186ade940aacf20a97e3064068516 = L.circleMarker(
+                [17.50928, 101.6244],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_52e186ade940aacf20a97e3064068516.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ LOEI
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_b1450c723084c5529c11da00c86957cf = L.circleMarker(
+                [15.558565, 99.445133],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_b1450c723084c5529c11da00c86957cf.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ UTHA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_266441a5db19a20571561aac3505e824 = L.circleMarker(
+                [16.5733, 100.9687],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_266441a5db19a20571561aac3505e824.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ PBKT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_270624c65e3df6030943373018fd304f = L.circleMarker(
+                [15.353557, 100.009555],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_270624c65e3df6030943373018fd304f.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ UTHS
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_a3551357a7825bb61825023cb74dcda6 = L.circleMarker(
+                [15.77807, 101.020988],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_a3551357a7825bb61825023cb74dcda6.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ BSPA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_a43efac3cce99675f50d3ec73de73b49 = L.circleMarker(
+                [16.883751, 101.884586],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_a43efac3cce99675f50d3ec73de73b49.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ KRAD
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_6e33cb8dff3214b6c23e0e15cc983331 = L.circleMarker(
+                [14.662418, 99.446783],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_6e33cb8dff3214b6c23e0e15cc983331.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ NGPA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_93f751b0bf9567ede250a99b9eebe75a = L.circleMarker(
+                [18.06346, 103.1457],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_93f751b0bf9567ede250a99b9eebe75a.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ NONG
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_6171414bd6084c4d010dd9ad585b130a = L.circleMarker(
+                [14.475, 100.0908],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_6171414bd6084c4d010dd9ad585b130a.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SPBA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_69ac1193a6adc94376376d8cb0f587e6 = L.circleMarker(
+                [16.33778, 102.823],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_69ac1193a6adc94376376d8cb0f587e6.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ KHON
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_139c3a33703e2d7f199a12b1c8ff1851 = L.circleMarker(
+                [14.02233, 99.536],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_139c3a33703e2d7f199a12b1c8ff1851.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ KCBA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_83ade81ff456cf842ee4b6ae9443b878 = L.circleMarker(
+                [13.489793, 99.792555],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_83ade81ff456cf842ee4b6ae9443b878.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ RATC
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_8d2bbfd707f90facec9c721bb2529636 = L.circleMarker(
+                [16.9742, 103.9815],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_8d2bbfd707f90facec9c721bb2529636.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SKNT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_be15de3cee3ef17cb1165e8715eb708b = L.circleMarker(
+                [14.31523, 101.3209],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_be15de3cee3ef17cb1165e8715eb708b.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ NAYO
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_8562b1aaab69429a0028b3a3c5d56a6a = L.circleMarker(
+                [14.5905, 101.8442],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_8562b1aaab69429a0028b3a3c5d56a6a.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ KRDT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_5d485b7ec32263d92228402609381958 = L.circleMarker(
+                [13.6512, 100.4942],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_5d485b7ec32263d92228402609381958.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ KMUA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_2ff54d0e61340c9736c017e938bab3b3 = L.circleMarker(
+                [13.567531, 101.45439],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_2ff54d0e61340c9736c017e938bab3b3.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ CHAC
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_bcb3041093228e46aafcde372c8fc401 = L.circleMarker(
+                [14.63276, 102.717642],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_bcb3041093228e46aafcde372c8fc401.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ RONG
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_e7f695faa6dc45f3d266c392ad37a9e9 = L.circleMarker(
+                [12.47263, 99.79288],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_e7f695faa6dc45f3d266c392ad37a9e9.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ PRAC
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_d2b84743a9e338e0c993a6ab6f845c7e = L.circleMarker(
+                [14.7688, 103.5529],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_d2b84743a9e338e0c993a6ab6f845c7e.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SURI
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_cd5d19cfeb37f6b6371eb654a6dbe9da = L.circleMarker(
+                [11.938497, 99.698773],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_cd5d19cfeb37f6b6371eb654a6dbe9da.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ PRAS
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_962043a6b5196ff9b87ab26d1013bcbd = L.circleMarker(
+                [12.74424, 102.352698],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_962043a6b5196ff9b87ab26d1013bcbd.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ CHBT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_45100ed480699471621e1fc41c5b8ac3 = L.circleMarker(
+                [15.2773, 105.4695],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_45100ed480699471621e1fc41c5b8ac3.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ UBPT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_8aea1924c588f48958038e5a74b2d18c = L.circleMarker(
+                [10.49799, 99.188522],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_8aea1924c588f48958038e5a74b2d18c.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ CHUM
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_b55000bde6a46bfdd2f9ae790e4f7687 = L.circleMarker(
+                [9.133605, 99.152127],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_b55000bde6a46bfdd2f9ae790e4f7687.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SUTA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_c06c57730bab15fb3e1d596b3d35b522 = L.circleMarker(
+                [8.59549, 99.60196],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_c06c57730bab15fb3e1d596b3d35b522.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SRIT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_4cb42fe0eb49bd5fb2ac3b8c00165a43 = L.circleMarker(
+                [8.546045, 99.939478],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_4cb42fe0eb49bd5fb2ac3b8c00165a43.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ STRA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_1bc21c8d2c9f4fffc8a08da669d0b2c7 = L.circleMarker(
+                [8.10484, 98.30829],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_1bc21c8d2c9f4fffc8a08da669d0b2c7.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ PKTC
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_84f1e40590c5df071e4057bbc11d261d = L.circleMarker(
+                [8.074267, 98.584788],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_84f1e40590c5df071e4057bbc11d261d.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ KYAO
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_da3d2c3958c2b42304be294df1a52829 = L.circleMarker(
+                [8.10345, 98.975513],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_da3d2c3958c2b42304be294df1a52829.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ KRAS
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_78cd36313c5f389ccdd6f255724953bf = L.circleMarker(
+                [7.8362, 99.6912],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_78cd36313c5f389ccdd6f255724953bf.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ TRTT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_7bad71874eb57a2eb02959f0154f4c11 = L.circleMarker(
+                [7.544767, 99.046562],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_7bad71874eb57a2eb02959f0154f4c11.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ LANT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_9c7801ccd049bfb76afe7453b2f1b295 = L.circleMarker(
+                [7.175911, 100.615696],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_9c7801ccd049bfb76afe7453b2f1b295.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SKLT
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_f43b9f15503c20b2842945c5f404bea6 = L.circleMarker(
+                [7.01767, 100.4989],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_f43b9f15503c20b2842945c5f404bea6.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SKLK
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_93ee988960542cfceed47814e67a8be3 = L.circleMarker(
+                [6.65373, 100.083314],
+                {"bubblingMouseEvents": true, "color": "black", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#555555", "fillOpacity": 0.9, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 3}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            circle_marker_93ee988960542cfceed47814e67a8be3.bindTooltip(
+                `<div>
+                     สถานีตรวจจับ SATU
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_0b6838cbdf617794777359911a3dcfc8 = L.marker(
+                [14.07, 100.61],
+                {
+}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+        
+    
+            var icon_602ec157865bfacf4aa9edb7475ef3eb = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "home",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_bff18abb6f594d4556d23a758a81f92c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_7b359ebdf5dba24e602d2a45e5034c0c = $(`<div id="html_7b359ebdf5dba24e602d2a45e5034c0c" style="width: 100.0%; height: 100.0%;"><b>มธ. รังสิต</b><br>Δ 961 km<br>P มาถึง 06:23:05.11 UTC (13:23:05 น.)<br>S มาถึง 06:24:38.38 UTC (13:24:38 น.)<br>Lg มาถึง 06:25:32.91 UTC (13:25:32 น.)<br>ขั้น 1 ตรวจพบคลื่น P: เตือนก่อนคลื่น S +162.3 s<br>ขั้น 2 ตำแหน่งสุดท้าย: เตือนก่อนคลื่น S -281.1 s<br>ขั้น 3 ขนาดหลัก (Ms_BB): เตือนก่อนคลื่น S -464.4 s</div>`)[0];
+                popup_bff18abb6f594d4556d23a758a81f92c.setContent(html_7b359ebdf5dba24e602d2a45e5034c0c);
+            
+        
+
+        marker_0b6838cbdf617794777359911a3dcfc8.bindPopup(popup_bff18abb6f594d4556d23a758a81f92c)
+        ;
+
+        
+    
+    
+            marker_0b6838cbdf617794777359911a3dcfc8.bindTooltip(
+                `<div>
+                     มธ. รังสิต: เวลาเตือนล่วงหน้า 162 s
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_0b6838cbdf617794777359911a3dcfc8.setIcon(icon_602ec157865bfacf4aa9edb7475ef3eb);
+            
+    
+            map_767e63e8b3cc14675c6b96a479bbedd8.fitBounds(
+                [[5.65373, 94.96141129930238], [22.49237333965685, 106.4695]],
+                {}
+            );
+        
+    
+            var layer_control_44c5e3ef398035e4abd471b093257c05_layers = {
+                base_layers : {
+                    "\u0e20\u0e32\u0e1e\u0e14\u0e32\u0e27\u0e40\u0e17\u0e35\u0e22\u0e21" : tile_layer_7d3b97bc5a95d2599425a2ab33c3d068,
+                    "\u0e41\u0e1c\u0e19\u0e17\u0e35\u0e48\u0e16\u0e19\u0e19 (Esri)" : tile_layer_d069f0a3e27892d2b8e30687a49e0a1c,
+                    "\u0e41\u0e1c\u0e19\u0e17\u0e35\u0e48\u0e17\u0e31\u0e48\u0e27\u0e44\u0e1b (CARTO)" : tile_layer_58bb8aa7e7ec15dda5d76ba11aa16904,
+                },
+                overlays :  {
+                    "\u0e40\u0e2a\u0e49\u0e19\u0e41\u0e1a\u0e48\u0e07\u0e40\u0e02\u0e15\u0e1b\u0e23\u0e30\u0e40\u0e17\u0e28 + \u0e0a\u0e37\u0e48\u0e2d\u0e2a\u0e16\u0e32\u0e19\u0e17\u0e35\u0e48" : tile_layer_d7d3180a5b704f99569114561ae0b597,
+                    "\u0e41\u0e19\u0e27\u0e2b\u0e19\u0e49\u0e32\u0e04\u0e25\u0e37\u0e48\u0e19 S" : feature_group_2a387b64a6ff5020269b7b854385bc92,
+                },
+            };
+            let layer_control_44c5e3ef398035e4abd471b093257c05 = L.control.layers(
+                layer_control_44c5e3ef398035e4abd471b093257c05_layers.base_layers,
+                layer_control_44c5e3ef398035e4abd471b093257c05_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_767e63e8b3cc14675c6b96a479bbedd8);
+
+        
+</script>
+</html>

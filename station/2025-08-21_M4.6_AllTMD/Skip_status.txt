@@ -1,0 +1,19 @@
+ สำเร็จ: 51
+⛔ ข้าม: 16
+ - CHAI: ไม่มี scale
+ - HOTB: ไม่ครบ HNE/HNN/HNZ
+ - KHLT: ไม่ครบ HNE/HNN/HNZ
+ - MHMT: ไม่ครบ HNE/HNN/HNZ
+ - NONG: ไม่ครบ HNE/HNN/HNZ
+ - PANO: ไม่ครบ HNE/HNN/HNZ
+ - PHET: ไม่มี scale
+ - PWNA: ไม่มี scale
+ - PWSA: ไม่มี scale
+ - RNTT: ไม่ครบ HNE/HNN/HNZ
+ - SIRA: ไม่มี scale
+ - SRAK: ไม่มี scale
+ - SRDT: ไม่มี scale
+ - SRKA: ไม่มี scale
+ - SUAB: ไม่ครบ HNE/HNN/HNZ
+ - TSYB: ไม่ครบ HNE/HNN/HNZ
+🔚 เสร็จสิ้นใน 543.91 วินาที

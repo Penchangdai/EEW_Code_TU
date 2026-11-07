@@ -1,0 +1,99 @@
+Run Status Log → convert_mseed_to_txt_with_scaling_v2.5.3
+ObsPy Version: 1.4.2
+Python Version: 3.13.3
+
+Station: AYUA → Success → Gap policy = 1 → Processing time: 3.89 sec
+Station: BKKA → Success → Gap policy = 1 → Processing time: 3.87 sec
+Station: BKSI → Success → Gap policy = 1 → Processing time: 3.87 sec
+Station: BSPA → Success → Gap policy = 1 → Processing time: 3.81 sec
+Station: CHAC → Success → Gap policy = 1 → Processing time: 4.28 sec
+Station: CHBT → Success → Gap policy = 1 → Processing time: 2.27 sec
+Station: CHUM → Success → Gap policy = 1 → Processing time: 4.77 sec
+Station: CMCA → Success → Gap policy = 1 → Processing time: 4.21 sec
+Station: CMMT → Success → Gap policy = 1 → Processing time: 2.13 sec
+Station: CRAI → Success → Gap policy = 1 → Processing time: 2.12 sec
+Station: CRMJ → Success → Gap policy = 1 → Processing time: 3.93 sec
+Station: CRMM → Success → Gap policy = 1 → Processing time: 4.17 sec
+Station: HOTB → Skipped → Reason: missing HNE/HNN/HNZ
+Station: KAMP → Success → Gap policy = 1 → Processing time: 3.93 sec
+Station: KCBA → Success → Gap policy = 1 → Processing time: 3.92 sec
+Station: KHLT → Skipped → Reason: missing HNE/HNN/HNZ
+Station: KHOB → Skipped → Reason: missing HNE/HNN/HNZ
+Station: KHOK → Success → Gap policy = 1 → Processing time: 3.98 sec
+Station: KHON → Success → Gap policy = 1 → Processing time: 2.45 sec
+Station: KMUA → Success → Gap policy = 1 → Processing time: 2.28 sec
+Station: KOOA → Success → Gap policy = 1 → Processing time: 5.42 sec
+Station: KRAD → Success → Gap policy = 1 → Processing time: 5.07 sec
+Station: KRAS → Success → Gap policy = 1 → Processing time: 5.13 sec
+Station: KRDT → Success → Gap policy = 1 → Processing time: 3.08 sec
+Station: KYAO → Success → Gap policy = 1 → Processing time: 5.64 sec
+Station: LAMP → Skipped → Reason: missing HNE/HNN/HNZ
+Station: LANT → Success → Gap policy = 1 → Processing time: 5.85 sec
+Station: LOEI → Success → Gap policy = 1 → Processing time: 2.56 sec
+Station: LPGA → Success → Gap policy = 1 → Processing time: 4.30 sec
+Station: LPSP → Success → Gap policy = 1 → Processing time: 4.31 sec
+Station: MAEC → Success → Gap policy = 1 → Processing time: 4.11 sec
+Station: MAES → Success → Gap policy = 1 → Processing time: 4.04 sec
+Station: MHIT → Success → Gap policy = 1 → Processing time: 2.12 sec
+Station: MHMT → Skipped → Reason: missing HNE/HNN/HNZ
+Station: MUSE → Success → Gap policy = 1 → Processing time: 4.04 sec
+Station: NAN → Success → Gap policy = 1 → Processing time: 2.06 sec
+Station: NANA → Success → Gap policy = 1 → Processing time: 5.61 sec
+Station: NANS → Success → Gap policy = 1 → Processing time: 4.76 sec
+Station: NAYO → Success → Gap policy = 1 → Processing time: 2.13 sec
+Station: NGPA → Success → Gap policy = 1 → Processing time: 4.13 sec
+Station: NONA → Success → Gap policy = 1 → Processing time: 4.02 sec
+Station: NONG → Success → Gap policy = 1 → Processing time: 2.21 sec
+Station: OMKO → Success → Gap policy = 1 → Processing time: 4.14 sec
+Station: PANO → Skipped → Reason: missing HNE/HNN/HNZ
+Station: PAOA → Success → Gap policy = 1 → Processing time: 2.27 sec
+Station: PASO → Success → Gap policy = 1 → Processing time: 4.62 sec
+Station: PAYA → Success → Gap policy = 1 → Processing time: 2.38 sec
+Station: PBKT → Success → Gap policy = 1 → Processing time: 2.08 sec
+Station: PHEA → Success → Gap policy = 1 → Processing time: 4.11 sec
+Station: PHIT → Success → Gap policy = 1 → Processing time: 2.03 sec
+Station: PHRA → Success → Gap policy = 1 → Processing time: 2.13 sec
+Station: PHRS → Success → Gap policy = 1 → Processing time: 4.71 sec
+Station: PKDT → Success → Gap policy = 1 → Processing time: 2.24 sec
+Station: PKTC → Success → Gap policy = 1 → Processing time: 4.16 sec
+Station: PRAC → Success → Gap policy = 1 → Processing time: 2.09 sec
+Station: PRAS → Success → Gap policy = 1 → Processing time: 3.92 sec
+Station: PTNA → Success → Gap policy = 1 → Processing time: 3.96 sec
+Station: PTNB → Skipped → Reason: missing scale
+Station: RATC → Success → Gap policy = 1 → Processing time: 3.79 sec
+Station: RAYA → Success → Gap policy = 1 → Processing time: 3.80 sec
+Station: RNTT → Skipped → Reason: missing HNE/HNN/HNZ
+Station: ROIA → Success → Gap policy = 1 → Processing time: 3.80 sec
+Station: RONG → Success → Gap policy = 1 → Processing time: 3.78 sec
+Station: SAKA → Success → Gap policy = 1 → Processing time: 3.80 sec
+Station: SANA → Success → Gap policy = 1 → Processing time: 3.80 sec
+Station: SATU → Success → Gap policy = 1 → Processing time: 3.82 sec
+Station: SAWA → Skipped → Reason: missing HNE/HNN/HNZ
+Station: SKLK → Success → Gap policy = 1 → Processing time: 3.81 sec
+Station: SKLT → Success → Gap policy = 1 → Processing time: 3.80 sec
+Station: SKNT → Success → Gap policy = 1 → Processing time: 1.91 sec
+Station: SMSB → Skipped → Reason: missing scale
+Station: SODA → Success → Gap policy = 1 → Processing time: 3.80 sec
+Station: SOEA → Success → Gap policy = 1 → Processing time: 3.78 sec
+Station: SOOA → Success → Gap policy = 1 → Processing time: 3.82 sec
+Station: SPBA → Success → Gap policy = 1 → Processing time: 3.81 sec
+Station: SRAK → Skipped → Reason: missing scale
+Station: SRIT → Success → Gap policy = 1 → Processing time: 1.89 sec
+Station: STRA → Success → Gap policy = 1 → Processing time: 3.80 sec
+Station: SUAB → Skipped → Reason: missing HNE/HNN/HNZ
+Station: SUAI → Success → Gap policy = 1 → Processing time: 3.81 sec
+Station: SURA → Success → Gap policy = 1 → Processing time: 1.95 sec
+Station: SURI → Success → Gap policy = 1 → Processing time: 1.91 sec
+Station: SURT → Success → Gap policy = 1 → Processing time: 1.90 sec
+Station: SUTA → Success → Gap policy = 1 → Processing time: 3.94 sec
+Station: THUA → Success → Gap policy = 1 → Processing time: 3.80 sec
+Station: TMDA → Skipped → Reason: missing scale
+Station: TMDB → Skipped → Reason: missing scale
+Station: TRTT → Success → Gap policy = 1 → Processing time: 3.77 sec
+Station: TSYA → Success → Gap policy = 1 → Processing time: 3.79 sec
+Station: TSYB → Skipped → Reason: missing HNE/HNN/HNZ
+Station: UBPT → Success → Gap policy = 1 → Processing time: 1.89 sec
+Station: UMPA → Success → Gap policy = 1 → Processing time: 1.90 sec
+Station: UTHA → Success → Gap policy = 1 → Processing time: 1.92 sec
+Station: UTHS → Success → Gap policy = 1 → Processing time: 3.88 sec
+Station: UTTA → Success → Gap policy = 1 → Processing time: 1.90 sec
