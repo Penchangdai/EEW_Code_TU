@@ -20,14 +20,34 @@ from signal_utils import differentiate
 
 
 CODE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(CODE_DIR, "station")     # โฟลเดอร์เก็บไฟล์ข้อมูลสถานี
+STATION_ROOT = os.path.join(CODE_DIR, "station")  # โฟลเดอร์รวมข้อมูล (มีโฟลเดอร์ย่อยแยกตามเหตุการณ์)
+
+
+def event_dir(event=None):
+    """โฟลเดอร์ข้อมูลของเหตุการณ์ (station/<event>)  ไม่ระบุ = ใช้ config.EVENT  ไม่มีโฟลเดอร์นั้น = station/"""
+    if event is None:
+        import config
+        event = getattr(config, "EVENT", None)
+    if event:
+        for cand in (event, os.path.join(STATION_ROOT, event), os.path.join(CODE_DIR, event)):
+            if os.path.isdir(cand):
+                return os.path.abspath(cand)
+        print(f"⚠ ไม่พบโฟลเดอร์เหตุการณ์ '{event}' ใน station/  ใช้ไฟล์ในโฟลเดอร์ station/ แทน")
+    return STATION_ROOT
+
+
+DATA_DIR = event_dir()     # โฟลเดอร์เก็บไฟล์ข้อมูลสถานีของเหตุการณ์ที่เลือก (config.EVENT)
+
+
+def _search_folders():
+    return tuple(dict.fromkeys((DATA_DIR, STATION_ROOT, CODE_DIR)))
 
 
 def resolve_data_path(path):
-    """หาไฟล์ข้อมูล: ตามที่ระบุ -> ในโฟลเดอร์ station -> ในโฟลเดอร์โค้ด"""
+    """หาไฟล์ข้อมูล: ตามที่ระบุ -> โฟลเดอร์เหตุการณ์ (config.EVENT) -> โฟลเดอร์ station -> โฟลเดอร์โค้ด"""
     if os.path.isabs(path) or os.path.exists(path):
         return path
-    for folder in (DATA_DIR, CODE_DIR):
+    for folder in _search_folders():
         cand = os.path.join(folder, path)
         if os.path.exists(cand):
             return cand
@@ -37,10 +57,10 @@ def resolve_data_path(path):
 def find_station_file(code, folders=None):
     """
     หาไฟล์ข้อมูลของสถานีจากรหัส (ดูบรรทัด '# Station: <code>' ใน header)
-    ค้นในโฟลเดอร์ station ก่อน แล้วโฟลเดอร์โค้ด  คืนค่า path หรือ None ถ้าไม่พบ
+    ค้นในโฟลเดอร์เหตุการณ์ (config.EVENT) ก่อน แล้ว station/ และโฟลเดอร์โค้ด  คืนค่า path หรือ None ถ้าไม่พบ
     """
     code = code.strip().upper()
-    for folder in folders or (DATA_DIR, CODE_DIR):
+    for folder in folders or _search_folders():
         if not os.path.isdir(folder):
             continue
         for fn in sorted(os.listdir(folder)):

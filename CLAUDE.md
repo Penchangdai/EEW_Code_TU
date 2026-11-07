@@ -21,6 +21,7 @@
 `run_travel_time.py`, `run_intensity.py`, `run_validation.py` (ผลลัพธ์ `*_detail.txt`, `*_alert.png`, `network_picks.csv` ฯลฯ ถูก commit ไว้)
 
 ## ค่าตั้งต้น
+- **`config.EVENT`** เลือกโฟลเดอร์เหตุการณ์ใน `station/` ที่สคริปต์ `run_*.py` ใช้ (ค่าตั้งต้น `2025-3-28_Mw7.7_station`) → `data_loader.DATA_DIR = station/<EVENT>`; `"auto"`/ชื่อไฟล์/รหัสสถานีจะค้นในโฟลเดอร์นี้ก่อน แล้ว `station/` และโฟลเดอร์โค้ด
 - **`config.py` เป็นที่เดียวสำหรับค่าคงที่**: Vp=6.0, Vs=3.5, Vpn=8.0, Vsn=4.6, ความหนาเปลือกโลก 30 km, พารามิเตอร์ STA/LTA ชุด local และ `P_REGIONAL`/`S_REGIONAL` (สถานี > ~300 km), เกณฑ์เตือน (Warning: JMA ≥ 4.5, Forecast: M ≥ 3.5 หรือ I ≥ 2.5)
 - `pipeline.py` มี `DEFAULTS` ของขั้น network location (override ผ่าน `settings={...}` หรือชื่อเดียวกันใน `config.py`), `fix_depth=10 km` เป็นค่าตั้งต้น
 - สูตรทั้งหมดเขียนแยกไว้ที่ `EEW_formulas.md` (ฉบับล่าสุด) และ `FORMULAS.md` (ฉบับเก่า) — แก้โค้ดสูตรแล้วควรอัปเดตเอกสารด้วย

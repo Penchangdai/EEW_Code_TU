@@ -372,6 +372,8 @@ def simulate(res, stages, sites):
             p = preds[s["name"]]
             mmi = float(np.clip(p["mmi"] + corrs[s["name"]], 1.0, 10.0))
             lv, name = INT.alert_level(pick["mag"], mmi)
+            if RM.is_teleseism(hypo):                           # แผ่นดินไหวไกลมาก: ตำแหน่ง/MMI ใช้ไม่ได้ ไม่แจ้งเตือน
+                lv, name = 0, "ไม่แจ้ง (teleseism)"
             row["pred"][s["name"]] = (mmi, lv)
             info = dict(t=t, M=pick["mag"], type=pick["type"], mmi=mmi, level=lv, name=name, corr=corrs[s["name"]],
                         lead_s=s["t_s"] - t, lead_lg=s["t_lg"] - t)
@@ -597,13 +599,16 @@ def public_report(res, sites):
     print(line)
     print(f"  ประมาณความรุนแรงแผ่นดินไหว  (ข้อมูลเบื้องต้นจากระบบอัตโนมัติ)")
     print(line)
-    print(f"  ขนาด (Mw) : {RM.mw_text(pick)}  ({M.size_class(pick['mag'])})   ความน่าเชื่อถือ {res['reliability'][0]}")
+    rel = "ต่ำ (teleseism: ขนาดต่ำกว่าจริงมาก)" if RM.is_teleseism(hypo) else res["reliability"][0]
+    print(f"  ขนาด (Mw) : {RM.mw_text(pick)}  ({M.size_class(pick['mag'])})   ความน่าเชื่อถือ {rel}")
     print(f"  ที่มา      : {RM.mw_source(pick)}")
     print(f"  เวลาเกิด   : {RM.thai_time(hypo['origin_time'])} (เวลาประเทศไทย)")
     print(f"  ตำแหน่ง    : {pos}")
     print(f"  ที่มาตำแหน่ง: {src}")
+    if RM.is_teleseism(hypo):
+        print("  ⚠ ระบบไม่ออกคำเตือน: คลื่นมาจากแผ่นดินไหวไกลมาก ค่าความรุนแรงด้านล่างเป็นค่าประมาณที่ใช้ไม่ได้")
     print(line)
-    groups = [("seismic", "▲ สถานีตรวจวัดแผ่นดินไหว (Seismic station)"),
+    groups =[("seismic", "▲ สถานีตรวจวัดแผ่นดินไหว (Seismic station)"),
               ("strong_motion", "■ สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)"),
               (None, "★ ตำแหน่งที่แจ้งเตือน")]
     order = []
@@ -621,7 +626,8 @@ def public_report(res, sites):
             print(f"  {head}")
             print(f"     คาดว่าสั่น : {_mmi_txt(f['mmi'])}  (อาจอยู่ระหว่าง MMI {f['mmi_low']:.1f}–{f['mmi_high']:.1f})")
             if a is None:
-                print(f"     แจ้งเตือน  : ไม่แจ้ง (ต่ำกว่าเกณฑ์ MMI III)")
+                print("     แจ้งเตือน  : " + ("ไม่แจ้ง (แผ่นดินไหวไกลมาก)" if RM.is_teleseism(hypo)
+                                              else "ไม่แจ้ง (ต่ำกว่าเกณฑ์ MMI III)"))
             else:
                 when = f"ส่งเมื่อ +{a['t'] - hypo['origin_time']:.0f} s หลังเกิดเหตุ  {lead_text(a['lead_s'], a['lead_lg'])}"
                 print(f"     แจ้งเตือน  : {a['name']}  ({when})")

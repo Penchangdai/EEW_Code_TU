@@ -66,6 +66,14 @@ DEFAULTS = {
                                     #   None = ใช้ทุกสถานี  (ต้องเหลือคลื่น P อย่างน้อย min_locate_p สถานี)
     "min_locate_p": 4,
     "max_start_offset_sec": 600.0,   # ไฟล์ที่เวลาเริ่มต่างจากค่ากลางของทุกไฟล์เกินนี้ = คนละช่วงเวลา -> ไม่ใช้
+    # ตรวจแผ่นดินไหวไกลมาก (teleseism) ซึ่งโมเดล 2 ชั้นจะวางตำแหน่งผิดไว้ใกล้เครือข่าย -> ต้องไม่แจ้งเตือน
+    #   นับเป็น teleseism เมื่อเข้าเกณฑ์อย่างน้อย tele_min_votes ข้อ จาก 3 ข้อ:
+    "tele_vapp_kms": 15.0,     # 1) ความเร็วปรากฏของหน้าคลื่น P ข้ามเครือข่าย >= ค่านี้ (Pn ~8 km/s, teleseism > 15)
+    "tele_lg_frac": 0.35,      # 2) สัดส่วนสถานีที่มีคลื่น P แล้วพบ Lg (หรือ S) ตรงเวลาที่คาด < ค่านี้
+    "tele_lg_err_s": 20.0,     # 3) เวลาพลังงานแนวราบสูงสุด (≈ Lg) คลาดจากตำแหน่งเฉลี่ย > ค่านี้ (s)
+    "tele_min_votes": 2,
+    "tele_min_p": 5,           # ต้องมีคลื่น P อย่างน้อยเท่านี้จึงตรวจ (น้อยกว่านี้ไม่ตัดสิน)
+    "tele_min_aperture_km": 300.0,   # ความกว้างเครือข่ายขั้นต่ำสำหรับเกณฑ์ข้อ 1
 }
 
 
@@ -710,8 +718,70 @@ def locate_event(specs, profile="regional", get_coords=None, settings=None, verb
                                                         ph, cfg["fix_depth"] or 10.0)
                 s["delta_sp_phase"] = ph
                 break
+    hypo["teleseism"] = teleseism_check(stations, start, cfg)
+    if hypo["teleseism"]["flag"]:
+        _say(log, verbose, "⚠ น่าจะเป็นแผ่นดินไหวไกลมาก (teleseism): " + "; ".join(hypo["teleseism"]["reasons"])
+             + "  ตำแหน่งนี้ใช้ไม่ได้ และไม่ควรแจ้งเตือน")
     return {"hypo": hypo, "hypo_p": hypo_p, "start": start, "stations": stations, "log": log,
             "settings": cfg}
+
+
+def plane_wave_fit(stations):
+    """
+    ฟิตหน้าคลื่นระนาบกับเวลาคลื่น P ที่ใช้ (robust, IRLS)  t = t0 + sx·x + sy·y
+    คืนค่า (ความเร็วปรากฏ km/s, back-azimuth องศา, ความกว้างเครือข่าย km)  ข้อมูลไม่พอ = None
+    """
+    st = [s for s in stations if "P" in s["use"] and "P" in s["picks"]]
+    if len(st) < 3:
+        return None
+    lat = np.array([s["lat"] for s in st]); lon = np.array([s["lon"] for s in st])
+    tp = np.array([s["picks"]["P"]["time"] for s in st])
+    lat0, lon0 = lat.mean(), lon.mean()
+    x = (lon - lon0) * 111.19 * np.cos(np.radians(lat0)); y = (lat - lat0) * 111.19
+    A = np.c_[np.ones_like(x), x, y]
+    w = np.ones_like(tp)
+    for _ in range(5):
+        c = np.linalg.lstsq(A * w[:, None], tp * w, rcond=None)[0]
+        r = tp - A @ c
+        mad = 1.4826 * np.median(np.abs(r)) + 0.5
+        w = 1.0 / np.maximum(1.0, np.abs(r) / (2.0 * mad))
+    slow = float(np.hypot(c[1], c[2]))
+    vapp = 1.0 / slow if slow > 0 else np.inf
+    baz = float(np.degrees(np.arctan2(-c[1], -c[2])) % 360.0)
+    aperture = float(np.ptp(np.hypot(x, y)))
+    return vapp, baz, aperture
+
+
+def teleseism_check(stations, start, cfg):
+    """
+    แผ่นดินไหวไกลมาก (เช่น M8.8 คัมชัตกา ห่าง ~7000 km) คลื่น P มาเกือบพร้อมกันทั้งเครือข่าย (ความเร็วปรากฏสูง)
+    และไม่มีคลื่น Lg ของเปลือกโลกมาตามเวลาที่ตำแหน่งใกล้ ๆ ทำนาย  โมเดล 2 ชั้นจึงวางตำแหน่งผิดไว้ใกล้เครือข่าย
+    ใช้ 3 เกณฑ์ (ดู DEFAULTS tele_*) เข้าอย่างน้อย tele_min_votes ข้อ = teleseism
+    """
+    out = {"flag": False, "votes": 0, "reasons": [], "v_app": None, "baz": None, "lg_frac": None, "lg_err": None}
+    with_p = [s for s in stations if "P" in s["picks"]]
+    n_p = sum(1 for s in stations if "P" in s["use"])
+    if n_p < cfg["tele_min_p"]:
+        return out
+    pw = plane_wave_fit(stations)
+    if pw is not None:
+        out["v_app"], out["baz"], ap = pw
+        if ap >= cfg["tele_min_aperture_km"] and out["v_app"] >= cfg["tele_vapp_kms"]:
+            out["votes"] += 1
+            out["reasons"].append(f"คลื่น P ข้ามเครือข่ายเร็ว {out['v_app']:.0f} km/s")
+    ph = "Lg" if "Lg" in cfg["s_phases"] else "S"
+    if with_p:
+        out["lg_frac"] = sum(1 for s in with_p if ph in s["use"]) / len(with_p)
+        if out["lg_frac"] < cfg["tele_lg_frac"]:
+            out["votes"] += 1
+            out["reasons"].append(f"พบคลื่น {ph} ตรงเวลาที่คาดเพียง {out['lg_frac']:.0%} ของสถานี")
+    if start.get("n_env"):
+        out["lg_err"] = float(start.get("scan_lg_err", 0.0))
+        if out["lg_err"] > cfg["tele_lg_err_s"]:
+            out["votes"] += 1
+            out["reasons"].append(f"เวลาพลังงานแนวราบคลาดเฉลี่ย {out['lg_err']:.0f} s")
+    out["flag"] = out["votes"] >= cfg["tele_min_votes"]
+    return out
 
 
 # ======================================================================

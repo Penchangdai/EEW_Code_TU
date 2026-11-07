@@ -41,8 +41,8 @@ except ImportError:                                   # ไม่มี intensit
 #  ตั้งค่า
 # ======================================================================
 # รหัสสถานี เช่น ["BKKA", "CMMT", "PHIT"]  หรือ "auto" = ทุกไฟล์ในโฟลเดอร์ station
-SELECTED_STATIONS = "auto"
-DATA_FILE = "BKKA_20250328_061959.txt"      # ใช้เมื่อ SELECTED_STATIONS = []
+SELECTED_STATIONS = "2025-08-21_M4.6_AllTMD"
+DATA_FILE = ""      # ใช้เมื่อ SELECTED_STATIONS = []
 PROFILE = "regional"      # "regional" = สถานีไกล (> ~300 km), "local" = สถานีใกล้
 
 # จุดศูนย์กลางที่รู้แล้ว (lat, lon, ความลึก km, "เวลาเกิด UTC")   None = หาเองด้วย pipeline.py
@@ -293,8 +293,24 @@ def thai_time(t):
     return f"{d.day} {_TH_MONTH[d.month - 1]} {d.year + 543} เวลา {d:%H:%M:%S} น."
 
 
+def teleseism_note(hypo):
+    """ข้อความเมื่อ pipeline ตรวจว่าเป็นแผ่นดินไหวไกลมาก (teleseism)  ไม่ใช่ = None"""
+    t = (hypo or {}).get("teleseism") or {}
+    if not t.get("flag"):
+        return None
+    # ไม่บอกทิศ: หน้าคลื่นระนาบจากเครือข่ายเดียวให้ทิศคลาดได้หลายสิบองศา (M8.8 คัมชัตกา: 83° เทียบกับจริง ~35°)
+    return "แผ่นดินไหวไกลมาก (teleseism) นอกภูมิภาค  ไม่กระทบประเทศไทย"
+
+
+def is_teleseism(hypo):
+    return teleseism_note(hypo) is not None
+
+
 def location_lines(hypo):
     """ข้อความตำแหน่ง (แสดงความลึกเฉพาะเมื่อคำนวณได้จริง) และที่มาของตำแหน่ง"""
+    tele = teleseism_note(hypo)
+    if tele:
+        return tele, "ตำแหน่งที่คำนวณได้ใช้ไม่ได้ (" + "; ".join(hypo["teleseism"]["reasons"]) + ")"
     pos = f"ละติจูด {hypo['lat']:.2f}°N  ลองจิจูด {hypo['lon']:.2f}°E"
     if hypo.get("depth_measured"):
         pos += f"   ลึก {hypo['depth']:.0f} km"
@@ -315,24 +331,31 @@ def public_alert(res):
     hypo = res["hypo"]
     level, why, unc = res["reliability"]
     m = pick["mag"]
-    issue = m >= getattr(C, "FORECAST_MAGNITUDE", 3.5)
+    issue = m >= getattr(C, "FORECAST_MAGNITUDE", 3.5) and not is_teleseism(hypo)   # teleseism ไม่แจ้งเตือน
     print(f"  {'แจ้งเตือนแผ่นดินไหว' if issue else 'รายงานแผ่นดินไหว'}  (ข้อมูลเบื้องต้นจากระบบอัตโนมัติ)")
     print(line)
     print(f"  ขนาด (Mw)    : {mw_text(pick)}   ({M.size_class(m)})")
     print(f"  ที่มาของขนาด  : {mw_source(pick)}")
+    tele = is_teleseism(hypo)
+    if tele:
+        print("                  (แผ่นดินไหวไกลมาก ขนาดนี้ต่ำกว่าจริงมาก เพราะสูตรใช้ได้เฉพาะระยะในภูมิภาค)")
     if hypo is not None:
-        print(f"  เวลาเกิด      : {thai_time(hypo['origin_time'])} (เวลาประเทศไทย)")
+        print(f"  เวลาเกิด      : {thai_time(hypo['origin_time'])} (เวลาประเทศไทย)"
+              + ("  (คลาดได้มาก)" if tele else ""))
         pos, src = location_lines(hypo)
         print(f"  ตำแหน่ง       : {pos}")
         print(f"  ที่มาของตำแหน่ง: {src}")
+    if hypo is not None and not tele:
         d = [(float(haversine_km(la, lo, hypo["lat"], hypo["lon"])), name, la, lo) for name, la, lo in CITIES]
         show = sorted([x for x in d if x[1] == "กรุงเทพฯ"] + sorted(x for x in d if x[1] != "กรุงเทพฯ")[:2])
         for k, (dist, name, la, lo) in enumerate(show):
             az = float(azimuth_deg(la, lo, hypo["lat"], hypo["lon"]))
             head = "  ห่างจาก       :" if k == 0 else "                  "
             print(f"{head} {name} {dist:,.0f} km ไป{_TH_DIR[int((az + 22.5) // 45) % 8]}")
-    else:
+    elif hypo is None:
         print("  ตำแหน่ง       : ยังระบุไม่ได้ (สถานีไม่พอ)")
+    if tele:
+        level, unc, why = "ต่ำ (teleseism)", max(unc, 2.0), ["คลื่นมาจากนอกภูมิภาค"]
     print(f"  ความน่าเชื่อถือ : {level}   (ขนาดอาจคลาด ±{unc:.1f})" + (f"  เพราะ{', '.join(why)}" if why else ""))
     print(line)
     if issue:

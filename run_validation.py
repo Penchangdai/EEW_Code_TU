@@ -37,10 +37,12 @@ EVENTS = [
     dict(name="Mw 7.7 เมียนมา (สะกาย)", folder="2025-3-28_Mw7.7_station",
          lat=22.011, lon=95.936, depth=10.0, time="2025-03-28T06:20:52.7", mag=7.7, mag_type="Mww",
          ref="USGS us7000pn9s"),
-    dict(name="M 5.9 เมียนมา", folder="2025-03-29_M5.9_AllTMD",
-         lat=None, lon=None, depth=None, time=None, mag=5.9, mag_type="?", ref="ยังไม่ได้ใส่"),
-    dict(name="M 8.8 คัมชัตกา รัสเซีย", folder="2025-07-29_M8.8_Russia_AllTMD",
-         lat=None, lon=None, depth=None, time=None, mag=8.8, mag_type="Mww", ref="ยังไม่ได้ใส่"),
+    dict(name="mb 5.1 เมียนมา (เนปิดอว์)", folder="2025-03-29_M5.9_AllTMD",
+         lat=19.6858, lon=96.0761, depth=10.0, time="2025-03-29T09:20:48.2", mag=5.1, mag_type="mb",
+         ref="USGS us7000pnkj (ชื่อโฟลเดอร์ใช้ขนาด 5.9)"),
+    dict(name="Mw 8.8 คัมชัตกา รัสเซีย", folder="2025-07-29_M8.8_Russia_AllTMD",
+         lat=52.4948, lon=160.2395, depth=35.0, time="2025-07-29T23:24:52.5", mag=8.8, mag_type="Mww",
+         ref="USGS us6000qw60"),
     dict(name="mb 4.6 นอกชายฝั่งเมียนมา", folder="2025-08-21_M4.6_AllTMD",
          lat=16.172, lon=96.535, depth=10.0, time="2025-08-21T02:58:07", mag=4.6, mag_type="mb",
          ref="USGS (TMD: 16.145, 96.686 ขนาด 5.4)"),
@@ -71,7 +73,12 @@ def ref_mw(ev):
 
 def _folder(ev):
     f = ev["folder"]
-    return f if os.path.isabs(f) else os.path.join(CODE_DIR, f)
+    if os.path.isabs(f):
+        return f
+    for cand in (os.path.join(CODE_DIR, "station", f), os.path.join(CODE_DIR, f)):   # station/<event> ก่อน
+        if os.path.isdir(cand):
+            return cand
+    return os.path.join(CODE_DIR, "station", f)
 
 
 def run_event(ev):
@@ -93,7 +100,8 @@ def run_event(ev):
     h, p = res["hypo"], res["preferred"]
     r = dict(status="ok", n_files=len(RM.station_files("auto")), n_used=len(res["stations"]),
              lat=h["lat"], lon=h["lon"], M=p["mag"], M_type=p["type"], M_raw=p.get("mag_raw"),
-             skipped_units=log.getvalue().count("ไม่ใช่หน่วยจริง"))
+             skipped_units=log.getvalue().count("ไม่ใช่หน่วยจริง"),
+             teleseism=bool((h.get("teleseism") or {}).get("flag")))
     if updates:
         u = updates[0]
         r.update(M_first=u["M"], M_first_type=u["type"], t_first=u["t"] - h["origin_time"])
@@ -154,8 +162,13 @@ def main():
               f"   หลังปรับ (LOO) {_f(r.get('mmi_loo'), '.2f')}   วัดได้สูงสุด {_f(r.get('mmi_obs_max'), '.1f')}")
         print(f"   แจ้งเตือน {r['n_alert']} สถานี (สาธารณะ {r['n_public']})  สั่นจริง >= III {r['n_obs_ge3']}"
               f"  >= IV {r['n_obs_ge4']}  เตือนสาธารณะแต่สั่น < III {r['false_public']}  ไม่ได้เตือนแต่ >= IV {r['missed']}")
-        if r.get("dist_min_km", 0) > MAX_REGIONAL_KM and r["n_alert"]:
+        far = r.get("dist_min_km", 0) > MAX_REGIONAL_KM
+        if far and r["n_alert"]:
             print("   ⚠ แผ่นดินไหวไกลมาก (teleseism) แต่ระบบแจ้งเตือน")
+        elif far and r["teleseism"]:
+            print("   ✓ ระบบตรวจพบว่าเป็นแผ่นดินไหวไกลมาก (teleseism) และไม่แจ้งเตือน")
+        elif r["teleseism"]:
+            print("   ⚠ ระบบตัดสินว่าเป็น teleseism แต่เป็นแผ่นดินไหวในภูมิภาค (ไม่แจ้งเตือนทั้งที่ควร)")
 
     print("\n" + "=" * 100)
     print(f"{'เหตุการณ์':<28}{'ตำแหน่ง km':>11}{'T0 s':>7}{'Mw จริง':>8}{'Mw แรก':>8}{'Mw สุดท้าย':>11}"

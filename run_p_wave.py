@@ -87,13 +87,10 @@ if __name__ == "__main__":
     # ถ้าพิมพ์ชื่อไฟล์ตามหลังคำสั่งใน Terminal จะใช้ไฟล์นั้นแทน DATA_FILE
     path = sys.argv[1] if len(sys.argv) > 1 else DATA_FILE
     if not os.path.isabs(path) and not os.path.exists(path):
-        code_dir = os.path.dirname(os.path.abspath(__file__))
-        for folder in (os.path.join(code_dir, DATA_DIR), code_dir):   # หาใน station ก่อน แล้วค่อยหาในโฟลเดอร์โค้ด
-            candidate = os.path.join(folder, path)
-            if os.path.exists(candidate):
-                path = candidate
-                break
-        else:
-            sys.exit(f"หาไฟล์ '{path}' ไม่เจอ ทั้งใน {DATA_DIR}\\ และในโฟลเดอร์โค้ด")
+        from data_loader import resolve_data_path, DATA_DIR as EVENT_DIR
+        found = resolve_data_path(path)       # หาในโฟลเดอร์เหตุการณ์ (config.EVENT) -> station -> โฟลเดอร์โค้ด
+        if not os.path.exists(found):
+            sys.exit(f"หาไฟล์ '{path}' ไม่เจอ ทั้งใน {EVENT_DIR}, {DATA_DIR}\\ และในโฟลเดอร์โค้ด")
+        path = found
     profile = sys.argv[2] if len(sys.argv) > 2 else PROFILE
     main(path, profile)
