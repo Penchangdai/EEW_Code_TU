@@ -177,15 +177,13 @@ def phase_travel_time(delta_km, depth_km, phase):
     return travel_time_2layer(delta_km, depth_km, phase)
 
 
-def phase_name(delta_km, phase):
-    """ชื่อเฟสตามระยะ เช่น Pg/Pn, Sg/Sn"""
+def phase_name(delta_km, phase, depth_km=10.0):
+    """ชื่อเฟสตามระยะและความลึก เช่น Pg/Pn, Sg/Sn"""
     if phase == "Lg":
         return "Lg"
-    v1, v2 = (C.VP_KM_S, C.VPN_KM_S) if phase == "P" else (C.VS_KM_S, C.VSN_KM_S)
-    H = C.CRUST_THICKNESS_KM
-    direct = delta_km / v1
-    head = delta_km / v2 + 2 * H * np.sqrt(1 / v1 ** 2 - 1 / v2 ** 2)
-    return phase + ("n" if head < direct else "g")
+    v1 = C.VP_KM_S if phase == "P" else C.VS_KM_S
+    direct = np.sqrt(delta_km ** 2 + depth_km ** 2) / v1
+    return phase + ("g" if direct <= travel_time_2layer(delta_km, depth_km, phase) + 1e-9 else "n")
 
 
 def observations(stations, use_weights=True, phases=("P", "S", "Lg")):
@@ -346,13 +344,16 @@ def travel_time_2layer(delta_km, depth_km, phase="P"):
     """
     เวลาเดินทางในโลก 2 ชั้น (เปลือกโลก + เนื้อโลก) เลือกคลื่นที่มาถึงก่อนเอง
       คลื่นตรง  (Pg/Sg): t = R / V1,  R = sqrt(Δ² + h²)
-      คลื่นหัว  (Pn/Sn): t = Δ / V2 + 2H·sqrt(1/V1² − 1/V2²)   (H = ความหนาเปลือกโลก)
+      คลื่นหัว  (Pn/Sn): h < H:  t = Δ / V2 + (2H − h)·q,   q = sqrt(1/V1² − 1/V2²)   (H = ความหนาเปลือกโลก)
+                         h ≥ H:  t = sqrt(Δ² + (h − H)²) / V2 + H·q   (จุดกำเนิดอยู่ในเนื้อโลก โดยประมาณ)
       t = min(คลื่นตรง, คลื่นหัว)
     """
     v1, v2 = (C.VP_KM_S, C.VPN_KM_S) if phase == "P" else (C.VS_KM_S, C.VSN_KM_S)
     H = C.CRUST_THICKNESS_KM
+    q = np.sqrt(1 / v1 ** 2 - 1 / v2 ** 2)
     direct = np.sqrt(delta_km ** 2 + depth_km ** 2) / v1
-    head = delta_km / v2 + 2 * H * np.sqrt(1 / v1 ** 2 - 1 / v2 ** 2)
+    below = np.maximum(np.asarray(depth_km, float) - H, 0.0)      # ส่วนที่ลึกกว่า Moho
+    head = np.sqrt(delta_km ** 2 + below ** 2) / v2 + (2 * H - np.minimum(depth_km, H)) * q
     return np.minimum(direct, head)
 
 

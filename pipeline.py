@@ -35,7 +35,14 @@ PHASE_KEYS = {"P": ("tp", "wp"), "S": ("ts", "ws"), "Lg": ("tlg", "wlg")}
 DEFAULTS = {
     "use_s": True,             # ใช้คลื่น S / Lg ช่วยหาตำแหน่ง
     "s_phases": ("S", "Lg"),   # เฟสคลื่น S ที่ pick: "S" = Sg/Sn (มาถึงก่อน), "Lg"  (profile local ใช้แค่ "S")
-    "fix_depth": 10.0,         # ตรึงความลึก (km)  None = หาความลึกด้วย (ต้องมีสถานีใกล้ < ~2 เท่าความลึก)
+    "fix_depth": 10.0,         # ตรึงความลึก (km)  None = หาความลึกด้วยเสมอ (ต้องมีสถานีใกล้ < ~2 เท่าความลึก)
+    # หาความลึกแบบมีเงื่อนไข: ใช้ pick ชุดสุดท้ายหาความลึก แล้วรับค่าเมื่อผ่านเกณฑ์ทุกข้อ ไม่ผ่าน = ใช้ fix_depth ต่อ
+    "solve_depth": True,       # False = ใช้ fix_depth เสมอ
+    "depth_near_km": 150.0,    # ต้องมีสถานีใกล้กว่านี้ (ไกลกว่านี้คลื่นตรงไม่มาก่อน เวลาคลื่นแทบไม่บอกความลึก)
+    "depth_min_obs": 8,        # จำนวนเวลาคลื่นขั้นต่ำ (หา 4 ค่า: lat, lon, ความลึก, เวลาเกิด)
+    "depth_max_err_km": 15.0,  # ความคลาดของความลึก (1σ) ไม่เกินค่านี้
+    "depth_min_rms_gain": 0.10,  # ถ้าความลึกต่างจาก fix_depth เกิน 1σ RMS ต้องดีขึ้นอย่างน้อยสัดส่วนนี้
+    "depth_max_shift_km": 30.0,  # ตำแหน่งต้องไม่ย้ายเกินค่านี้ (ย้ายมาก = ความลึกแลกกับตำแหน่ง ไม่ใช่วัดได้จริง)
     "min_weight_used": 3,      # ใช้ pick ที่ weight <= ค่านี้
     "res_max": {"regional": {"P": 3.0, "S": 6.0, "Lg": 6.0},     # |residual| (s) ที่ยอมรับได้
                 "local": {"P": 1.0, "S": 2.0, "Lg": 2.0}},
@@ -102,6 +109,58 @@ def _locator_dict(st):
 def _n_obs(stations, phases=("P", "S", "Lg")):
     return sum(1 for s in stations for ph in s["use"] if ph in phases and ph in s["picks"]
                and pick_weight(s["picks"][ph]["weight"]) > 0)
+
+
+def refine_depth(stations, hypo, cfg, log=None, verbose=False):
+    """
+    หาความลึกแบบมีเงื่อนไข จาก pick ชุดเดียวกับผลที่ตรึงความลึก (เทียบกันตรง ๆ และไม่ทำให้ pick หาย)
+    คืนค่า (hypo, info)  ผ่านเกณฑ์ = hypo ใหม่ที่มีความลึกที่คำนวณได้,  ไม่ผ่าน = hypo เดิม
+    info : {"solved": bool, "reason": เหตุผล, "depth", "err_z", ...}
+    """
+    info = {"solved": False, "reason": "", "depth": None, "err_z": None}
+    if cfg["fix_depth"] is None:
+        info.update(solved=True, reason="คำนวณความลึกเสมอ (fix_depth = None)", depth=hypo.get("depth"),
+                    err_z=hypo.get("err_z_km"))
+        return hypo, info
+    if not cfg["solve_depth"]:
+        info["reason"] = "ปิดการหาความลึก (solve_depth = False)"
+        return hypo, info
+    used = [s for s in stations if s["use"]]
+    if not used:
+        info["reason"] = "ไม่มีสถานีที่ใช้"
+        return hypo, info
+    dmin = min(float(haversine_km(hypo["lat"], hypo["lon"], s["lat"], s["lon"])) for s in used)
+    info["dmin_km"] = dmin
+    if dmin > cfg["depth_near_km"]:
+        info["reason"] = f"สถานีที่ใกล้ที่สุดห่าง {dmin:.0f} km (ต้องไม่เกิน {cfg['depth_near_km']:.0f} km)"
+        return hypo, info
+    phases = ("P",) + tuple(cfg["s_phases"]) if cfg["use_s"] else ("P",)
+    n_obs = _n_obs(used, phases)
+    if n_obs < cfg["depth_min_obs"]:
+        info["reason"] = f"เวลาคลื่นมี {n_obs} ค่า (ต้องอย่างน้อย {cfg['depth_min_obs']})"
+        return hypo, info
+    try:
+        free = _locate(stations, dict(cfg, fix_depth=None), init=(hypo["lat"], hypo["lon"]), phases=phases)
+    except (ValueError, np.linalg.LinAlgError) as ex:
+        info["reason"] = f"คำนวณไม่สำเร็จ ({ex})"
+        return hypo, info
+    ez, z = free.get("err_z_km"), free["depth"]
+    shift = float(haversine_km(hypo["lat"], hypo["lon"], free["lat"], free["lon"]))
+    info.update(depth=z, err_z=ez, rms_fixed=hypo["rms"], rms_free=free["rms"], shift_km=shift)
+    if ez is None or not np.isfinite(ez) or ez <= 0 or ez > cfg["depth_max_err_km"]:
+        info["reason"] = f"ความลึก {z:.0f} km คลาด ±{ez:.0f} km (ต้องไม่เกิน ±{cfg['depth_max_err_km']:.0f} km)"
+    elif shift > cfg["depth_max_shift_km"]:
+        info["reason"] = f"ตำแหน่งย้าย {shift:.0f} km (ต้องไม่เกิน {cfg['depth_max_shift_km']:.0f} km)"
+    elif free["rms"] > hypo["rms"]:
+        info["reason"] = f"RMS แย่ลง ({hypo['rms']:.2f} -> {free['rms']:.2f} s)"
+    elif abs(z - cfg["fix_depth"]) > ez and free["rms"] > hypo["rms"] * (1.0 - cfg["depth_min_rms_gain"]):
+        info["reason"] = (f"ความลึก {z:.0f} km ต่างจากค่าตรึง แต่ RMS ดีขึ้นไม่ถึง "
+                          f"{cfg['depth_min_rms_gain']:.0%} ({hypo['rms']:.2f} -> {free['rms']:.2f} s)")
+    if info["reason"]:
+        return hypo, info
+    info["solved"] = True
+    info["reason"] = f"ความลึก {z:.0f} ±{ez:.0f} km, RMS {hypo['rms']:.2f} -> {free['rms']:.2f} s"
+    return dict(hypo, **free), info
 
 
 def _locate(stations, cfg, init=None, phases=("P", "S", "Lg")):
@@ -697,6 +756,13 @@ def locate_event(specs, profile="regional", get_coords=None, settings=None, verb
         if hypo["n_by_phase"]["S"] + hypo["n_by_phase"]["Lg"] == 0:
             _say(log, verbose, "⚠ ไม่มีคลื่น S / Lg ที่ใช้ได้ ผลนี้มาจากคลื่น P อย่างเดียว")
 
+    # ---------- หาความลึก (เมื่อข้อมูลบอกได้จริง) ----------
+    hypo, depth_info = refine_depth(stations, hypo, cfg)
+    hypo["depth_info"] = depth_info
+    if cfg["fix_depth"] is not None:
+        _say(log, verbose, ("ความลึก: คำนวณได้ " if depth_info["solved"] else
+                            f"ความลึก: ใช้ค่าตรึง {cfg['fix_depth']:g} km เพราะ") + " " + depth_info["reason"])
+
     # ---------- สรุปผลรายสถานี ----------
     used = [s for s in stations if s["use"]]
     hypo["gap"] = azimuthal_gap(hypo["lat"], hypo["lon"], used) if used else 360.0
@@ -709,13 +775,13 @@ def locate_event(specs, profile="regional", get_coords=None, settings=None, verb
         for ph, pk in s["picks"].items():
             if ph in PHASE_KEYS:
                 s["residual"][ph] = pk["time"] - predict_arrival(hypo, s["lat"], s["lon"], ph)
-                s["phase_name"][ph] = phase_name(d, ph)
+                s["phase_name"][ph] = phase_name(d, ph, hypo["depth"])
         # ระยะจาก S-P หรือ Lg-P ของสถานีนี้ (สถานีเดียว ไม่ขึ้นกับเวลาเกิด) -- ไว้วาดวงกลมบนแผนที่
         s["delta_sp"], s["delta_sp_phase"] = None, None
         for ph in ("S", "Lg"):
             if "P" in s["use"] and ph in s["use"]:
                 s["delta_sp"] = delta_from_differential(s["picks"][ph]["time"] - s["picks"]["P"]["time"],
-                                                        ph, cfg["fix_depth"] or 10.0)
+                                                        ph, hypo["depth"])
                 s["delta_sp_phase"] = ph
                 break
     hypo["teleseism"] = teleseism_check(stations, start, cfg)
@@ -819,7 +885,12 @@ def print_report(result, ref_epicenter=None, ref_origin_time=None):
     print("=" * 100)
     print(f"วิธี         : {hypo.get('method', '')}")
     print(f"Epicenter    : lat {hypo['lat']:.3f}, lon {hypo['lon']:.3f}")
-    print(f"Depth        : {hypo['depth']:.1f} km")
+    di = hypo.get("depth_info") or {}
+    print(f"Depth        : {hypo['depth']:.1f} km"
+          + (f"  (คำนวณได้ ±{di['err_z']:.0f} km)" if di.get("solved") and di.get("err_z") is not None
+             else "  (ค่าตรึง ไม่ได้วัด)" if di else ""))
+    if di and not di.get("solved"):
+        print(f"               เหตุผล: {di['reason']}")
     print(f"Origin time  : {utc(hypo['origin_time'])} UTC")
     print(f"RMS residual : {hypo['rms']:.2f} s   (ถ่วงน้ำหนักตาม weight)")
     ex, ey, et = hypo.get("err_x_km", np.nan), hypo.get("err_y_km", np.nan), hypo.get("err_t0_s", np.nan)

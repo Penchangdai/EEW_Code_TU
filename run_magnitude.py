@@ -163,8 +163,8 @@ def locate(paths, profile):
         n_st = sum(1 for q in res["stations"] if q["use"])
         ez = hypo.get("err_z_km")
         hypo["computed"] = True
-        hypo["depth_measured"] = (DEPTH_KM is None and ez is not None and np.isfinite(ez)
-                                  and 0 < ez <= DEPTH_MAX_ERR_KM)
+        hypo["depth_measured"] = (bool((hypo.get("depth_info") or {}).get("solved"))
+                                  and ez is not None and np.isfinite(ez) and 0 < ez <= DEPTH_MAX_ERR_KM)
         exy = [v for v in (hypo.get("err_x_km"), hypo.get("err_y_km")) if v is not None and np.isfinite(v)]
         hypo["loc_err_km"] = max(exy) if exy else None
         hypo["source"] = (f"คำนวณจากคลื่นที่ {n_st} สถานี (P {nb.get('P', 0)}, S {nb.get('S', 0)}, "
@@ -313,7 +313,9 @@ def location_lines(hypo):
         return tele, "ตำแหน่งที่คำนวณได้ใช้ไม่ได้ (" + "; ".join(hypo["teleseism"]["reasons"]) + ")"
     pos = f"ละติจูด {hypo['lat']:.2f}°N  ลองจิจูด {hypo['lon']:.2f}°E"
     if hypo.get("depth_measured"):
-        pos += f"   ลึก {hypo['depth']:.0f} km"
+        pos += f"   ลึก {hypo['depth']:.0f} ±{hypo['err_z_km']:.0f} km"
+    elif hypo.get("computed"):
+        pos += f"   (ความลึกใช้ค่าตรึง {hypo['depth']:.0f} km ไม่ได้วัด)"
     src = hypo.get("source", "คำนวณจากสถานีตรวจวัด")
     if hypo.get("loc_err_km"):
         src += f"  คลาดประมาณ ±{hypo['loc_err_km']:.0f} km"

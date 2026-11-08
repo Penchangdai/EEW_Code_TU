@@ -45,10 +45,9 @@ def phase_name(delta_km, depth_km, phase):
     """คลื่นที่มาถึงก่อนเป็นคลื่นตรง (Pg/Sg) หรือคลื่นใต้เปลือกโลก (Pn/Sn)"""
     if phase == "Lg":
         return "Lg"
-    v1, v2 = (C.VP_KM_S, C.VPN_KM_S) if phase == "P" else (C.VS_KM_S, C.VSN_KM_S)
+    v1 = C.VP_KM_S if phase == "P" else C.VS_KM_S
     direct = np.sqrt(delta_km ** 2 + depth_km ** 2) / v1
-    head = delta_km / v2 + 2 * C.CRUST_THICKNESS_KM * np.sqrt(1 / v1 ** 2 - 1 / v2 ** 2)
-    return phase + ("g" if direct <= head else "n")
+    return phase + ("g" if direct <= phase_travel_time(delta_km, depth_km, phase) + 1e-9 else "n")
 
 
 def p_arrival_time(origin_time, R, vp=None, depth_km=DEFAULT_DEPTH_KM):
