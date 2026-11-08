@@ -559,6 +559,106 @@ def make_station_mmi_map(stations, out_html, epicenter, field=None, title="ร�
     return _finish(m, out_html, collapsed=True)
 
 
+def _text_on(color):
+    """สีตัวอักษรที่อ่านออกบนพื้นสี #rrggbb"""
+    r, g, b = (int(color[i:i + 2], 16) for i in (1, 3, 5))
+    return "#111111" if 0.299 * r + 0.587 * g + 0.114 * b > 140 else "#ffffff"
+
+
+def make_magnitude_map(stations, out_html, summary, epicenter=None, rupture=None, classes=(), basemap="natgeo"):
+    """
+    แผนที่ขนาดแผ่นดินไหว: จุดกำเนิดจากขั้น epicenter + ป้ายขนาด + สถานีสีตามขนาดที่แต่ละสถานีวัดได้
+    stations : list ของ dict {"name", "lat", "lon", "mag": Mw ของสถานี (หรือ None), "color", "popup"}
+    summary  : dict {"mag_text", "color", "word", "rows": [(หัวข้อ, ข้อความ)], "note"}
+    epicenter: dict {"lat", "lon", "popup"}  None = ไม่มีตำแหน่งที่เชื่อถือได้ (เช่น teleseism) จึงไม่วาดจุดกำเนิด
+    rupture  : dict {"trace", "label"} แนวรอยแตกที่รู้แล้ว   classes : (ต่ำสุด, สูงสุด, คำบอกขนาด, สี) ของคำอธิบายสี
+    """
+    try:
+        import folium
+        from folium.plugins import MousePosition
+    except ImportError:
+        print("(ไม่ได้ติดตั้ง folium จึงไม่วาดแผนที่จริง: pip install folium)")
+        return None
+    lats = [p["lat"] for p in stations]
+    lons = [p["lon"] for p in stations]
+    if epicenter:
+        lats.append(epicenter["lat"]); lons.append(epicenter["lon"])
+    center = [epicenter["lat"], epicenter["lon"]] if epicenter else [float(np.mean(lats)), float(np.mean(lons))]
+    m = _new_map(center, zoom_start=6, basemap=basemap)
+    for la, lo in _add_rupture(m, rupture):
+        lats.append(la); lons.append(lo)
+    stg = folium.FeatureGroup(name="สถานี (สีตามขนาดที่วัดได้)")
+    num = folium.FeatureGroup(name="ตัวเลขขนาดที่สถานี", show=False)
+    for p in stations:
+        v = p.get("mag")
+        tip = f"{p['name']}: Mw {v:.1f}" if v is not None else f"{p['name']}: ไม่ได้ใช้คำนวณขนาด"
+        folium.CircleMarker([p["lat"], p["lon"]], radius=6 if v is not None else 3.5, color="#222222", weight=1.2,
+                            fill=True, fill_color=p.get("color", "#555555") if v is not None else "#555555",
+                            fill_opacity=1.0 if v is not None else 0.6, tooltip=tip,
+                            popup=folium.Popup(p.get("popup", ""), max_width=320)).add_to(stg)
+        if v is not None:
+            folium.Marker([p["lat"], p["lon"]], icon=folium.DivIcon(
+                icon_size=(50, 18), icon_anchor=(25, 26),
+                html=("<div style='text-align:center;font:bold 13px Tahoma,sans-serif;color:#222;"
+                      f"text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff'>{v:.1f}</div>"))).add_to(num)
+    stg.add_to(m)
+    num.add_to(m)
+    color, ink = summary["color"], _text_on(summary["color"])
+    if epicenter:
+        star = ("<svg width='34' height='34' viewBox='0 0 24 24' style='display:block;margin:2px auto 0'>"
+                "<path fill='#ffd21f' stroke='#222' stroke-width='1.2' "
+                "d='M12 1.8l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17l-6.4 3.5 1.4-7.1-5.3-5 7.2-.9z'/></svg>")
+        badge = (f"<div style='width:max-content;margin:auto;background:{color};color:{ink};border:2px solid #222;"
+                 "border-radius:13px;padding:1px 10px;font:bold 15px Tahoma,sans-serif;white-space:nowrap'>"
+                 f"Mw {summary['mag_text']}</div>")
+        folium.Marker([epicenter["lat"], epicenter["lon"]], tooltip=f"จุดกำเนิดจากระบบ: Mw {summary['mag_text']}",
+                      popup=folium.Popup(epicenter.get("popup", "จุดกำเนิด"), max_width=340),
+                      icon=folium.DivIcon(icon_size=(110, 62), icon_anchor=(55, 45), html=badge + star)).add_to(m)
+    MousePosition(position="bottomright", separator=" : ", num_digits=3, prefix="").add_to(m)
+    rows = "".join(f"<tr><td style='color:#555;padding:2px 8px 2px 0;vertical-align:top;white-space:nowrap'>{k}</td>"
+                   f"<td style='padding:2px 0'>{v}</td></tr>" for k, v in summary["rows"])
+    note = f"<div style='margin-top:5px;color:#a50026;font-weight:bold'>{summary['note']}</div>" if summary.get("note") else ""
+    m.get_root().html.add_child(folium.Element(
+        "<div style='position:fixed;top:12px;left:60px;z-index:9999;max-width:min(400px,calc(100vw - 120px));"
+        "max-height:calc(100vh - 150px);overflow:auto;background:rgba(255,255,255,.94);padding:9px 13px;"
+        "border-radius:6px;box-shadow:0 1px 5px #777;font:13px/1.45 Tahoma,sans-serif;color:#222'>"
+        "<details id='mag-card' open><summary style='cursor:pointer'>"
+        "<span style='font-size:15px;font-weight:bold'>ขนาดแผ่นดินไหว</span>"
+        f"<div style='margin:4px 0 6px'><span style='background:{color};color:{ink};border-radius:6px;padding:1px 10px;"
+        f"font-size:26px;font-weight:bold'>Mw {summary['mag_text']}</span>"
+        f"<span style='margin-left:9px;font-size:15px;font-weight:bold'>{summary['word']}</span></div></summary>"
+        f"<table style='border-collapse:collapse'>{rows}</table>{note}</details></div>"))
+    cells = "".join(f"<td style='background:{c};color:{_text_on(c)};min-width:42px;text-align:center;"
+                    f"border:1px solid #888;padding:1px 3px'>{w}<br>{lo:g}{'+' if hi >= 10 else f'–{hi:g}'}</td>"
+                    for lo, hi, w, c in classes)
+    legend = ["<span style='color:#c79a00;font-size:15px'>★</span> จุดกำเนิดจากขั้น epicenter" if epicenter
+              else "ไม่แสดงจุดกำเนิด เพราะไม่มีตำแหน่งที่เชื่อถือได้"]
+    if rupture and rupture.get("trace"):
+        legend.append(f"<span style='color:#7a0000;font-weight:bold'>━━</span> {rupture['label']} (ข้อมูลหลังเหตุการณ์)")
+    legend.append("● สถานี สีตามขนาดที่วัดได้  (จุดเทาเล็ก = ไม่ได้ใช้คำนวณ)")
+    m.get_root().html.add_child(folium.Element(
+        "<div style='position:fixed;bottom:34px;left:10px;z-index:9999;max-width:calc(100vw - 20px);overflow:auto;"
+        "background:rgba(255,255,255,.93);padding:7px 10px;border-radius:6px;box-shadow:0 1px 5px #777;"
+        "font:12px/1.5 Tahoma,sans-serif'><b>กลุ่มขนาด (Mw)</b>"
+        f"<table style='border-collapse:collapse;margin:3px 0 5px'><tr>{cells}</tr></table>"
+        + "<br>".join(legend) + "</div>"))
+    # จัดขอบเขตหลังหน้าโหลดเสร็จ และเว้นที่ให้การ์ดสรุป  จอแคบพับการ์ดไว้ก่อน
+    bounds = [[float(min(lats)) - 0.8, float(min(lons)) - 1.5], [float(max(lats)) + 0.8, float(max(lons)) + 1.5]]
+    mp = m.get_name()
+    m.get_root().script.add_child(folium.Element(f"""
+    window.addEventListener('load', function () {{
+        var wide = window.innerWidth >= 800;
+        if (!wide) {{ document.getElementById('mag-card').removeAttribute('open'); }}
+        function fit() {{
+            {mp}.invalidateSize();
+            {mp}.fitBounds({bounds}, {{paddingTopLeft: wide ? [460, 20] : [20, 90], paddingBottomRight: [20, 20]}});
+        }}
+        fit();
+        {mp}.on('resize', function () {{ if ({mp}.getZoom() < 3) {{ fit(); }} }});
+    }});"""))
+    return _finish(m, out_html, collapsed=True)
+
+
 def make_travel_map(epicenter, sites, out_html, blind_km=None, stations=None, s_fronts=None):
     """
     epicenter : (lat, lon, depth)

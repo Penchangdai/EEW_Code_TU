@@ -50,6 +50,7 @@ DETAIL_FILE = "magnitude_detail.txt"
 REF_MAGNITUDE = (7.7, "Mww (USGS)")     # ขนาดอ้างอิงไว้เทียบในโหมด detail   ไม่ใช้ใส่ None
 PLOT = True               # กราฟ: magnitude_alert.png (ทุกโหมด) + magnitude_summary.png (โหมด detail)
 ALERT_PLOT = "magnitude_alert.png"
+MAP_FILE = "magnitude_map.html"   # แผนที่ขนาด + จุดกำเนิด (เปิดในเบราว์เซอร์)  คู่กับ .kml
 
 # เมืองที่ใช้บอกระยะ (ชื่อ, lat, lon)  การ์ดแสดงกรุงเทพฯ + 2 เมืองที่ใกล้จุดศูนย์กลางที่สุด
 CITIES = [("กรุงเทพฯ", 13.7563, 100.5018), ("เชียงใหม่", 18.7883, 98.9853), ("เชียงราย", 19.9105, 99.8406),
@@ -289,6 +290,14 @@ def location_lines(hypo):
     return pos, src
 
 
+def city_lines(hypo):
+    """ระยะและทิศจากกรุงเทพฯ และเมืองที่ใกล้ที่สุด 2 เมือง ไปยังจุดกำเนิด"""
+    d = [(float(haversine_km(la, lo, hypo["lat"], hypo["lon"])), name, la, lo) for name, la, lo in CITIES]
+    show = sorted([x for x in d if x[1] == "กรุงเทพฯ"] + sorted(x for x in d if x[1] != "กรุงเทพฯ")[:2])
+    return [f"{name} {dist:,.0f} km ไป{_TH_DIR[int((float(azimuth_deg(la, lo, hypo['lat'], hypo['lon'])) + 22.5) // 45) % 8]}"
+            for dist, name, la, lo in show]
+
+
 def public_alert(res):
     line = "=" * 64
     print(line)
@@ -315,12 +324,9 @@ def public_alert(res):
         print(f"  ตำแหน่ง       : {pos}")
         print(f"  ที่มาของตำแหน่ง: {src}")
     if hypo is not None and not tele:
-        d = [(float(haversine_km(la, lo, hypo["lat"], hypo["lon"])), name, la, lo) for name, la, lo in CITIES]
-        show = sorted([x for x in d if x[1] == "กรุงเทพฯ"] + sorted(x for x in d if x[1] != "กรุงเทพฯ")[:2])
-        for k, (dist, name, la, lo) in enumerate(show):
-            az = float(azimuth_deg(la, lo, hypo["lat"], hypo["lon"]))
+        for k, text in enumerate(city_lines(hypo)):
             head = "  ห่างจาก       :" if k == 0 else "                  "
-            print(f"{head} {name} {dist:,.0f} km ไป{_TH_DIR[int((az + 22.5) // 45) % 8]}")
+            print(f"{head} {text}")
     elif hypo is None:
         print("  ตำแหน่ง       : ยังระบุไม่ได้ (สถานีไม่พอ)")
     if tele:
@@ -528,6 +534,72 @@ def plot_summary(res, out="magnitude_summary.png"):
     return out
 
 
+def mag_color(mag):
+    """สีตามกลุ่มขนาดของ USGS"""
+    return next((c[4] for c in MAG_CLASSES if c[0] <= mag < c[1]), MAG_CLASSES[-1][4])
+
+
+def known_rupture(hypo):
+    """แนวรอยแตกจาก config.KNOWN_RUPTURES ที่เวลาเกิดตรงกัน (ข้อมูลหลังเหตุการณ์)  ไม่พบ = None"""
+    for r in getattr(C, "KNOWN_RUPTURES", []):
+        if abs(_epoch(r["time"]) - hypo["origin_time"]) < 300:
+            return r
+    return None
+
+
+def _station_map_point(st, pick, show_distance=True):
+    """ค่าของสถานีบนแผนที่: สีตามขนาดชนิดเดียวกับขนาดหลัก แปลงเป็น Mw แล้ว (teleseism ไม่บอกระยะ เพราะตำแหน่งใช้ไม่ได้)"""
+    rows = [f"<b>{st['code']}</b>"]
+    if show_distance:
+        rows.append(f"ห่างจากจุดกำเนิด {st['delta']:,.0f} km")
+    for t in M.TYPES:
+        v = st["mags"].get(t)
+        if st["w"].get(t, 0) > 0:
+            rows.append(f"{t}: Mw {M.to_mw(t, v['mag'])[0]:.1f}  (น้ำหนัก {st['w'][t]:.2f})")
+        else:
+            rows.append(f"{t}: ใช้ไม่ได้" + (f" ({v['reason']})" if v and v.get("reason") else ""))
+    used = st["w"].get(pick["type"], 0) > 0
+    mag = M.to_mw(pick["type"], st["mags"][pick["type"]]["mag"])[0] if used else None
+    return dict(name=st["code"], lat=st["lat"], lon=st["lon"], mag=mag,
+                color=mag_color(mag) if used else None, popup="<br>".join(rows))
+
+
+def make_map(res, out=MAP_FILE):
+    """แผนที่ HTML บอกว่าแผ่นดินไหวขนาดเท่าไหร่ เกิดที่ไหน โดยใช้จุดกำเนิดจากขั้น epicenter"""
+    if not res or res.get("preferred") is None:
+        return None
+    from map_plot import make_magnitude_map
+    pick, hypo, net = res["preferred"], res["hypo"], res["network"]
+    level, why, unc = res["reliability"]
+    tele = is_teleseism(hypo)
+    if tele:
+        level, unc, why = "ต่ำ (teleseism)", max(unc, 2.0), ["คลื่นมาจากนอกภูมิภาค"]
+    rows = []
+    epicenter = rupture = None
+    note = ""
+    if hypo is not None:
+        rows.append(("เวลาเกิด", thai_time(hypo["origin_time"]) + ("  (คลาดได้มาก)" if tele else "")))
+    if hypo is None:
+        rows.append(("ตำแหน่ง", "ยังระบุไม่ได้ (สถานีไม่พอ)"))
+    elif tele:
+        note = location_lines(hypo)[0] + "  ไม่แสดงตำแหน่งและไม่แจ้งเตือน  ขนาดนี้ต่ำกว่าจริงมาก เพราะสูตรใช้ได้เฉพาะระยะในภูมิภาค"
+    else:
+        pos, src = location_lines(hypo)
+        rows += [("ตำแหน่ง", pos), ("ที่มาของตำแหน่ง", src), ("ห่างจาก", "<br>".join(city_lines(hypo)))]
+        epicenter = dict(lat=hypo["lat"], lon=hypo["lon"],
+                         popup=f"<b>Mw {mw_text(pick)}</b> ({M.size_class(pick['mag'])})<br>{pos}<br>{src}")
+        rupture = known_rupture(hypo)
+    rows.append(("ที่มาของขนาด", mw_source(pick)))
+    rows.append(("ความน่าเชื่อถือ", f"{level}  (ขนาดอาจคลาด ±{unc:.1f})" + (f"<br>เพราะ{', '.join(why)}" if why else "")))
+    others = [f"{t} {net[t]['mag']:.1f} ({net[t]['n']} สถานี)" for t in M.TYPES if net[t]["mag"] is not None]
+    rows.append(("Mw แต่ละชนิด", "  ·  ".join(others)))
+    mag_text = f"{pick['mag']:.1f}" + ("+" if pick.get("lower_bound") else "")
+    summary = dict(mag_text=mag_text, color=mag_color(pick["mag"]), word=M.size_class(pick["mag"]), rows=rows, note=note)
+    points = [_station_map_point(st, pick, epicenter is not None) for st in res["stations"]]
+    classes = [(lo, hi, word, col) for lo, hi, word, _, col in MAG_CLASSES]
+    return make_magnitude_map(points, out, summary, epicenter, rupture, classes)
+
+
 # ======================================================================
 def main(stations=SELECTED_STATIONS, profile=PROFILE, mode=None, plot=PLOT):
     mode = mode or OUTPUT_MODE
@@ -535,9 +607,9 @@ def main(stations=SELECTED_STATIONS, profile=PROFILE, mode=None, plot=PLOT):
         res = compute(stations, profile)
         detail_report(res)
         if plot and res:
-            for out in (plot_summary(res), plot_alert(res)):
+            for out in (plot_summary(res), plot_alert(res), make_map(res)):
                 if out:
-                    print(f"บันทึกกราฟ: {out}")
+                    print(f"บันทึกผล: {out}")
         return res
     buf = io.StringIO()                       # โหมด public: เก็บรายละเอียดทั้งหมดลงไฟล์ แสดงแค่การ์ด
     with contextlib.redirect_stdout(buf):
@@ -550,6 +622,9 @@ def main(stations=SELECTED_STATIONS, profile=PROFILE, mode=None, plot=PLOT):
         out = plot_alert(res)
         if out:
             print(f"กราฟขนาดแผ่นดินไหว: {out}")
+        out = make_map(res)
+        if out:
+            print(f"แผนที่ขนาดและจุดกำเนิด: {out}")
     print(f"(รายละเอียดสำหรับเจ้าหน้าที่: {DETAIL_FILE})")
     return res
 

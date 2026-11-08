@@ -1,0 +1,239 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<kml xmlns='http://www.opengis.net/kml/2.2'><Document><name>magnitude_map</name><Style id='ln_f200007a_0000007a_5'><LineStyle><color>f200007a</color><width>5</width></LineStyle><PolyStyle><color>0000007a</color><fill>0</fill></PolyStyle></Style><Style id='dot_ff2730d7_1'><IconStyle><color>ff2730d7</color><scale>1.0</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/shaded_dot.png</href></Icon></IconStyle><LabelStyle><scale>0.9</scale></LabelStyle></Style><Style id='dot_ff2600a5_1'><IconStyle><color>ff2600a5</color><scale>1.0</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/shaded_dot.png</href></Icon></IconStyle><LabelStyle><scale>0.9</scale></LabelStyle></Style><Style id='dot_ff61aefd_1'><IconStyle><color>ff61aefd</color><scale>1.0</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/shaded_dot.png</href></Icon></IconStyle><LabelStyle><scale>0.9</scale></LabelStyle></Style><Style id='dot_ff555555_0'><IconStyle><color>ff555555</color><scale>0.6</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/shaded_dot.png</href></Icon></IconStyle><LabelStyle><scale>0</scale></LabelStyle></Style><Placemark><name>แนวรอยแตก (USGS ShakeMap)</name><description>แนวรอยแตก (USGS ShakeMap)</description><styleUrl>#ln_f200007a_0000007a_5</styleUrl><LineString><tessellate>1</tessellate><coordinates>95.97680,22.47230,0 95.97510,22.13950,0 95.98540,21.97690,0 95.98330,21.92780,0 95.98730,21.81910,0 95.99020,21.56280,0 96.00150,21.43600,0 96.04730,20.75530,0 96.09660,20.28810,0 96.15150,19.90200,0 96.15320,19.84790,0 96.16200,19.79650,0 96.18230,19.65380,0 96.20280,19.53650,0 96.30180,18.93240,0 96.34560,18.69500,0 96.42700,18.26040,0</coordinates></LineString></Placemark><Folder><name>สถานี (สีตามขนาดที่วัดได้)</name><Placemark><name>BKKA: Mw 7.7</name><description>BKKA
+ห่างจากจุดกำเนิด 1,001 km
+Ms_BB: Mw 7.7  (น้ำหนัก 0.21)
+Mw_P: Mw 4.9  (น้ำหนัก 0.02)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>100.6102,13.664,0</coordinates></Point></Placemark><Placemark><name>BKSI: Mw 8.3</name><description>BKSI
+ห่างจากจุดกำเนิด 993 km
+Ms_BB: Mw 8.3  (น้ำหนัก 0.21)
+Mw_P: Mw 6.1  (น้ำหนัก 0.02)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>100.55983,13.726333,0</coordinates></Point></Placemark><Placemark><name>BSPA: Mw 7.9</name><description>BSPA
+ห่างจากจุดกำเนิด 831 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.63)
+Mw_P: Mw 5.9  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>101.020988,15.77807,0</coordinates></Point></Placemark><Placemark><name>CHAC: Mw 8.0</name><description>CHAC
+ห่างจากจุดกำเนิด 1,057 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.63)
+Mw_P: Mw 7.2  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>101.45439,13.567531,0</coordinates></Point></Placemark><Placemark><name>CHBT: Mw 7.9</name><description>CHBT
+ห่างจากจุดกำเนิด 1,187 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.63)
+Mw_P: Mw 6.8  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>102.352698,12.74424,0</coordinates></Point></Placemark><Placemark><name>CHUM: Mw 7.8</name><description>CHUM
+ห่างจากจุดกำเนิด 1,271 km
+Ms_BB: Mw 7.8  (น้ำหนัก 0.63)
+Mw_P: Mw 6.9  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.188522,10.49799,0</coordinates></Point></Placemark><Placemark><name>CMCA: Mw 8.0</name><description>CMCA
+ห่างจากจุดกำเนิด 438 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.63)
+Mw_P: Mw 6.8  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>98.969362,18.77122,0</coordinates></Point></Placemark><Placemark><name>CMMT: Mw 7.9</name><description>CMMT
+ห่างจากจุดกำเนิด 433 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.63)
+Mw_P: Mw 5.9  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>98.945008,18.814363,0</coordinates></Point></Placemark><Placemark><name>CRAI: Mw 7.4</name><description>CRAI
+ห่างจากจุดกำเนิด 482 km
+Ms_BB: Mw 7.4  (น้ำหนัก 0.63)
+Mw_P: Mw 6.0  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>100.373434,20.228927,0</coordinates></Point></Placemark><Placemark><name>CRMJ: Mw 7.4</name><description>CRMJ
+ห่างจากจุดกำเนิด 430 km
+Ms_BB: Mw 7.4  (น้ำหนัก 0.70)
+Mw_P: Mw 6.1  (น้ำหนัก 0.21)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.809401,20.126592,0</coordinates></Point></Placemark><Placemark><name>CRMM: Mw 7.5</name><description>CRMM
+ห่างจากจุดกำเนิด 475 km
+Ms_BB: Mw 7.5  (น้ำหนัก 0.63)
+Mw_P: Mw 6.3  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>100.15378,19.8493426,0</coordinates></Point></Placemark><Placemark><name>KAMP: Mw 7.9</name><description>KAMP
+ห่างจากจุดกำเนิด 672 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.63)
+Mw_P: Mw 6.7  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.526915,16.486447,0</coordinates></Point></Placemark><Placemark><name>KCBA: Mw 7.9</name><description>KCBA
+ห่างจากจุดกำเนิด 914 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.63)
+Mw_P: Mw 7.4  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.536,14.02233,0</coordinates></Point></Placemark><Placemark><name>KHOK: Mw 8.0</name><description>KHOK
+ห่างจากจุดกำเนิด 661 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.63)
+Mw_P: Mw 6.7  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>101.068827,18.02648,0</coordinates></Point></Placemark><Placemark><name>KHON: Mw 8.5</name><description>KHON
+ห่างจากจุดกำเนิด 923 km
+Ms_BB: Mw 8.5  (น้ำหนัก 0.63)
+Mw_P: Mw 6.8  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>102.823,16.33778,0</coordinates></Point></Placemark><Placemark><name>KMUA: Mw 8.3</name><description>KMUA
+ห่างจากจุดกำเนิด 997 km
+Ms_BB: Mw 8.3  (น้ำหนัก 0.49)
+Mw_P: Mw 6.7  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>100.4942,13.6512,0</coordinates></Point></Placemark><Placemark><name>KOOA: Mw 8.0</name><description>KOOA
+ห่างจากจุดกำเนิด 362 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.63)
+Mw_P: Mw 6.6  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>97.93572,18.83089,0</coordinates></Point></Placemark><Placemark><name>KRAD: Mw 8.4</name><description>KRAD
+ห่างจากจุดกำเนิด 808 km
+Ms_BB: Mw 8.4  (น้ำหนัก 0.49)
+Mw_P: Mw 6.6  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>101.884586,16.883751,0</coordinates></Point></Placemark><Placemark><name>KRAS: Mw 7.9</name><description>KRAS
+ห่างจากจุดกำเนิด 1,524 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.63)
+Mw_P: Mw 7.7  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>98.975513,8.10345,0</coordinates></Point></Placemark><Placemark><name>KRDT: Mw 8.6</name><description>KRDT
+ห่างจากจุดกำเนิด 989 km
+Ms_BB: Mw 8.6  (น้ำหนัก 0.49)
+Mw_P: Mw 7.1  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>101.8442,14.5905,0</coordinates></Point></Placemark><Placemark><name>KYAO: Mw 7.8</name><description>KYAO
+ห่างจากจุดกำเนิด 1,519 km
+Ms_BB: Mw 7.8  (น้ำหนัก 0.63)
+Mw_P: Mw 7.7  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>98.584788,8.074267,0</coordinates></Point></Placemark><Placemark><name>LANT: Mw 7.7</name><description>LANT
+ห่างจากจุดกำเนิด 1,586 km
+Ms_BB: Mw 7.7  (น้ำหนัก 0.49)
+Mw_P: Mw 8.0  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.046562,7.544767,0</coordinates></Point></Placemark><Placemark><name>LOEI: Mw 8.1</name><description>LOEI
+ห่างจากจุดกำเนิด 742 km
+Ms_BB: Mw 8.1  (น้ำหนัก 0.63)
+Mw_P: Mw 6.6  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>101.6244,17.50928,0</coordinates></Point></Placemark><Placemark><name>LPGA: Mw 8.1</name><description>LPGA
+ห่างจากจุดกำเนิด 517 km
+Ms_BB: Mw 8.1  (น้ำหนัก 0.63)
+Mw_P: Mw 6.9  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>99.50656,18.27819,0</coordinates></Point></Placemark><Placemark><name>LPSP: Mw 8.3</name><description>LPSP
+ห่างจากจุดกำเนิด 538 km
+Ms_BB: Mw 8.3  (น้ำหนัก 0.63)
+Mw_P: Mw 6.8  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>99.346323,17.875397,0</coordinates></Point></Placemark><Placemark><name>MAEC: Mw 8.1</name><description>MAEC
+ห่างจากจุดกำเนิด 419 km
+Ms_BB: Mw 8.1  (น้ำหนัก 0.63)
+Mw_P: Mw 6.4  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>98.3732842,18.4969257,0</coordinates></Point></Placemark><Placemark><name>MAES: Mw 7.3</name><description>MAES
+ห่างจากจุดกำเนิด 427 km
+Ms_BB: Mw 7.3  (น้ำหนัก 0.63)
+Mw_P: Mw 5.9  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.8865,20.4276,0</coordinates></Point></Placemark><Placemark><name>MHIT: Mw 7.9</name><description>MHIT
+ห่างจากจุดกำเนิด 321 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.63)
+Mw_P: Mw 5.6  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>97.9632,19.3148,0</coordinates></Point></Placemark><Placemark><name>MUSE: Mw 8.0</name><description>MUSE
+ห่างจากจุดกำเนิด 614 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.63)
+Mw_P: Mw 6.4  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>98.935172,16.752257,0</coordinates></Point></Placemark><Placemark><name>NANA: Mw 7.8</name><description>NANA
+ห่างจากจุดกำเนิด 588 km
+Ms_BB: Mw 7.8  (น้ำหนัก 0.63)
+Mw_P: Mw 6.0  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>100.76333,18.7672,0</coordinates></Point></Placemark><Placemark><name>NANS: Mw 7.8</name><description>NANS
+ห่างจากจุดกำเนิด 580 km
+Ms_BB: Mw 7.8  (น้ำหนัก 0.63)
+Mw_P: Mw 6.0  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>100.741757,18.863602,0</coordinates></Point></Placemark><Placemark><name>NAN: Mw 7.7</name><description>NAN
+ห่างจากจุดกำเนิด 573 km
+Ms_BB: Mw 7.7  (น้ำหนัก 0.63)
+Mw_P: Mw 5.8  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>100.911631,19.283535,0</coordinates></Point></Placemark><Placemark><name>NAYO: Mw 8.0</name><description>NAYO
+ห่างจากจุดกำเนิด 980 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.63)
+Mw_P: Mw 6.4  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>101.3209,14.31523,0</coordinates></Point></Placemark><Placemark><name>NGPA: Mw 8.0</name><description>NGPA
+ห่างจากจุดกำเนิด 845 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.63)
+Mw_P: Mw 6.8  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.446783,14.662418,0</coordinates></Point></Placemark><Placemark><name>NONA: Mw 7.8</name><description>NONA
+ห่างจากจุดกำเนิด 749 km
+Ms_BB: Mw 7.8  (น้ำหนัก 0.63)
+Mw_P: Mw 5.0  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>102.167884,18.1751111,0</coordinates></Point></Placemark><Placemark><name>NONG: Mw 7.8</name><description>NONG
+ห่างจากจุดกำเนิด 845 km
+Ms_BB: Mw 7.8  (น้ำหนัก 0.70)
+Mw_P: Mw 6.1  (น้ำหนัก 0.07)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>103.1457,18.06346,0</coordinates></Point></Placemark><Placemark><name>OMKO: Mw 8.1</name><description>OMKO
+ห่างจากจุดกำเนิด 487 km
+Ms_BB: Mw 8.1  (น้ำหนัก 0.63)
+Mw_P: Mw 5.8  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>98.432885,17.798472,0</coordinates></Point></Placemark><Placemark><name>PAOA: Mw 7.7</name><description>PAOA
+ห่างจากจุดกำเนิด 442 km
+Ms_BB: Mw 7.7  (น้ำหนัก 0.63)
+Mw_P: Mw 6.5  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.5067736,19.3471305,0</coordinates></Point></Placemark><Placemark><name>PASO: Mw 7.7</name><description>PASO
+ห่างจากจุดกำเนิด 1,374 km
+Ms_BB: Mw 7.7  (น้ำหนัก 0.21)
+Mw_P: Mw 7.2  (น้ำหนัก 0.02)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.137255,9.522032,0</coordinates></Point></Placemark><Placemark><name>PAYA: Mw 7.6</name><description>PAYA
+ห่างจากจุดกำเนิด 473 km
+Ms_BB: Mw 7.6  (น้ำหนัก 0.63)
+Mw_P: Mw 7.3  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.869172,19.360284,0</coordinates></Point></Placemark><Placemark><name>PBKT: Mw 8.2</name><description>PBKT
+ห่างจากจุดกำเนิด 761 km
+Ms_BB: Mw 8.2  (น้ำหนัก 0.63)
+Mw_P: Mw 5.8  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>100.9687,16.5733,0</coordinates></Point></Placemark><Placemark><name>PHEA: Mw 8.2</name><description>PHEA
+ห่างจากจุดกำเนิด 579 km
+Ms_BB: Mw 8.2  (น้ำหนัก 0.63)
+Mw_P: Mw 7.0  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>100.1656,18.1272,0</coordinates></Point></Placemark><Placemark><name>PHIT: Mw 8.2</name><description>PHIT
+ห่างจากจุดกำเนิด 670 km
+Ms_BB: Mw 8.2  (น้ำหนัก 0.63)
+Mw_P: Mw 6.6  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>100.416499,17.189269,0</coordinates></Point></Placemark><Placemark><name>PHRA: Mw 8.0</name><description>PHRA
+ห่างจากจุดกำเนิด 558 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.63)
+Mw_P: Mw 5.3  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>100.229325,18.498912,0</coordinates></Point></Placemark><Placemark><name>PHRS: Mw 8.1</name><description>PHRS
+ห่างจากจุดกำเนิด 579 km
+Ms_BB: Mw 8.1  (น้ำหนัก 0.63)
+Mw_P: Mw 6.8  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>100.162497,18.1288745,0</coordinates></Point></Placemark><Placemark><name>PKDT: Mw 7.7</name><description>PKDT
+ห่างจากจุดกำเนิด 1,534 km
+Ms_BB: Mw 7.7  (น้ำหนัก 0.21)
+Mw_P: Mw 7.1  (น้ำหนัก 0.02)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>98.335,7.892,0</coordinates></Point></Placemark><Placemark><name>PKTC: Mw 7.7</name><description>PKTC
+ห่างจากจุดกำเนิด 1,510 km
+Ms_BB: Mw 7.7  (น้ำหนัก 0.49)
+Mw_P: Mw 7.5  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>98.30829,8.10484,0</coordinates></Point></Placemark><Placemark><name>PRAC: Mw 7.9</name><description>PRAC
+ห่างจากจุดกำเนิด 1,083 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.63)
+Mw_P: Mw 5.3  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.79288,12.47263,0</coordinates></Point></Placemark><Placemark><name>PRAS: Mw 7.9</name><description>PRAS
+ห่างจากจุดกำเนิด 1,135 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.63)
+Mw_P: Mw 7.0  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.698773,11.938497,0</coordinates></Point></Placemark><Placemark><name>PTNA: Mw 8.1</name><description>PTNA
+ห่างจากจุดกำเนิด 958 km
+Ms_BB: Mw 8.1  (น้ำหนัก 0.21)
+Mw_P: Mw 6.1  (น้ำหนัก 0.02)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>100.620321,14.116106,0</coordinates></Point></Placemark><Placemark><name>RATC: Mw 8.0</name><description>RATC
+ห่างจากจุดกำเนิด 979 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.63)
+Mw_P: Mw 6.5  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>99.792555,13.489793,0</coordinates></Point></Placemark><Placemark><name>RAYA: Mw 8.0</name><description>RAYA
+ห่างจากจุดกำเนิด 1,140 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.21)
+Mw_P: Mw 6.5  (น้ำหนัก 0.02)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>101.339783,12.633808,0</coordinates></Point></Placemark><Placemark><name>ROIA: Mw 8.4</name><description>ROIA
+ห่างจากจุดกำเนิด 1,007 km
+Ms_BB: Mw 8.4  (น้ำหนัก 0.21)
+Mw_P: Mw 8.2  (น้ำหนัก 0.02)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>103.604642,16.0749903,0</coordinates></Point></Placemark><Placemark><name>RONG: Mw 8.0</name><description>RONG
+ห่างจากจุดกำเนิด 1,046 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.63)
+Mw_P: Mw 7.1  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>102.717642,14.63276,0</coordinates></Point></Placemark><Placemark><name>SAKA: Mw 8.4</name><description>SAKA
+ห่างจากจุดกำเนิด 1,175 km
+Ms_BB: Mw 8.4  (น้ำหนัก 0.11)
+Mw_P: Mw 9.6  (น้ำหนัก 0.02)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>99.623872,11.533153,0</coordinates></Point></Placemark><Placemark><name>SANA: Mw 8.0</name><description>SANA
+ห่างจากจุดกำเนิด 438 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.63)
+Mw_P: Mw 6.8  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.0454,18.8491,0</coordinates></Point></Placemark><Placemark><name>SATU: Mw 7.7</name><description>SATU
+ห่างจากจุดกำเนิด 1,709 km
+Ms_BB: Mw 7.7  (น้ำหนัก 0.49)
+Mw_P: Mw 7.6  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>100.083314,6.65373,0</coordinates></Point></Placemark><Placemark><name>SKLK: Mw 7.8</name><description>SKLK
+ห่างจากจุดกำเนิด 1,682 km
+Ms_BB: Mw 7.8  (น้ำหนัก 0.63)
+Mw_P: Mw 7.9  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>100.4989,7.01767,0</coordinates></Point></Placemark><Placemark><name>SKLT: Mw 7.8</name><description>SKLT
+ห่างจากจุดกำเนิด 1,669 km
+Ms_BB: Mw 7.8  (น้ำหนัก 0.63)
+Mw_P: Mw 7.6  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>100.615696,7.175911,0</coordinates></Point></Placemark><Placemark><name>SKNT: Mw 7.9</name><description>SKNT
+ห่างจากจุดกำเนิด 982 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.63)
+Mw_P: Mw 6.9  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>103.9815,16.9742,0</coordinates></Point></Placemark><Placemark><name>SODA: Mw 5.6</name><description>SODA
+ห่างจากจุดกำเนิด 599 km
+Ms_BB: Mw 5.6  (น้ำหนัก 0.49)
+Mw_P: Mw 6.3  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff61aefd_1</styleUrl><Point><coordinates>98.541894,16.70239,0</coordinates></Point></Placemark><Placemark><name>SOEA: Mw 8.2</name><description>SOEA
+ห่างจากจุดกำเนิด 515 km
+Ms_BB: Mw 8.2  (น้ำหนัก 0.63)
+Mw_P: Mw 6.8  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>99.2464531,18.0659075,0</coordinates></Point></Placemark><Placemark><name>SOOA: Mw 9.1</name><description>SOOA
+ห่างจากจุดกำเนิด 581 km
+Ms_BB: Mw 9.1  (น้ำหนัก 0.49)
+Mw_P: Mw 6.8  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>100.111368,18.05051,0</coordinates></Point></Placemark><Placemark><name>SPBA: ไม่ได้ใช้คำนวณขนาด</name><description>SPBA
+ห่างจากจุดกำเนิด 895 km
+Ms_BB: ใช้ไม่ได้ (SNR = 1.8 &lt; 3)
+Mw_P: Mw 6.2  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.0908,14.475,0</coordinates></Point></Placemark><Placemark><name>SRIT: Mw 8.3</name><description>SRIT
+ห่างจากจุดกำเนิด 1,487 km
+Ms_BB: Mw 8.3  (น้ำหนัก 0.49)
+Mw_P: Mw 7.1  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>99.60196,8.59549,0</coordinates></Point></Placemark><Placemark><name>STRA: Mw 7.9</name><description>STRA
+ห่างจากจุดกำเนิด 1,502 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.49)
+Mw_P: Mw 7.4  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.939478,8.546045,0</coordinates></Point></Placemark><Placemark><name>SUAI: Mw 7.5</name><description>SUAI
+ห่างจากจุดกำเนิด 426 km
+Ms_BB: Mw 7.5  (น้ำหนัก 0.63)
+Mw_P: Mw 6.2  (น้ำหนัก 0.19)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.5345444,19.6610094,0</coordinates></Point></Placemark><Placemark><name>SURA: Mw 7.7</name><description>SURA
+ห่างจากจุดกำเนิด 1,426 km
+Ms_BB: Mw 7.7  (น้ำหนัก 0.21)
+Mw_P: Mw 6.7  (น้ำหนัก 0.02)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.62945,9.16634,0</coordinates></Point></Placemark><Placemark><name>SURI: Mw 8.1</name><description>SURI
+ห่างจากจุดกำเนิด 1,098 km
+Ms_BB: Mw 8.1  (น้ำหนัก 0.63)
+Mw_P: Mw 6.1  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>103.5529,14.7688,0</coordinates></Point></Placemark><Placemark><name>SURT: ไม่ได้ใช้คำนวณขนาด</name><description>SURT
+ห่างจากจุดกำเนิด 1,427 km
+Ms_BB: ใช้ไม่ได้ (SNR = 0.2 &lt; 3)
+Mw_P: Mw 11.9  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>98.795,8.9577,0</coordinates></Point></Placemark><Placemark><name>SUTA: Mw 7.9</name><description>SUTA
+ห่างจากจุดกำเนิด 1,417 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.21)
+Mw_P: Mw 6.9  (น้ำหนัก 0.02)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.152127,9.133605,0</coordinates></Point></Placemark><Placemark><name>THUA: Mw 7.6</name><description>THUA
+ห่างจากจุดกำเนิด 565 km
+Ms_BB: Mw 7.6  (น้ำหนัก 0.63)
+Mw_P: Mw 5.7  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>100.882543,19.4084714,0</coordinates></Point></Placemark><Placemark><name>TRTT: Mw 7.8</name><description>TRTT
+ห่างจากจุดกำเนิด 1,571 km
+Ms_BB: Mw 7.8  (น้ำหนัก 0.49)
+Mw_P: Mw 7.7  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.6912,7.8362,0</coordinates></Point></Placemark><Placemark><name>TSYA: Mw 7.8</name><description>TSYA
+ห่างจากจุดกำเนิด 531 km
+Ms_BB: Mw 7.8  (น้ำหนัก 0.70)
+Mw_P: Mw 6.9  (น้ำหนัก 0.07)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>98.22557,17.227516,0</coordinates></Point></Placemark><Placemark><name>UBPT: Mw 8.4</name><description>UBPT
+ห่างจากจุดกำเนิด 1,220 km
+Ms_BB: Mw 8.4  (น้ำหนัก 0.49)
+Mw_P: Mw 7.0  (น้ำหนัก 0.05)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>105.4695,15.2773,0</coordinates></Point></Placemark><Placemark><name>UMPA: Mw 7.9</name><description>UMPA
+ห่างจากจุดกำเนิด 681 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.63)
+Mw_P: Mw 5.8  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>98.86028,16.02574,0</coordinates></Point></Placemark><Placemark><name>UTHA: Mw 7.9</name><description>UTHA
+ห่างจากจุดกำเนิด 756 km
+Ms_BB: Mw 7.9  (น้ำหนัก 0.63)
+Mw_P: Mw 6.0  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2730d7_1</styleUrl><Point><coordinates>99.445133,15.558565,0</coordinates></Point></Placemark><Placemark><name>UTHS: Mw 8.0</name><description>UTHS
+ห่างจากจุดกำเนิด 806 km
+Ms_BB: Mw 8.0  (น้ำหนัก 0.63)
+Mw_P: Mw 5.8  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>100.009555,15.353557,0</coordinates></Point></Placemark><Placemark><name>UTTA: Mw 8.2</name><description>UTTA
+ห่างจากจุดกำเนิด 638 km
+Ms_BB: Mw 8.2  (น้ำหนัก 0.63)
+Mw_P: Mw 6.7  (น้ำหนัก 0.06)</description><styleUrl>#dot_ff2600a5_1</styleUrl><Point><coordinates>100.554083,17.744258,0</coordinates></Point></Placemark></Folder></Document></kml>
