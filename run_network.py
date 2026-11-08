@@ -31,7 +31,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # "auto" = ใช้ไฟล์ .txt ทุกไฟล์ที่มี "# Station:" ในโฟลเดอร์ station
 # ชื่อโฟลเดอร์ = ใช้ทุกไฟล์ในโฟลเดอร์นั้น เช่น "2026-05-18_M5.2_AllTMD" (อยู่ในโฟลเดอร์โค้ด) หรือ path เต็ม
 # หรือระบุเป็น list เช่น ["BKKA", "CMMT"], [{"file": "BKKA_20250328_061959.txt"}, {"file": "X.txt", "lat": 15.0, "lon": 100.0}]
-STATIONS = "2025-08-21_M4.6_AllTMD"
+STATIONS = "2025-3-28_Mw7.7_station"
 PROFILE = "regional"      # "regional" = สถานีไกล (> ~300 km), "local" = สถานีใกล้
 
 USE_S = True              # True = ใช้ทั้งคลื่น P และ S / Lg,  False = คลื่น P อย่างเดียว
@@ -47,7 +47,7 @@ SHOW_RINGS = False        # True = วาดวงกลมระยะจาก
 SAVE_CSV = True
 
 # ค่าละเอียดของ pipeline (ไม่ต้องแก้ก็ได้) ดูความหมายใน pipeline.DEFAULTS เช่น
-#   {"s_win_sec": 15.0, "scan_s_weight": 3.0, "s_phases": ("S", "Lg")}
+#   {"s_win_sec": 15.0, "s_phases": ("S", "Lg")}
 PIPELINE_SETTINGS = {}
 
 

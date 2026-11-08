@@ -101,24 +101,11 @@ def _station_time(st, sample):
 
 def magnitude_ready_time(st, mtype, T0):
     """เวลา (epoch) ที่สถานีนี้มีข้อมูลครบสำหรับขนาดชนิดนี้ (ตามหน้าต่างที่ magnitude.py ใช้วัด)"""
-    m = st["mags"].get(mtype) or {}
-    tp = _station_time(st, st["p_index"])
-    d = st["delta"]
-    if mtype == "ML":                                 # ยอดบน Wood-Anderson (เร็วที่สุดที่รู้ค่านี้)
-        idx = [c["index"] for c in m.get("components", {}).values() if c.get("used")]
-        return _station_time(st, max(idx)) if idx else tp
-    if mtype == "mb_Lg":                              # หน้าต่าง Lg 3.6-3.2 km/s
-        return T0 + d / M_LG_VMIN
     if mtype == "Ms_BB":                              # หน้าต่าง Rayleigh 4.5-2.5 km/s
-        return T0 + d / M_RAYLEIGH_VMIN
-    if mtype == "Mwp":                                # คลื่น P ถึงก่อนคลื่น S
-        return tp + (m.get("window_sec") or 0.0)
-    if mtype in ("M_Pd", "M_tc", "Mw_P"):             # คลื่น P 3 s แรก
-        return tp + C.PD_TAUC_WINDOW_SEC
-    return _station_time(st, len(st["rec"]["z"]))     # M_JMA: ค่าสูงสุดทั้งไฟล์
+        return T0 + st["delta"] / M_RAYLEIGH_VMIN
+    return _station_time(st, st["p_index"]) + C.PD_TAUC_WINDOW_SEC      # Mw_P: คลื่น P 3 s แรก
 
 
-M_LG_VMIN = RM.M.LG_VMIN
 M_RAYLEIGH_VMIN = RM.M.RAYLEIGH_VMIN
 
 

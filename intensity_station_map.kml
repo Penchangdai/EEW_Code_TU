@@ -1,448 +1,448 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<kml xmlns='http://www.opengis.net/kml/2.2'><Document><name>intensity_station_map</name><Style id='mk_red'><IconStyle><color>ff2a3ed6</color><scale>1.2</scale><Icon><href>http://maps.google.com/mapfiles/kml/pushpin/wht-pushpin.png</href></Icon></IconStyle></Style><Style id='dot_ffbbbbbb_1'><IconStyle><color>ffbbbbbb</color><scale>1.0</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/shaded_dot.png</href></Icon></IconStyle><LabelStyle><scale>0.9</scale></LabelStyle></Style><Style id='dot_ffffffff_1'><IconStyle><color>ffffffff</color><scale>1.0</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/shaded_dot.png</href></Icon></IconStyle><LabelStyle><scale>0.9</scale></LabelStyle></Style><Placemark><name>จุดศูนย์กลาง</name><description>จุดศูนย์กลาง
-Mw 4.9 (จาก mb_Lg) เล็ก
-21 สิงหาคม 2568 เวลา 09:58:11 น.
-ละติจูด 16.15°N  ลองจิจูด 96.69°E
-คำนวณจากคลื่นที่ 45 สถานี (P 24, S 13, Lg 36)  คลาดประมาณ ±5 km</description><styleUrl>#mk_red</styleUrl><Point><coordinates>96.6932880826357,16.145148907679292,0</coordinates></Point></Placemark><Folder><name>สถานี (MMI วัดได้)</name><Placemark><name>BKSI: MMI -</name><description>BKSI
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 495 km
-MMI วัดได้ 2.0 (II อ่อน)
-ความเสียหาย: ไม่มี
-PGA 2.17 gal, PGV 0.065 cm/s
-MMI จาก PGA 2.3
-JMA ระดับ 0
-MMI ทำนาย 1.2
-⚠ QC: SNR ต่ำ (1.3) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>100.55983,13.726333,0</coordinates></Point></Placemark><Placemark><name>BSPA: MMI -</name><description>BSPA
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 464 km
+<kml xmlns='http://www.opengis.net/kml/2.2'><Document><name>intensity_station_map</name><Style id='dot_ff555555_0'><IconStyle><color>ff555555</color><scale>0.6</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/shaded_dot.png</href></Icon></IconStyle><LabelStyle><scale>0</scale></LabelStyle></Style><Style id='dot_ffffffff_1'><IconStyle><color>ffffffff</color><scale>1.0</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/shaded_dot.png</href></Icon></IconStyle><LabelStyle><scale>0.9</scale></LabelStyle></Style><Style id='dot_ffffccbf_1'><IconStyle><color>ffffccbf</color><scale>1.0</scale><Icon><href>http://maps.google.com/mapfiles/kml/shapes/shaded_dot.png</href></Icon></IconStyle><LabelStyle><scale>0.9</scale></LabelStyle></Style><Folder><name>สถานี (สีตาม MMI ที่วัดได้)</name><Placemark><name>AYUA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 738 km
 MMI วัดได้ 1.0 (I ไม่รู้สึก)
 ความเสียหาย: ไม่มี
-PGA 0.10 gal, PGV 0.010 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.1
-⚠ QC: SNR ต่ำ (1.2) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>101.020988,15.77807,0</coordinates></Point></Placemark><Placemark><name>CHBT: MMI 1.0</name><description>CHBT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 717 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.04 gal, PGV 0.005 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>102.352698,12.74424,0</coordinates></Point></Placemark><Placemark><name>CMMT: MMI 1.0</name><description>CMMT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 381 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.03 gal, PGV 0.005 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>98.945008,18.814363,0</coordinates></Point></Placemark><Placemark><name>CRAI: MMI 1.0</name><description>CRAI
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 598 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.03 gal, PGV 0.002 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.373434,20.228927,0</coordinates></Point></Placemark><Placemark><name>CRMJ: MMI -</name><description>CRMJ
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 552 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.37 gal, PGV 0.004 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0
-⚠ QC: ตัดสัญญาณกระโดด 29 จุด; SNR ต่ำ (1.0) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>99.809401,20.126592,0</coordinates></Point></Placemark><Placemark><name>KHON: MMI -</name><description>KHON
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 655 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.04 gal, PGV 0.002 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.1
-⚠ QC: SNR ต่ำ (1.6) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>102.823,16.33778,0</coordinates></Point></Placemark><Placemark><name>KMUA: MMI -</name><description>KMUA
-สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 494 km
-MMI วัดได้ 1.6 (II อ่อน)
-ความเสียหาย: ไม่มี
-PGA 0.36 gal, PGV 0.042 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.2
-⚠ QC: ตัดสัญญาณกระโดด 25 จุด; SNR ต่ำ (2.2) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>100.4942,13.6512,0</coordinates></Point></Placemark><Placemark><name>KRAD: MMI -</name><description>KRAD
-สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 559 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.53 gal, PGV 0.005 cm/s
-MMI จาก PGA 1.1
-JMA ระดับ 0
-MMI ทำนาย 1.0
-⚠ QC: ตัดสัญญาณกระโดด 13 จุด; SNR ต่ำ (0.3) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>101.884586,16.883751,0</coordinates></Point></Placemark><Placemark><name>KRDT: MMI 1.0</name><description>KRDT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 579 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.11 gal, PGV 0.020 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>101.8442,14.5905,0</coordinates></Point></Placemark><Placemark><name>LANT: MMI -</name><description>LANT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 990 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.09 gal, PGV 0.001 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.1
-⚠ QC: SNR ต่ำ (3.0) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>99.046562,7.544767,0</coordinates></Point></Placemark><Placemark><name>LOEI: MMI 1.0</name><description>LOEI
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 546 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.01 gal, PGV 0.001 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>101.6244,17.50928,0</coordinates></Point></Placemark><Placemark><name>LPSP: MMI 1.3</name><description>LPSP
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 341 km
-MMI วัดได้ 1.3 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.43 gal, PGV 0.029 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.1</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.346323,17.875397,0</coordinates></Point></Placemark><Placemark><name>MAEC: MMI -</name><description>MAEC
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 317 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.30 gal, PGV 0.019 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0
-⚠ QC: ตัดสัญญาณกระโดด 35 จุด; SNR ต่ำ (1.1) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>98.3732842,18.4969257,0</coordinates></Point></Placemark><Placemark><name>MHIT: MMI 1.0</name><description>MHIT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 377 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.05 gal, PGV 0.007 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>97.9632,19.3148,0</coordinates></Point></Placemark><Placemark><name>NAN: MMI -</name><description>NAN
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 567 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.01 gal, PGV 0.002 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0
-⚠ QC: SNR ต่ำ (2.7) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>100.911631,19.283535,0</coordinates></Point></Placemark><Placemark><name>NAYO: MMI -</name><description>NAYO
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 537 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.03 gal, PGV 0.004 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0
-⚠ QC: SNR ต่ำ (2.7) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>101.3209,14.31523,0</coordinates></Point></Placemark><Placemark><name>NONA: MMI -</name><description>NONA
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 624 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.74 gal, PGV 0.004 cm/s
-MMI จาก PGA 1.4
-JMA ระดับ 0
-MMI ทำนาย 1.0
-⚠ QC: SNR ต่ำ (2.3) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>102.167884,18.1751111,0</coordinates></Point></Placemark><Placemark><name>OMKO: MMI 1.0</name><description>OMKO
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 261 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.10 gal, PGV 0.009 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>98.432885,17.798472,0</coordinates></Point></Placemark><Placemark><name>PAOA: MMI 1.3</name><description>PAOA
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 464 km
-MMI วัดได้ 1.3 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.22 gal, PGV 0.028 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.2</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.5067736,19.3471305,0</coordinates></Point></Placemark><Placemark><name>PASO: MMI -</name><description>PASO
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 783 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.01 gal, PGV 0.002 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.1
-⚠ QC: ตัดสัญญาณกระโดด 12 จุด; SNR ต่ำ (1.9) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>99.137255,9.522032,0</coordinates></Point></Placemark><Placemark><name>PAYA: MMI 1.0</name><description>PAYA
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 491 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.03 gal, PGV 0.005 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.869172,19.360284,0</coordinates></Point></Placemark><Placemark><name>PBKT: MMI 1.0</name><description>PBKT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 459 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.04 gal, PGV 0.004 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.9687,16.5733,0</coordinates></Point></Placemark><Placemark><name>PHIT: MMI -</name><description>PHIT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 413 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.05 gal, PGV 0.005 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0
-⚠ QC: SNR ต่ำ (2.6) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>100.416499,17.189269,0</coordinates></Point></Placemark><Placemark><name>PHRA: MMI 1.0</name><description>PHRA
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 458 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.02 gal, PGV 0.004 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.229325,18.498912,0</coordinates></Point></Placemark><Placemark><name>PHRS: MMI -</name><description>PHRS
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 430 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.16 gal, PGV 0.021 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
+PGA 0.00 gal, PGV 0.001 cm/s
 MMI ทำนาย 1.3
-⚠ QC: SNR ต่ำ (0.5) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>100.162497,18.1288745,0</coordinates></Point></Placemark><Placemark><name>PKDT: MMI 1.0</name><description>PKDT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 935 km
+⚠ QC: SNR ต่ำ (1.2) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.577,14.3521,0</coordinates></Point></Placemark><Placemark><name>BKKA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 802 km
 MMI วัดได้ 1.0 (I ไม่รู้สึก)
 ความเสียหาย: ไม่มี
-PGA 0.11 gal, PGV 0.001 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>98.335,7.892,0</coordinates></Point></Placemark><Placemark><name>PRAC: MMI 1.0</name><description>PRAC
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 527 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.03 gal, PGV 0.005 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.79288,12.47263,0</coordinates></Point></Placemark><Placemark><name>PRAS: MMI -</name><description>PRAS
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 569 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 1.48 gal, PGV 0.003 cm/s
-MMI จาก PGA 2.0
-JMA ระดับ 0
-MMI ทำนาย 1.0
-⚠ QC: SNR ต่ำ (1.1) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>99.698773,11.938497,0</coordinates></Point></Placemark><Placemark><name>PTNA: MMI -</name><description>PTNA
-สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 478 km
-MMI วัดได้ 1.5 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.70 gal, PGV 0.035 cm/s
-MMI จาก PGA 1.4
-JMA ระดับ 0
-MMI ทำนาย 1.2
-⚠ QC: SNR ต่ำ (1.4) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>100.620321,14.116106,0</coordinates></Point></Placemark><Placemark><name>RATC: MMI -</name><description>RATC
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 445 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.27 gal, PGV 0.007 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0
-⚠ QC: SNR ต่ำ (2.3) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>99.792555,13.489793,0</coordinates></Point></Placemark><Placemark><name>RAYA: MMI -</name><description>RAYA
-สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 635 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.20 gal, PGV 0.003 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.1
-⚠ QC: SNR ต่ำ (1.2) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>101.339783,12.633808,0</coordinates></Point></Placemark><Placemark><name>RONG: MMI 1.0</name><description>RONG
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 667 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 1.16 gal, PGV 0.014 cm/s
-MMI จาก PGA 1.8
-JMA ระดับ 0
-MMI ทำนาย 1.1</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>102.717642,14.63276,0</coordinates></Point></Placemark><Placemark><name>SAKA: MMI -</name><description>SAKA
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 603 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.41 gal, PGV 0.004 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.1
-⚠ QC: SNR ต่ำ (1.1) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>99.623872,11.533153,0</coordinates></Point></Placemark><Placemark><name>SATU: MMI -</name><description>SATU
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 1,118 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.04 gal, PGV 0.001 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.5
-⚠ QC: ตัดสัญญาณกระโดด 219 จุด; SNR ต่ำ (2.0) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>100.083314,6.65373,0</coordinates></Point></Placemark><Placemark><name>SKLT: MMI -</name><description>SKLT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 1,085 km
-MMI วัดได้ 6.5 (VI แรง)
-ความเสียหาย: เล็กน้อย
-PGA 29.92 gal, PGV 13.598 cm/s
-MMI จาก PGA 4.1
-JMA ระดับ 3
+PGA 0.06 gal, PGV 0.007 cm/s
 MMI ทำนาย 1.3
-⚠ QC: ตัดสัญญาณกระโดด 651 จุด; ค่าที่วัดได้ต่างจากสถานีอื่นเกิน 4 MMI (+5.3) น่าจะเป็นข้อมูลเสีย</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>100.615696,7.175911,0</coordinates></Point></Placemark><Placemark><name>SKNT: MMI 1.0</name><description>SKNT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+⚠ QC: SNR ต่ำ (1.4) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.6102,13.664,0</coordinates></Point></Placemark><Placemark><name>BKSI: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 793 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.70 gal, PGV 0.022 cm/s
+MMI ทำนาย 1.1
+⚠ QC: ตัดสัญญาณกระโดด 28 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.55983,13.726333,0</coordinates></Point></Placemark><Placemark><name>BSPA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 657 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.14 gal, PGV 0.012 cm/s
+MMI ทำนาย 1.2
+⚠ QC: SNR ต่ำ (1.6) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>101.020988,15.77807,0</coordinates></Point></Placemark><Placemark><name>CHAC: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 866 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.02 gal, PGV 0.002 cm/s
+MMI ทำนาย 1.2
+⚠ QC: SNR ต่ำ (1.0) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>101.45439,13.567531,0</coordinates></Point></Placemark><Placemark><name>CHBT: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 998 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.15 gal, PGV 0.002 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>102.352698,12.74424,0</coordinates></Point></Placemark><Placemark><name>CHUM: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,054 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.02 gal, PGV 0.003 cm/s
+MMI ทำนาย 1.2
+⚠ QC: SNR ต่ำ (1.7) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>99.188522,10.49799,0</coordinates></Point></Placemark><Placemark><name>CMCA: MMI 1.8</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 299 km
+MMI วัดได้ 1.8 (II อ่อน)
+ความเสียหาย: ไม่มี
+PGA 0.61 gal, PGV 0.048 cm/s
+MMI ทำนาย 1.8</description><styleUrl>#dot_ffffccbf_1</styleUrl><Point><coordinates>98.969362,18.77122,0</coordinates></Point></Placemark><Placemark><name>CMMT: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 295 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.18 gal, PGV 0.014 cm/s
+MMI ทำนาย 1.1</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>98.945008,18.814363,0</coordinates></Point></Placemark><Placemark><name>CRAI: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 439 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.06 gal, PGV 0.007 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.373434,20.228927,0</coordinates></Point></Placemark><Placemark><name>CRMJ: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 379 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.09 gal, PGV 0.011 cm/s
+MMI ทำนาย 1.1</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.809401,20.126592,0</coordinates></Point></Placemark><Placemark><name>CRMM: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 411 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 1.38 gal, PGV 0.014 cm/s
+MMI ทำนาย 1.3
+⚠ QC: SNR ต่ำ (1.4) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.15378,19.8493426,0</coordinates></Point></Placemark><Placemark><name>KAMP: MMI 1.4</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 486 km
+MMI วัดได้ 1.4 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.27 gal, PGV 0.031 cm/s
+MMI ทำนาย 1.4
+⚠ QC: ตัดสัญญาณกระโดด 3 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.526915,16.486447,0</coordinates></Point></Placemark><Placemark><name>KCBA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 707 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.24 gal, PGV 0.010 cm/s
+MMI ทำนาย 1.4
+⚠ QC: SNR ต่ำ (1.0) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>99.536,14.02233,0</coordinates></Point></Placemark><Placemark><name>KHOK: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 535 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.16 gal, PGV 0.010 cm/s
+MMI ทำนาย 1.4
+⚠ QC: SNR ต่ำ (1.3) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>101.068827,18.02648,0</coordinates></Point></Placemark><Placemark><name>KHON: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
 ห่างจากจุดศูนย์กลาง 782 km
 MMI วัดได้ 1.0 (I ไม่รู้สึก)
 ความเสียหาย: ไม่มี
-PGA 0.18 gal, PGV 0.002 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0
-⚠ QC: ตัดสัญญาณกระโดด 15 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>103.9815,16.9742,0</coordinates></Point></Placemark><Placemark><name>SOEA: MMI 1.0</name><description>SOEA
-สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 345 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.99 gal, PGV 0.019 cm/s
-MMI จาก PGA 1.7
-JMA ระดับ 0
+PGA 0.02 gal, PGV 0.004 cm/s
 MMI ทำนาย 1.1
-⚠ QC: ตัดสัญญาณกระโดด 12 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.2464531,18.0659075,0</coordinates></Point></Placemark><Placemark><name>SRIT: MMI -</name><description>SRIT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 897 km
+⚠ QC: SNR ต่ำ (2.5) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>102.823,16.33778,0</coordinates></Point></Placemark><Placemark><name>KMUA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 796 km
+MMI วัดได้ 1.3 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.22 gal, PGV 0.030 cm/s
+MMI ทำนาย 1.2
+⚠ QC: SNR ต่ำ (1.8) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.4942,13.6512,0</coordinates></Point></Placemark><Placemark><name>KOOA: MMI 2.5</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 195 km
+MMI วัดได้ 2.5 (II อ่อน)
+ความเสียหาย: ไม่มี
+PGA 1.59 gal, PGV 0.129 cm/s
+MMI ทำนาย 2.5</description><styleUrl>#dot_ffffccbf_1</styleUrl><Point><coordinates>97.93572,18.83089,0</coordinates></Point></Placemark><Placemark><name>KRAD: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 665 km
 MMI วัดได้ 1.0 (I ไม่รู้สึก)
 ความเสียหาย: ไม่มี
-PGA 0.05 gal, PGV 0.005 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
+PGA 0.87 gal, PGV 0.005 cm/s
 MMI ทำนาย 1.0
-⚠ QC: SNR ต่ำ (2.2) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>99.60196,8.59549,0</coordinates></Point></Placemark><Placemark><name>STRA: MMI -</name><description>STRA
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 915 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.04 gal, PGV 0.003 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.4
-⚠ QC: SNR ต่ำ (1.6) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>99.939478,8.546045,0</coordinates></Point></Placemark><Placemark><name>SUAI: MMI -</name><description>SUAI
-สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 493 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.10 gal, PGV 0.015 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.1
-⚠ QC: ตัดสัญญาณกระโดด 38 จุด; SNR ต่ำ (1.7) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>99.5345444,19.6610094,0</coordinates></Point></Placemark><Placemark><name>SURA: MMI -</name><description>SURA
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 839 km
-MMI วัดได้ 1.0 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 0.04 gal, PGV 0.001 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.3
-⚠ QC: SNR ต่ำ (1.4) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>99.62945,9.16634,0</coordinates></Point></Placemark><Placemark><name>SURI: MMI -</name><description>SURI
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 751 km
+⚠ QC: SNR ต่ำ (0.7) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>101.884586,16.883751,0</coordinates></Point></Placemark><Placemark><name>KRAS: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,305 km
 MMI วัดได้ 1.0 (I ไม่รู้สึก)
 ความเสียหาย: ไม่มี
 PGA 0.03 gal, PGV 0.002 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.2
-⚠ QC: SNR ต่ำ (1.0) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>103.5529,14.7688,0</coordinates></Point></Placemark><Placemark><name>SURT: MMI -</name><description>SURT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 831 km
-MMI วัดได้ 9.7 (X+ รุนแรงที่สุด)
-ความเสียหาย: หนักมาก
-PGA 192.00 gal, PGV 147.404 cm/s
-MMI จาก PGA 6.8
-JMA ระดับ 5+
-MMI ทำนาย 1.0
-⚠ QC: ตัดสัญญาณกระโดด 1245 จุด; ค่าที่วัดได้ต่างจากสถานีอื่นเกิน 4 MMI (+8.7) น่าจะเป็นข้อมูลเสีย</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>98.795,8.9577,0</coordinates></Point></Placemark><Placemark><name>THUA: MMI 1.0</name><description>THUA
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 573 km
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>98.975513,8.10345,0</coordinates></Point></Placemark><Placemark><name>KRDT: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 811 km
 MMI วัดได้ 1.0 (I ไม่รู้สึก)
 ความเสียหาย: ไม่มี
-PGA 0.12 gal, PGV 0.010 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0
-⚠ QC: ตัดสัญญาณกระโดด 3 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.882543,19.4084714,0</coordinates></Point></Placemark><Placemark><name>TRTT: MMI -</name><description>TRTT
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 980 km
+PGA 0.29 gal, PGV 0.022 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>101.8442,14.5905,0</coordinates></Point></Placemark><Placemark><name>KYAO: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,300 km
 MMI วัดได้ 1.0 (I ไม่รู้สึก)
 ความเสียหาย: ไม่มี
 PGA 0.01 gal, PGV 0.001 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.1
-⚠ QC: SNR ต่ำ (1.3) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>99.6912,7.8362,0</coordinates></Point></Placemark><Placemark><name>TSYA: MMI 1.5</name><description>TSYA
-สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 203 km
-MMI วัดได้ 1.5 (I ไม่รู้สึก)
-ความเสียหาย: ไม่มี
-PGA 1.93 gal, PGV 0.036 cm/s
-MMI จาก PGA 2.2
-JMA ระดับ 0
-MMI ทำนาย 1.7
-⚠ QC: ตัดสัญญาณกระโดด 80 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>98.22557,17.227516,0</coordinates></Point></Placemark><Placemark><name>UMPA: MMI -</name><description>UMPA
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 232 km
+MMI ทำนาย 1.0
+⚠ QC: SNR ต่ำ (2.6) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>98.584788,8.074267,0</coordinates></Point></Placemark><Placemark><name>LANT: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,368 km
 MMI วัดได้ 1.0 (I ไม่รู้สึก)
 ความเสียหาย: ไม่มี
-PGA 0.14 gal, PGV 0.015 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.4
-⚠ QC: SNR ต่ำ (2.8) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>98.86028,16.02574,0</coordinates></Point></Placemark><Placemark><name>UTHA: MMI 1.0</name><description>UTHA
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+PGA 0.05 gal, PGV 0.001 cm/s
+MMI ทำนาย 1.0
+⚠ QC: SNR ต่ำ (1.6) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>99.046562,7.544767,0</coordinates></Point></Placemark><Placemark><name>LOEI: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 611 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.02 gal, PGV 0.003 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>101.6244,17.50928,0</coordinates></Point></Placemark><Placemark><name>LPGA: MMI 1.8</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 371 km
+MMI วัดได้ 1.8 (II อ่อน)
+ความเสียหาย: ไม่มี
+PGA 0.53 gal, PGV 0.050 cm/s
+MMI ทำนาย 1.7</description><styleUrl>#dot_ffffccbf_1</styleUrl><Point><coordinates>99.50656,18.27819,0</coordinates></Point></Placemark><Placemark><name>LPSP: MMI 1.7</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 376 km
+MMI วัดได้ 1.7 (II อ่อน)
+ความเสียหาย: ไม่มี
+PGA 0.35 gal, PGV 0.044 cm/s
+MMI ทำนาย 1.7</description><styleUrl>#dot_ffffccbf_1</styleUrl><Point><coordinates>99.346323,17.875397,0</coordinates></Point></Placemark><Placemark><name>MAEC: MMI 1.9</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 252 km
+MMI วัดได้ 1.9 (II อ่อน)
+ความเสียหาย: ไม่มี
+PGA 0.77 gal, PGV 0.057 cm/s
+MMI ทำนาย 1.9</description><styleUrl>#dot_ffffccbf_1</styleUrl><Point><coordinates>98.3732842,18.4969257,0</coordinates></Point></Placemark><Placemark><name>MAES: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 393 km
+MMI วัดได้ 1.4 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.58 gal, PGV 0.033 cm/s
+MMI ทำนาย 1.2
+⚠ QC: SNR ต่ำ (1.3) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>99.8865,20.4276,0</coordinates></Point></Placemark><Placemark><name>MHIT: MMI 2.5</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 182 km
+MMI วัดได้ 2.5 (II อ่อน)
+ความเสียหาย: ไม่มี
+PGA 2.02 gal, PGV 0.132 cm/s
+MMI ทำนาย 2.5</description><styleUrl>#dot_ffffccbf_1</styleUrl><Point><coordinates>97.9632,19.3148,0</coordinates></Point></Placemark><Placemark><name>MUSE: MMI 1.7</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 421 km
+MMI วัดได้ 1.7 (II อ่อน)
+ความเสียหาย: ไม่มี
+PGA 0.68 gal, PGV 0.045 cm/s
+MMI ทำนาย 1.6</description><styleUrl>#dot_ffffccbf_1</styleUrl><Point><coordinates>98.935172,16.752257,0</coordinates></Point></Placemark><Placemark><name>NANA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 483 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.32 gal, PGV 0.011 cm/s
+MMI ทำนาย 1.3
+⚠ QC: SNR ต่ำ (0.8) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.76333,18.7672,0</coordinates></Point></Placemark><Placemark><name>NANS: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 479 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.03 gal, PGV 0.005 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.741757,18.863602,0</coordinates></Point></Placemark><Placemark><name>NAN: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 491 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.09 gal, PGV 0.008 cm/s
+MMI ทำนาย 1.0
+⚠ QC: SNR ต่ำ (2.3) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.911631,19.283535,0</coordinates></Point></Placemark><Placemark><name>NAYO: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 793 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.02 gal, PGV 0.002 cm/s
+MMI ทำนาย 1.0
+⚠ QC: SNR ต่ำ (1.4) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>101.3209,14.31523,0</coordinates></Point></Placemark><Placemark><name>NGPA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 640 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.26 gal, PGV 0.006 cm/s
+MMI ทำนาย 1.2
+⚠ QC: SNR ต่ำ (2.3) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>99.446783,14.662418,0</coordinates></Point></Placemark><Placemark><name>NONA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 642 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 1.42 gal, PGV 0.011 cm/s
+MMI ทำนาย 1.0
+⚠ QC: SNR ต่ำ (2.0) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>102.167884,18.1751111,0</coordinates></Point></Placemark><Placemark><name>NONG: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 745 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.07 gal, PGV 0.003 cm/s
+MMI ทำนาย 1.1
+⚠ QC: ตัดสัญญาณกระโดด 108 จุด; SNR ต่ำ (2.5) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>103.1457,18.06346,0</coordinates></Point></Placemark><Placemark><name>OMKO: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
 ห่างจากจุดศูนย์กลาง 301 km
 MMI วัดได้ 1.0 (I ไม่รู้สึก)
 ความเสียหาย: ไม่มี
-PGA 0.05 gal, PGV 0.006 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.445133,15.558565,0</coordinates></Point></Placemark><Placemark><name>UTHS: MMI -</name><description>UTHS
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 366 km
+PGA 0.19 gal, PGV 0.017 cm/s
+MMI ทำนาย 1.1</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>98.432885,17.798472,0</coordinates></Point></Placemark><Placemark><name>PAOA: MMI 2.1</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 343 km
+MMI วัดได้ 2.1 (II อ่อน)
+ความเสียหาย: ไม่มี
+PGA 0.63 gal, PGV 0.073 cm/s
+MMI ทำนาย 2.0</description><styleUrl>#dot_ffffccbf_1</styleUrl><Point><coordinates>99.5067736,19.3471305,0</coordinates></Point></Placemark><Placemark><name>PASO: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,157 km
 MMI วัดได้ 1.0 (I ไม่รู้สึก)
 ความเสียหาย: ไม่มี
-PGA 0.98 gal, PGV 0.013 cm/s
-MMI จาก PGA 1.7
-JMA ระดับ 0
+PGA 0.04 gal, PGV 0.002 cm/s
+MMI ทำนาย 1.0
+⚠ QC: SNR ต่ำ (1.2) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>99.137255,9.522032,0</coordinates></Point></Placemark><Placemark><name>PAYA: MMI 1.1</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 381 km
+MMI วัดได้ 1.1 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.16 gal, PGV 0.024 cm/s
+MMI ทำนาย 1.2</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.869172,19.360284,0</coordinates></Point></Placemark><Placemark><name>PBKT: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 599 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.06 gal, PGV 0.006 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.9687,16.5733,0</coordinates></Point></Placemark><Placemark><name>PHEA: MMI 1.5</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 442 km
+MMI วัดได้ 1.5 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.23 gal, PGV 0.035 cm/s
+MMI ทำนาย 1.5</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.1656,18.1272,0</coordinates></Point></Placemark><Placemark><name>PHIT: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 512 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.07 gal, PGV 0.009 cm/s
 MMI ทำนาย 1.1
-⚠ QC: SNR ต่ำ (2.9) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ffbbbbbb_1</styleUrl><Point><coordinates>100.009555,15.353557,0</coordinates></Point></Placemark><Placemark><name>UTTA: MMI 1.0</name><description>UTTA
-สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
-ห่างจากจุดศูนย์กลาง 447 km
+⚠ QC: SNR ต่ำ (2.5) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.416499,17.189269,0</coordinates></Point></Placemark><Placemark><name>PHRA: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 435 km
 MMI วัดได้ 1.0 (I ไม่รู้สึก)
 ความเสียหาย: ไม่มี
-PGA 0.01 gal, PGV 0.002 cm/s
-MMI จาก PGA 1.0
-JMA ระดับ 0
-MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.554083,17.744258,0</coordinates></Point></Placemark></Folder></Document></kml>
+PGA 0.08 gal, PGV 0.008 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.229325,18.498912,0</coordinates></Point></Placemark><Placemark><name>PHRS: MMI 1.5</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 441 km
+MMI วัดได้ 1.5 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.21 gal, PGV 0.035 cm/s
+MMI ทำนาย 1.4</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.162497,18.1288745,0</coordinates></Point></Placemark><Placemark><name>PKDT: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,315 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.16 gal, PGV 0.001 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>98.335,7.892,0</coordinates></Point></Placemark><Placemark><name>PKTC: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,291 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.49 gal, PGV 0.006 cm/s
+MMI ทำนาย 1.0
+⚠ QC: SNR ต่ำ (1.3) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>98.30829,8.10484,0</coordinates></Point></Placemark><Placemark><name>PRAC: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 873 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.02 gal, PGV 0.003 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.79288,12.47263,0</coordinates></Point></Placemark><Placemark><name>PRAS: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 923 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.05 gal, PGV 0.002 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.698773,11.938497,0</coordinates></Point></Placemark><Placemark><name>PTNA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 762 km
+MMI วัดได้ 1.3 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.75 gal, PGV 0.030 cm/s
+MMI ทำนาย 1.3
+⚠ QC: SNR ต่ำ (1.8) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.620321,14.116106,0</coordinates></Point></Placemark><Placemark><name>RATC: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 772 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.03 gal, PGV 0.005 cm/s
+MMI ทำนาย 1.0
+⚠ QC: ตัดสัญญาณกระโดด 15 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.792555,13.489793,0</coordinates></Point></Placemark><Placemark><name>RAYA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 941 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.31 gal, PGV 0.004 cm/s
+MMI ทำนาย 1.1
+⚠ QC: SNR ต่ำ (2.2) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>101.339783,12.633808,0</coordinates></Point></Placemark><Placemark><name>ROIA: MMI 1.0</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 869 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.70 gal, PGV 0.019 cm/s
+MMI ทำนาย 1.0
+⚠ QC: ตัดสัญญาณกระโดด 51 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>103.604642,16.0749903,0</coordinates></Point></Placemark><Placemark><name>RONG: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 878 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 1.03 gal, PGV 0.004 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>102.717642,14.63276,0</coordinates></Point></Placemark><Placemark><name>SAKA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 961 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.24 gal, PGV 0.003 cm/s
+MMI ทำนาย 1.1
+⚠ QC: SNR ต่ำ (1.5) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>99.623872,11.533153,0</coordinates></Point></Placemark><Placemark><name>SANA: MMI 2.1</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 304 km
+MMI วัดได้ 2.1 (II อ่อน)
+ความเสียหาย: ไม่มี
+PGA 1.10 gal, PGV 0.068 cm/s
+MMI ทำนาย 2.0</description><styleUrl>#dot_ffffccbf_1</styleUrl><Point><coordinates>99.0454,18.8491,0</coordinates></Point></Placemark><Placemark><name>SATU: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,492 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.01 gal, PGV 0.001 cm/s
+MMI ทำนาย 1.1
+⚠ QC: SNR ต่ำ (2.1) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.083314,6.65373,0</coordinates></Point></Placemark><Placemark><name>SKLK: MMI 1.0</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,466 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.13 gal, PGV 0.002 cm/s
+MMI ทำนาย 1.0
+⚠ QC: ตัดสัญญาณกระโดด 3 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.4989,7.01767,0</coordinates></Point></Placemark><Placemark><name>SKLT: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,454 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.03 gal, PGV 0.001 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.615696,7.175911,0</coordinates></Point></Placemark><Placemark><name>SKNT: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 866 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.18 gal, PGV 0.002 cm/s
+MMI ทำนาย 1.0
+⚠ QC: ตัดสัญญาณกระโดด 3 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>103.9815,16.9742,0</coordinates></Point></Placemark><Placemark><name>SODA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 398 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.00 gal, PGV 0.000 cm/s
+MMI ทำนาย 1.7
+⚠ QC: ตัดสัญญาณกระโดด 1200 จุด; SNR ต่ำ (1.0) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>98.541894,16.70239,0</coordinates></Point></Placemark><Placemark><name>SOEA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 356 km
+MMI วัดได้ 1.1 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.40 gal, PGV 0.025 cm/s
+MMI ทำนาย 1.7
+⚠ QC: SNR ต่ำ (1.6) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>99.2464531,18.0659075,0</coordinates></Point></Placemark><Placemark><name>SOOA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 440 km
+MMI วัดได้ 1.8 (II อ่อน)
+ความเสียหาย: ไม่มี
+PGA 0.60 gal, PGV 0.050 cm/s
+MMI ทำนาย 1.4
+⚠ QC: SNR ต่ำ (1.5) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.111368,18.05051,0</coordinates></Point></Placemark><Placemark><name>SPBA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 696 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.00 gal, PGV 0.000 cm/s
+MMI ทำนาย 1.4
+⚠ QC: SNR ต่ำ (1.1) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.0908,14.475,0</coordinates></Point></Placemark><Placemark><name>SRIT: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,270 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.04 gal, PGV 0.003 cm/s
+MMI ทำนาย 1.0
+⚠ QC: SNR ต่ำ (0.7) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>99.60196,8.59549,0</coordinates></Point></Placemark><Placemark><name>STRA: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,286 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.23 gal, PGV 0.011 cm/s
+MMI ทำนาย 1.0
+⚠ QC: ตัดสัญญาณกระโดด 30 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.939478,8.546045,0</coordinates></Point></Placemark><Placemark><name>SUAI: MMI 2.1</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 345 km
+MMI วัดได้ 2.1 (II อ่อน)
+ความเสียหาย: ไม่มี
+PGA 0.62 gal, PGV 0.072 cm/s
+MMI ทำนาย 2.0</description><styleUrl>#dot_ffffccbf_1</styleUrl><Point><coordinates>99.5345444,19.6610094,0</coordinates></Point></Placemark><Placemark><name>SURA: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,210 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.07 gal, PGV 0.001 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.62945,9.16634,0</coordinates></Point></Placemark><Placemark><name>SURI: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 940 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.02 gal, PGV 0.001 cm/s
+MMI ทำนาย 1.1
+⚠ QC: SNR ต่ำ (1.3) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>103.5529,14.7688,0</coordinates></Point></Placemark><Placemark><name>SURT: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,208 km
+MMI วัดได้ 10.0 (X+ รุนแรงที่สุด)
+ความเสียหาย: หนักมาก
+PGA 198.13 gal, PGV 185.417 cm/s
+MMI ทำนาย 1.0
+⚠ QC: SNR ต่ำ (1.1) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>98.795,8.9577,0</coordinates></Point></Placemark><Placemark><name>SUTA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,199 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.45 gal, PGV 0.008 cm/s
+MMI ทำนาย 1.3
+⚠ QC: ตัดสัญญาณกระโดด 7 จุด; SNR ต่ำ (0.3) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>99.152127,9.133605,0</coordinates></Point></Placemark><Placemark><name>THUA: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 487 km
+MMI วัดได้ 1.1 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.23 gal, PGV 0.023 cm/s
+MMI ทำนาย 1.0
+⚠ QC: SNR ต่ำ (0.8) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.882543,19.4084714,0</coordinates></Point></Placemark><Placemark><name>TRTT: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,353 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.03 gal, PGV 0.001 cm/s
+MMI ทำนาย 1.0
+⚠ QC: ตัดสัญญาณกระโดด 53 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.6912,7.8362,0</coordinates></Point></Placemark><Placemark><name>TSYA: MMI 1.8</name><description>สถานีตรวจวัดอัตราเร่งของพื้นดิน (Strong-motion station)  ช่อง HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 332 km
+MMI วัดได้ 1.8 (II อ่อน)
+ความเสียหาย: ไม่มี
+PGA 0.76 gal, PGV 0.051 cm/s
+MMI ทำนาย 1.8</description><styleUrl>#dot_ffffccbf_1</styleUrl><Point><coordinates>98.22557,17.227516,0</coordinates></Point></Placemark><Placemark><name>UBPT: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง HHE, HHN, HHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 1,087 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.01 gal, PGV 0.001 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>105.4695,15.2773,0</coordinates></Point></Placemark><Placemark><name>UMPA: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 479 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.13 gal, PGV 0.018 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>98.86028,16.02574,0</coordinates></Point></Placemark><Placemark><name>UTHA: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 558 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.05 gal, PGV 0.006 cm/s
+MMI ทำนาย 1.0</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>99.445133,15.558565,0</coordinates></Point></Placemark><Placemark><name>UTHS: MMI ไม่ผ่าน QC</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 613 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.40 gal, PGV 0.007 cm/s
+MMI ทำนาย 1.3
+⚠ QC: SNR ต่ำ (2.6) แยกแรงสั่นจาก noise ไม่ได้</description><styleUrl>#dot_ff555555_0</styleUrl><Point><coordinates>100.009555,15.353557,0</coordinates></Point></Placemark><Placemark><name>UTTA: MMI 1.0</name><description>สถานีตรวจวัดแผ่นดินไหว (Seismic station)  ช่อง EHE, EHN, EHZ, HNE, HNN, HNZ
+ห่างจากจุดศูนย์กลาง 496 km
+MMI วัดได้ 1.0 (I ไม่รู้สึก)
+ความเสียหาย: ไม่มี
+PGA 0.03 gal, PGV 0.005 cm/s
+MMI ทำนาย 1.0
+⚠ QC: ตัดสัญญาณกระโดด 6 จุด</description><styleUrl>#dot_ffffffff_1</styleUrl><Point><coordinates>100.554083,17.744258,0</coordinates></Point></Placemark></Folder></Document></kml>

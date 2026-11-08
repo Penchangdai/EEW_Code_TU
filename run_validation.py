@@ -51,6 +51,7 @@ EVENTS = [
          ref="USGS us6000syg0"),
 ]
 OUT_CSV = "validation_results.csv"
+USE_KNOWN_RUPTURE = False    # False = วัดแบบตอนเกิดเหตุจริง ซึ่งยังไม่รู้แนวรอยแตก
 MAX_REGIONAL_KM = 2500.0     # ไกลกว่านี้ = แผ่นดินไหวไกล (teleseism) ระบบไม่ควรแจ้งเตือนในไทย
 # ======================================================================
 
@@ -88,6 +89,7 @@ def run_event(ev):
     DL.DATA_DIR = RM.DATA_DIR = folder
     RI.SELECTED_STATIONS = "auto"
     RI.EPICENTER = None
+    RI.USE_KNOWN_RUPTURE = USE_KNOWN_RUPTURE
     log = io.StringIO()
     try:
         with contextlib.redirect_stdout(log):
@@ -114,7 +116,7 @@ def run_event(ev):
     if mw is not None:
         r["ref_mw"] = mw
         for t, v in res.get("network", {}).items():         # ความคลาดของแต่ละชนิด (ก่อนค่าปรับเครือข่ายไทย)
-            if isinstance(v, dict) and v.get("mag_raw") is not None and t not in M.DISPLAY_ONLY:
+            if isinstance(v, dict) and v.get("mag_raw") is not None:
                 r[f"dM_{t}"] = M.to_mw(t, v["mag_raw"], regional=False)[0] - mw
         r["dM_final"] = p["mag"] - mw
         if "M_first" in r:
@@ -182,7 +184,7 @@ def main():
               f"{_f(r.get('mmi_bias'), '+9.2f')}{_f(r.get('mmi_rmse'), '6.2f')}{_f(r.get('mmi_loo'), '6.2f')}"
               f"{r['false_public']:9d}")
     print("\nความคลาดของขนาดแต่ละชนิด (Mw ของระบบ − Mw จริง ก่อนใส่ค่าปรับเครือข่ายไทย)")
-    types = [t for t in M.TYPES if t not in M.DISPLAY_ONLY]
+    types = list(M.TYPES)
     print(f"{'เหตุการณ์':<28}" + "".join(f"{t:>8}" for t in types))
     for r in rows:
         if r.get("status") == "ok" and r.get("ref_mw") is not None:
@@ -192,10 +194,8 @@ def main():
     for t in types:
         v = [r[f"dM_{t}"] for r in rows if r.get(f"dM_{t}") is not None and r.get("ref_mw", 0) < 7.0]
         sug[t] = -float(np.mean(v)) if len(v) >= 2 else None
-        if sug[t] is not None and abs(sug[t]) > 1.5:            # คลาดมากเกินจะปรับด้วยค่าคงที่ (เช่น Mwp จาก
-            sug[t] = None                                       # ข้อมูลความเร่ง) = ไม่ควรใช้ชนิดนี้ ไม่แนะนำค่าปรับ
         print(_f(sug[t], "+8.2f"), end="")
-    print("\n  (ใช้เฉพาะเหตุการณ์ Mw < 7 เพราะขนาดใหญ่อิ่มตัว  '-' = ข้อมูลไม่พอ หรือคลาดเกิน 1.5 จนไม่ควรใช้ชนิดนั้น  ใส่ใน config.py: MW_REGIONAL_CORR = {...})")
+    print("\n  (ใช้เฉพาะเหตุการณ์ Mw < 7 เพราะขนาดใหญ่อิ่มตัว  '-' = ข้อมูลไม่พอ  ใส่ใน config.py: MW_REGIONAL_CORR = {...})")
     print(f"  ค่าที่ใช้อยู่ตอนนี้: {M.MW_REGIONAL_CORR}")
 
     keys = sorted({k for r in rows for k in r})

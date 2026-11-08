@@ -1,16 +1,14 @@
 """
 run_magnitude.py
-คำนวณขนาดแผ่นดินไหวจากหลายสถานี แล้วแจ้งผลเฉพาะขนาดที่น่าเชื่อถือที่สุด
+คำนวณขนาดแผ่นดินไหวจากหลายสถานี แล้วแจ้งผลเฉพาะขนาดหลัก
 
   1) หาตำแหน่ง เวลาเกิด และเวลาคลื่น P / S ของแต่ละสถานี
        - ใส่ EPICENTER ที่รู้แล้ว  หรือ
-       - 3 สถานีขึ้นไป: pipeline.py (P + S scan -> Geiger P + S -> ตรวจทาน) หาให้เอง  หรือ
-       - 1-2 สถานี: ระยะจาก S-P ของแต่ละสถานี (คุณภาพต่ำ)
-  2) คำนวณขนาดทุกชนิดของแต่ละสถานี (magnitude.station_magnitudes)
-       มาตรฐาน USGS / IASPEI: ML, mb_Lg, Ms_BB, Mwp     แบบเดิม / เตือนภัยเร็ว: M_JMA, M_Pd, M_tc
-  3) ให้น้ำหนัก รวมเป็นขนาดของเครือข่าย ให้คะแนนแต่ละชนิด แล้วเลือกขนาดหลัก (ดูวิธีใน magnitude.py)
+       - 3 สถานีขึ้นไป: pipeline.py หาให้เอง
+  2) คำนวณ Mw_P และ Ms_BB ของแต่ละสถานี (magnitude.station_magnitudes)
+  3) ให้น้ำหนัก รวมเป็นขนาดของเครือข่าย แล้วเลือกขนาดหลัก: มี Ms_BB ใช้ Ms_BB  ถ้ายังไม่มีใช้ Mw_P
   4) แสดงผล
-       OUTPUT_MODE = "public" : การ์ดแจ้งเตือนสำหรับประชาชน (รายละเอียดทั้งหมดบันทึกใน DETAIL_FILE)
+       OUTPUT_MODE = "public" : การ์ดแจ้งเตือนสำหรับประชาชน (รายละเอียดบันทึกใน DETAIL_FILE)
        OUTPUT_MODE = "detail" : ตารางละเอียดทั้งหมดใน Terminal
 
 รัน:  กด Run ใน VS Code   หรือ   python run_magnitude.py BKKA CMMT PHIT [local]
@@ -26,22 +24,16 @@ import numpy as np
 import config as C
 import magnitude as M
 from data_loader import load_station_txt, resolve_data_path, find_station_file, DATA_DIR
-from p_wave import detect_p_wave, pick_p_window
-from s_wave import detect_s_wave
-from epicenter import delta_from_sp, predict_arrival, travel_time_2layer, azimuthal_gap
+from p_wave import pick_p_window
+from epicenter import predict_arrival, azimuthal_gap
 from signal_utils import haversine_km, azimuth_deg, acc_to_vel, remove_offset
 from station_db import get_coords
-
-try:
-    from intensity import jma_instrumental_intensity
-except ImportError:                                   # ไม่มี intensity.py ก็ยังคำนวณขนาดได้
-    jma_instrumental_intensity = None
 
 # ======================================================================
 #  ตั้งค่า
 # ======================================================================
 # รหัสสถานี เช่น ["BKKA", "CMMT", "PHIT"]  หรือ "auto" = ทุกไฟล์ในโฟลเดอร์ station
-SELECTED_STATIONS = "2025-08-21_M4.6_AllTMD"
+SELECTED_STATIONS = "2025-3-28_Mw7.7_station"
 DATA_FILE = ""      # ใช้เมื่อ SELECTED_STATIONS = []
 PROFILE = "regional"      # "regional" = สถานีไกล (> ~300 km), "local" = สถานีใกล้
 
@@ -194,28 +186,8 @@ def locate(paths, profile):
                                 hypo["origin_time"]))
         return hypo, out
 
-    # ---- ค) 1-2 สถานี ----
-    print("⚠ มี 1-2 สถานี: ระยะมาจาก S-P ที่ pick โดยยังไม่รู้ตำแหน่ง แผ่นดินไหวใหญ่มักจับคลื่น P ระลอกหลัง"
-          "เป็น S ทำให้ระยะและขนาดผิดมาก  แนะนำให้ใส่ EPICENTER หรือใช้ 3 สถานีขึ้นไป")
-    for p in paths:
-        rec = load_station_txt(p)
-        if not rec.get("units_ok", True):
-            print(f"⚠ ข้าม {rec['station']}: {rec['units_note']}"); continue
-        fs = rec["fs"]
-        pk = detect_p_wave(rec["z"], fs, rec["t0"], **p_par)
-        if not pk["detected"]:
-            print(f"⚠ ข้าม {rec['station']}: ไม่พบคลื่น P"); continue
-        s = detect_s_wave(rec["z"], rec["n"], rec["e"], fs, pk["index"], rec["t0"],
-                          **(C.S_REGIONAL if regional else {}))
-        if not s.get("detected"):
-            print(f"⚠ ข้าม {rec['station']}: ไม่พบคลื่น S จึงหาระยะไม่ได้"); continue
-        dep = DEPTH_KM if DEPTH_KM is not None else 10.0
-        delta = delta_from_sp(s["sp_time"], dep)
-        t0 = pk["time"] - float(travel_time_2layer(delta, dep, "P"))
-        c = get_coords(rec["station"]) or (np.nan, np.nan)
-        out.append(_station(rec["station"], rec, c[0], c[1], pk["index"], max(pk.get("weight", 2), 2),
-                            s["time"], delta, dep, t0))
-    return None, out
+    print("⚠ ต้องมีอย่างน้อย 3 สถานี จึงหาตำแหน่งได้  ใส่ EPICENTER หรือเพิ่มสถานี")
+    return None, []
 
 
 def covers(st):
@@ -238,15 +210,12 @@ def station_values(st):
     rec, ip = st["rec"], st["p_index"]
     fs = rec["fs"]
     n_pre = max(ip - int(1.0 * fs), 10)
-    st["mags"] = M.station_magnitudes(rec["z"], rec["n"], rec["e"], fs, ip, st["delta"], st["depth"],
-                                      t0_rel=st["t0_rel"], s_index=st["s_index"], n_pre=n_pre,
-                                      legacy=True, mwp_check=True)
+    st["mags"] = M.station_magnitudes(rec["z"], fs, ip, st["delta"], st["depth"], t0_rel=st["t0_rel"], n_pre=n_pre)
     za, na, ea = (remove_offset(x, n_pre) for x in (rec["z"], rec["n"], rec["e"]))
     st["pga"] = float(np.max(np.sqrt(za ** 2 + na ** 2 + ea ** 2)))
     vn = acc_to_vel(rec["n"], fs, C.DISP_HIGHPASS_HZ, n_pre)
     ve = acc_to_vel(rec["e"], fs, C.DISP_HIGHPASS_HZ, n_pre)
     st["pgv"] = float(np.max(np.sqrt(vn ** 2 + ve ** 2)))
-    st["I"] = jma_instrumental_intensity(rec["z"], rec["n"], rec["e"], fs) if jma_instrumental_intensity else None
 
 
 def compute(stations=SELECTED_STATIONS, profile=PROFILE):
@@ -267,16 +236,14 @@ def compute(stations=SELECTED_STATIONS, profile=PROFILE):
         print("ไม่มีสถานีที่คำนวณได้")
         return None
     net = M.network_by_type(good)
-    M0, scores = M.type_scores(net)
-    pick = M.choose_preferred(net, scores)
+    pick = M.choose_preferred(net)
     gap = None
     if hypo is not None:
         gap = hypo.get("gap")
         if gap is None:
             gap = azimuthal_gap(hypo["lat"], hypo["lon"], good)
     rel = M.reliability(pick, net, good, gap, hypo is not None) if pick else None
-    return {"hypo": hypo, "stations": good, "network": net, "M0": M0, "scores": scores,
-            "preferred": pick, "reliability": rel, "gap": gap}
+    return {"hypo": hypo, "stations": good, "network": net, "preferred": pick, "reliability": rel, "gap": gap}
 
 
 # ======================================================================
@@ -377,8 +344,8 @@ def mw_text(pick):
 
 def mw_source(pick):
     t, raw = pick["type"], pick.get("mag_raw", pick["mag"])
-    if t in ("Mwp", "Mw_P"):
-        src = {"Mwp": "Mwp จากคลื่น P (Tsuboi 1995)", "Mw_P": "คลื่น P 3 วินาทีแรก (Pd + τc)"}[t]
+    if t == "Mw_P":
+        src = "คลื่น P 3 วินาทีแรก (Pd + τc)"
     else:
         src = f"{t} {raw:.1f} แปลงเป็น Mw: {pick.get('mw_note', '')}"
     if pick.get("lower_bound"):
@@ -395,84 +362,56 @@ def _fmt(m, w):
 def detail_report(res):
     if res is None:
         return
-    sts, net, M0, scores, pick = res["stations"], res["network"], res["M0"], res["scores"], res["preferred"]
-    bar = "=" * 112
+    sts, net, pick = res["stations"], res["network"], res["preferred"]
+    bar = "=" * 80
     print("\n" + bar)
     print("ขนาดของแต่ละสถานี   ค่าในวงเล็บ = น้ำหนักของสถานี (0-1)   - = ใช้ไม่ได้ (นอกช่วงระยะ / SNR ต่ำ / ข้อมูลไม่พอ)")
     print(bar)
-    print(f"{'Station':<7}{'Δ (km)':>7}{'Δ (°)':>6}  " + "".join(f"{t:>11}" for t in M.TYPES) + f"{'PGA':>9}{'I_JMA':>7}")
+    print(f"{'Station':<7}{'Δ (km)':>7}{'Δ (°)':>6}  " + "".join(f"{t:>11}" for t in M.TYPES) + f"{'PGA':>9}")
     for st in sorted(sts, key=lambda s: s["delta"]):
         row = "".join(f"{_fmt(st['mags'].get(t), st['w'].get(t, 0)):>11}" for t in M.TYPES)
-        I = f"{st['I']:.1f}" if st.get("I") is not None else "-"
-        print(f"{st['code']:<7}{st['delta']:7.0f}{st['delta'] / M.KM_PER_DEG:6.1f}  {row}{st['pga']:9.2f}{I:>7}")
+        print(f"{st['code']:<7}{st['delta']:7.0f}{st['delta'] / M.KM_PER_DEG:6.1f}  {row}{st['pga']:9.2f}")
 
     print("\n" + bar)
-    print(f"ขนาดของเครือข่ายแต่ละชนิด (มัธยฐานถ่วงน้ำหนัก) และคะแนนความน่าเชื่อถือ   ค่ากลางของทุกชนิด M0 = {M0:.2f}")
+    print("ขนาดของเครือข่ายแต่ละชนิด (มัธยฐานถ่วงน้ำหนัก)")
     print(bar)
-    print(f"{'ชนิด':<7}{'ค่าเดิม':>7}{'Mw':>6}{'n':>4}{'MAD':>6}  {'พื้นฐาน':>7}{'อิ่มตัว':>7}{'ช่วงM':>6}{'ข้อมูล':>7}"
-          f"{'กระจาย':>7}{'สอดคล้อง':>9}{'หน้าต่าง':>8}{'SCORE':>7}   หมายเหตุ")
+    print(f"{'ชนิด':<7}{'ค่าเดิม':>7}{'Mw':>6}{'n':>4}{'MAD':>6}   หมายเหตุ")
     for t in M.TYPES:
         v = net[t]
         if v["mag"] is None:
-            print(f"{t:<7}{'-':>7}{'-':>6}{0:>4}{'':>64}{'-':>7}   ใช้ไม่ได้: {v['reason']}")
+            print(f"{t:<7}{'-':>7}{'-':>6}{0:>4}{'-':>6}   ใช้ไม่ได้: {v['reason']}")
             continue
-        if t not in scores:                                 # แสดงไว้เทียบ (รวมอยู่ใน Mw_P แล้ว)
-            mad = f"{v['mad']:.2f}" if v["mad"] is not None else "-"
-            print(f"{t:<7}{v['mag_raw']:7.2f}{v['mag']:6.2f}{v['n']:>4}{mad:>6}  {'':>57}{'-':>7}   "
-                  f"{M.TYPE_INFO[t][3]} (เทียบ: รวมอยู่ใน Mw_P)")
-            continue
-        s = scores[t]
         mad = f"{v['mad']:.2f}" if v["mad"] is not None else "-"
-        note = M.TYPE_INFO[t][3]
-        if s["sat"] <= 0.11:
-            note = f"เกินช่วงที่สูตรใช้ได้ดี (อิ่มตัวที่ M ~{M.TYPE_INFO[t][1]:g})"
-        elif s["sat"] < 0.99:
-            note = f"ใกล้ช่วงอิ่มตัว (M ~{M.TYPE_INFO[t][1]:g})"
-        if t == "Mwp" and s["window"] < 0.99:
-            note = f"หน้าต่าง P {v['min_window']:.0f} s สั้นกว่าเวลาแตกของรอยเลื่อน ~{M.rupture_duration(M0):.0f} s"
-        if t == "Mwp" and v.get("spread") is not None and v["spread"] > M.MWP_SPREAD_REF:
-            note = f"ไม่เสถียร: เปลี่ยนตัวกรองแล้วค่าต่างกัน {v['spread']:.1f} (ข้อมูลคาบยาวไม่พอ)"
-        if s["consist"] < 0.5:
-            note += f"; ต่างจากค่ากลาง {v['mag'] - M0:+.1f}"
-        mark = "  <== เลือก" if pick and t == pick["type"] else ""
-        if not v.get("mw_in_range", True) and t not in ("Mwp", "Mw_P"):
+        note = M.TYPE_NOTE[t]
+        if not v.get("mw_in_range", True):
             note += "; สูตรแปลงเป็น Mw ใช้นอกช่วงที่ปรับเทียบไว้"
-        print(f"{t:<7}{v['mag_raw']:7.2f}{v['mag']:6.2f}{v['n']:>4}{mad:>6}  {s['base']:7.2f}{s['sat']:7.2f}{s['range']:6.2f}"
-              f"{s['data']:7.2f}{s['scatter']:7.2f}{s['consist']:9.2f}{s['window']:8.2f}{s['score']:7.2f}"
-              f"   {note}{mark}")
+        mark = "  <== เลือก" if pick and t == pick["type"] else ""
+        print(f"{t:<7}{v['mag_raw']:7.2f}{v['mag']:6.2f}{v['n']:>4}{mad:>6}   {note}{mark}")
     if pick is None:
         print("\nไม่มีขนาดที่ใช้ได้"); return
     level, why, unc = res["reliability"]
     if res["hypo"] is not None:
         h = res["hypo"]
-        ez = h.get("err_z_km")
-        if h.get("depth_measured"):
-            dtxt = f"ลึก {h['depth']:.1f} ± {ez:.1f} km (คำนวณได้)"
-        elif DEPTH_KM is None and h.get("computed"):
-            dtxt = (f"ความลึกคำนวณได้ {h['depth']:.0f} km แต่คลาดเคลื่อนมาก"
-                    + (f" (±{ez:.0f} km)" if ez is not None and np.isfinite(ez) else "") + " จึงไม่แสดงในการ์ด")
-        else:
-            dtxt = f"ความลึกตรึงไว้ที่ {h['depth']:.0f} km (ไม่ได้วัด ไม่แสดงในการ์ด)"
+        dtxt = (f"ลึก {h['depth']:.1f} ± {h.get('err_z_km'):.1f} km (คำนวณได้)" if h.get("depth_measured")
+                else f"ความลึกตรึงไว้ที่ {h['depth']:.0f} km (ไม่ได้วัด)")
         print(f"\nตำแหน่ง: lat {h['lat']:.3f}, lon {h['lon']:.3f}, {dtxt}  — {location_lines(h)[1]}")
     print("\n" + bar)
     print(f"ขนาดหลัก (preferred) : Mw {mw_text(pick)}  ({mw_source(pick)})")
-    print(f"                       ชนิด {pick['type']}   (score {pick['score']:.2f}, "
-          f"ความน่าเชื่อถือ {level}, ±{unc:.1f})")
-    print(f"ค่าเฉลี่ยถ่วงคะแนน   : {pick['combined']:.1f}   จาก {', '.join(pick['combined_types'])}")
+    print(f"                       ชนิด {pick['type']}   (ความน่าเชื่อถือ {level}, ±{unc:.1f})")
+    if why:
+        print(f"                       เพราะ{', '.join(why)}")
     if REF_MAGNITUDE:
         print(f"เทียบกับ {REF_MAGNITUDE[1]} = {REF_MAGNITUDE[0]:.1f} : ต่าง {pick['mag'] - REF_MAGNITUDE[0]:+.1f}")
-    first = [t for t in M.USGS_TYPES if net[t]["mag"] is not None]
-    if first and first[0] != pick["type"]:
-        print(f"* ลำดับปกติของ USGS จะเลือก {first[0]} ก่อน แต่ข้อมูลของ {first[0]} ครั้งนี้มีคะแนนต่ำ "
-              f"({scores[first[0]]['score']:.2f}) จึงเลือก {pick['type']} แทน")
     if pick["type"] == "Ms_BB" and all(st["delta"] / M.KM_PER_DEG < 20 for st in sts):
         print("* Ms_BB จากสถานีระยะ < 20° ทั้งหมด (มาตรฐาน Ms_20 ใช้ 20°-160°) อาจคลาด ±0.3-0.5 "
               "โดยเฉพาะเมื่อรอยเลื่อนแตกพุ่งเข้าหาสถานี (directivity)")
-    if pick["mag"] >= 7.0 and pick["type"] not in ("Mwp", "Mw_P"):
-        print("* M >= 7: Mw นี้แปลงมาจากขนาดแอมพลิจูด (ML, mb_Lg, Ms) ด้วยสูตรเชิงประสบการณ์ ถ้ามี Mww ของ USGS / GCMT "
-              "ควรใช้ค่านั้น")
+    if pick["mag"] >= 7.0:
+        print("* M >= 7: Mw นี้แปลงมาจากขนาดแอมพลิจูดด้วยสูตรเชิงประสบการณ์ ถ้ามี Mww ของ USGS / GCMT ควรใช้ค่านั้น")
 
 
+# ======================================================================
+#  กราฟ
+# ======================================================================
 def _thai_font():
     """เลือกฟอนต์ภาษาไทยที่มีในเครื่อง (Windows: Tahoma / Leelawadee, Linux: Loma / Noto Sans Thai)"""
     from matplotlib import font_manager
@@ -564,8 +503,8 @@ def plot_summary(res, out="magnitude_summary.png"):
         import matplotlib.pyplot as plt
     except ImportError:
         return None
-    net, scores, pick = res["network"], res["scores"], res["preferred"]
-    ts = [t for t in M.TYPES if net[t]["mag"] is not None and t in scores]
+    net, pick = res["network"], res["preferred"]
+    ts = [t for t in M.TYPES if net[t]["mag"] is not None]
     if not ts or pick is None:
         return None
     mags = [net[t]["mag"] for t in ts]
@@ -574,7 +513,7 @@ def plot_summary(res, out="magnitude_summary.png"):
     ax.bar(range(len(ts)), mags, yerr=errs, capsize=4, alpha=0.8,
            color=["tab:red" if t == pick["type"] else "tab:blue" for t in ts])
     for i, t in enumerate(ts):
-        ax.text(i, mags[i] + errs[i] + 0.08, f"{mags[i]:.1f}\nscore {scores[t]['score']:.2f}", ha="center", fontsize=8)
+        ax.text(i, mags[i] + errs[i] + 0.08, f"{mags[i]:.1f}", ha="center", fontsize=8)
     if REF_MAGNITUDE:
         ax.axhline(REF_MAGNITUDE[0], color="k", ls="--", lw=1)
         ax.text(-0.45, REF_MAGNITUDE[0] - 0.18, f"{REF_MAGNITUDE[1]} = {REF_MAGNITUDE[0]:g}", fontsize=8)

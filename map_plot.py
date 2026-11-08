@@ -7,10 +7,8 @@ map_plot.py
 ติดตั้ง:  pip install folium
 
 แผนที่ที่มี
-  make_epicenter_map / make_multi_station_map : ตำแหน่งจุดศูนย์กลาง
   make_mmi_map        : ความรุนแรงมาตรา MMI แบบ USGS (สี ShakeMap) + การแจ้งเตือน   <- run_intensity.py ใช้
   make_station_mmi_map: MMI ที่วัดได้ของแต่ละสถานี บนพื้นสี MMI แบบ ShakeMap      <- run_intensity.py ใช้
-  make_intensity_map  : ความรุนแรงมาตรา JMA (แบบเดิม)
   make_travel_map     : เวลาคลื่นเดินทางและเวลาเตือนล่วงหน้า
 """
 import numpy as np
@@ -39,6 +37,7 @@ BASE_LAYERS = {
               "แผนที่สีเทาอ่อน (Esri)", 16),
     "street": ("World_Street_Map", "Esri", "แผนที่ถนน (Esri)", 19),
     "topo": ("World_Topo_Map", "Esri", "แผนที่ภูมิประเทศ (Esri)", 19),
+    "natgeo": ("NatGeo_World_Map", "Esri, National Geographic, Garmin, HERE", "แผนที่ภูมิศาสตร์ (Esri)", 12),
 }
 # ชั้นเส้นแบ่งเขตประเทศ/จังหวัด + ชื่อสถานที่ (พื้นโปร่งใส วางทับพื้นหลังและพื้นสี) ที่เข้ากับพื้นหลังแต่ละแบบ
 #   ภาพดาวเทียม -> เส้นสีสว่าง,  แผนที่อื่น -> เส้นสีเทา (ทำให้เข้มขึ้นด้วย CSS ให้เห็นชัดบนพื้นสี MMI)
@@ -68,7 +67,7 @@ def _new_map(location, zoom_start=5, basemap=None):
     ref = {}
     for kind, svc in REFERENCE_LAYER.items():
         ref[kind] = folium.TileLayer(tiles=ESRI.format(svc), attr="Esri", name=REF_NAME[kind], overlay=True,
-                                     control=True, show=((kind == "satellite") == (base == "satellite")),
+                                     control=True, show=((kind == "satellite") == (base == "satellite")) and base != "natgeo",
                                      max_zoom=16, max_native_zoom=16,
                                      pane="labels" if kind == "satellite" else "labels_dark")
         ref[kind].add_to(m)
@@ -89,10 +88,10 @@ def _new_map(location, zoom_start=5, basemap=None):
     return m
 
 
-def _finish(m, out_html):
+def _finish(m, out_html, collapsed=False):
     """ใส่ปุ่มเลือกชั้นข้อมูล บันทึก html และ kml (Google Earth)"""
     import folium
-    folium.LayerControl(collapsed=False).add_to(m)
+    folium.LayerControl(collapsed=collapsed).add_to(m)
     m.save(out_html)
     if SAVE_KML:
         try:
@@ -233,73 +232,6 @@ def _great_circle(lat, lon, az_deg, dist_km, n=60):
     return [destination_point(lat, lon, az_deg, d) for d in np.linspace(0, dist_km, n)]
 
 
-def make_epicenter_map(station, sta_lat, sta_lon, delta_km, candidates, out_html,
-                       ref_epicenter=None, show_all_stations=True):
-    """
-    station       : รหัสสถานีที่บันทึกข้อมูล
-    sta_lat/lon   : พิกัดสถานี
-    delta_km      : ระยะทางบนผิวโลกจากสถานีถึงจุดศูนย์กลาง (km)
-    candidates    : list ของ dict {"name", "lat", "lon", "az", "color"}
-    ref_epicenter : (lat, lon, "ชื่อ") จุดศูนย์กลางอ้างอิง เช่น จาก USGS (ไม่ใส่ก็ได้)
-    คืนค่า path ของไฟล์ html หรือ None ถ้าไม่ได้ติดตั้ง folium
-    """
-    try:
-        import folium
-    except ImportError:
-        print("(ไม่ได้ติดตั้ง folium จึงไม่วาดแผนที่จริง: pip install folium)")
-        return None
-
-    m = _new_map([sta_lat, sta_lon], zoom_start=5)
-
-    # ---- สถานีทั้งหมดใน stations.csv ----
-    if show_all_stations:
-        layer = folium.FeatureGroup(name="สถานีใน stations.csv")
-        for code, (la, lo) in load_station_db().items():
-            folium.CircleMarker([la, lo], radius=3, color="#555555", fill=True, fill_opacity=0.8,
-                                weight=1, tooltip=f"{code} ({la:.4f}, {lo:.4f})").add_to(layer)
-        layer.add_to(m)
-
-    # ---- วงกลมระยะทาง Δ (ระยะจริงเป็นเมตร) ----
-    folium.Circle([sta_lat, sta_lon], radius=delta_km * 1000, color="black", weight=1.5,
-                  dash_array="6 6", fill=False,
-                  tooltip=f"ระยะทางจากสถานี Δ = {delta_km:.0f} km").add_to(m)
-
-    # ---- สถานีที่บันทึกข้อมูล ----
-    folium.Marker([sta_lat, sta_lon], tooltip=f"สถานี {station}",
-                  popup=f"<b>สถานี {station}</b><br>lat {sta_lat:.4f}<br>lon {sta_lon:.4f}",
-                  icon=folium.Icon(color="blue", icon="signal")).add_to(m)
-
-    # ---- ตำแหน่งที่เป็นไปได้ + เส้นทิศทางจากสถานี ----
-    points = [(sta_lat, sta_lon)]
-    for c in candidates:
-        folium.PolyLine(_great_circle(sta_lat, sta_lon, c["az"], delta_km), color=c["color"],
-                        weight=2, opacity=0.8, tooltip=f"ทิศ {c['az']:.0f}°").add_to(m)
-        folium.Marker([c["lat"], c["lon"]], tooltip=c["name"],
-                      popup=(f"<b>{c['name']}</b><br>lat {c['lat']:.3f}<br>lon {c['lon']:.3f}"
-                             f"<br>ทิศจากสถานี {c['az']:.1f}°<br>ระยะ {delta_km:.0f} km"),
-                      icon=folium.Icon(color=c["color"], icon="star")).add_to(m)
-        points.append((c["lat"], c["lon"]))
-
-    # ---- จุดศูนย์กลางอ้างอิง (ถ้ามี) ----
-    if ref_epicenter is not None:
-        la, lo, label = ref_epicenter
-        folium.Marker([la, lo], tooltip=label, popup=f"<b>{label}</b><br>lat {la:.3f}<br>lon {lo:.3f}",
-                      icon=folium.Icon(color="green", icon="flag")).add_to(m)
-        points.append((la, lo))
-
-    # ---- หัวเรื่อง + ซูมให้เห็นทุกจุด ----
-    title = (f"<div style='position:fixed;top:10px;left:50px;z-index:9999;background:white;"
-             f"padding:6px 10px;border-radius:6px;box-shadow:0 1px 4px #888;font-size:14px'>"
-             f"<b>ตำแหน่งจุดศูนย์กลางที่เป็นไปได้ จากสถานี {station}</b><br>"
-             f"Δ = {delta_km:.0f} km &nbsp;|&nbsp; น้ำเงิน = สถานี, ดาว = ตำแหน่งที่เป็นไปได้"
-             f"{', ธงเขียว = จุดอ้างอิง' if ref_epicenter else ''}</div>")
-    m.get_root().html.add_child(folium.Element(title))
-    lats = [p[0] for p in points]
-    lons = [p[1] for p in points]
-    m.fit_bounds([[min(lats) - 1, min(lons) - 1], [max(lats) + 1, max(lons) + 1]])
-    return _finish(m, out_html)
-
-
 COLORS = ["blue", "darkred", "darkgreen", "orange", "cadetblue"]   # สีของแต่ละสถานี (สูงสุด 5)
 
 
@@ -389,56 +321,6 @@ def make_multi_station_map(results, out_html, combined=None, geiger=None, ref_ep
     return _finish(m, out_html)
 
 
-# สีตามระดับความรุนแรง JMA (ใกล้เคียงสีที่ JMA ใช้)
-JMA_CLASS_COLORS = {"0": "#f2f2ff", "1": "#00aaff", "2": "#0041ff", "3": "#fae696", "4": "#ffe600",
-                    "5-": "#ff9900", "5+": "#ff2800", "6-": "#a50021", "6+": "#a50021", "7": "#b40068"}
-
-
-def make_intensity_map(points, out_html, epicenter=None, title="ความรุนแรงแผ่นดินไหว (มาตรา JMA)"):
-    """
-    points    : list ของ dict {"name", "lat", "lon", "I", "cls", "kind", "info"}
-                kind = "obs" (วัดได้ที่สถานี, วงกลม) หรือ "pred" (ทำนาย, สี่เหลี่ยม)
-    epicenter : (lat, lon) ถ้ามี
-    """
-    try:
-        import folium
-    except ImportError:
-        print("(ไม่ได้ติดตั้ง folium จึงไม่วาดแผนที่จริง: pip install folium)")
-        return None
-    m = _new_map([points[0]["lat"], points[0]["lon"]], zoom_start=6)
-    lats, lons = [], []
-    for p in points:
-        col = JMA_CLASS_COLORS.get(p["cls"], "#888888")
-        label = f"{p['name']}: I = {p['I']:.1f} (ระดับ {p['cls']})"
-        popup = f"<b>{p['name']}</b><br>{'วัดได้' if p['kind'] == 'obs' else 'ทำนาย'}: I = {p['I']:.1f} " \
-                f"(ระดับ {p['cls']})<br>{p.get('info', '')}"
-        if p["kind"] == "obs":
-            folium.CircleMarker([p["lat"], p["lon"]], radius=9, color="black", weight=1, fill=True,
-                                fill_color=col, fill_opacity=0.9, tooltip=label, popup=popup).add_to(m)
-        else:
-            d = 0.12
-            folium.Rectangle([[p["lat"] - d, p["lon"] - d], [p["lat"] + d, p["lon"] + d]], color="black",
-                             weight=1, fill=True, fill_color=col, fill_opacity=0.9,
-                             tooltip=label + " (ทำนาย)", popup=popup).add_to(m)
-        folium.Marker([p["lat"], p["lon"]], icon=folium.DivIcon(
-            html=f"<div style='font-size:11px;font-weight:bold;transform:translate(10px,-8px);"
-                 f"white-space:nowrap;text-shadow:0 0 3px white'>{p['name']} {p['cls']}</div>")).add_to(m)
-        lats.append(p["lat"]); lons.append(p["lon"])
-    if epicenter is not None:
-        folium.Marker(list(epicenter[:2]), tooltip="จุดศูนย์กลาง",
-                      icon=folium.Icon(color="red", icon="star")).add_to(m)
-        lats.append(epicenter[0]); lons.append(epicenter[1])
-    legend = "".join(f"<span style='display:inline-block;width:14px;height:14px;background:{c};"
-                     f"border:1px solid #333;margin:0 3px 0 8px;vertical-align:middle'></span>{k}"
-                     for k, c in JMA_CLASS_COLORS.items())
-    m.get_root().html.add_child(folium.Element(
-        f"<div style='position:fixed;top:10px;left:50px;z-index:9999;background:white;padding:6px 10px;"
-        f"border-radius:6px;box-shadow:0 1px 4px #888;font-size:13px'><b>{title}</b><br>"
-        f"วงกลม = วัดได้ที่สถานี, สี่เหลี่ยม = ทำนาย, ดาวแดง = จุดศูนย์กลาง<br>{legend}</div>"))
-    m.fit_bounds([[min(lats) - 1, min(lons) - 1], [max(lats) + 1, max(lons) + 1]])
-    return _finish(m, out_html)
-
-
 # สีระดับ MMI มาตรฐานของ USGS ShakeMap
 MMI_COLORS = {1: "#ffffff", 2: "#bfccff", 3: "#a0e6ff", 4: "#80ffff", 5: "#7aff93", 6: "#ffff00",
               7: "#ffc800", 8: "#ff9100", 9: "#ff0000", 10: "#c80000"}
@@ -490,7 +372,7 @@ def _station_table(points):
             + "".join(rows) + "</table>" + foot)
 
 
-def make_mmi_map(points, out_html, epicenter, rings=None, title="ความรุนแรงแผ่นดินไหว (MMI)", note=""):
+def make_mmi_map(points, out_html, epicenter, rings=None, rupture=None, title="ความรุนแรงแผ่นดินไหว (MMI)", note=""):
     """
     แผนที่ความรุนแรงหน่วย MMI (สีมาตรฐาน USGS ShakeMap)
     points    : list ของ dict
@@ -509,6 +391,8 @@ def make_mmi_map(points, out_html, epicenter, rings=None, title="ความร
         return None
     m = _new_map([epicenter["lat"], epicenter["lon"]], zoom_start=5)
     lats, lons = [epicenter["lat"]], [epicenter["lon"]]
+    for la, lo in _add_rupture(m, rupture):
+        lats.append(la); lons.append(lo)
 
     # ---- วงขอบเขตระดับ MMI (วงใหญ่ก่อน วงเล็กทับด้านบน) ----
     if rings:
@@ -580,63 +464,99 @@ def make_mmi_map(points, out_html, epicenter, rings=None, title="ความร
     return _finish(m, out_html)
 
 
+def _add_rupture(m, rupture):
+    """วาดแนวรอยแตก หรือขอบเขตรอยแตกโดยประมาณ  คืนค่าจุดที่ต้องรวมในขอบเขตแผนที่"""
+    import folium
+    if not rupture:
+        return []
+    if rupture.get("trace"):
+        tr = [list(p) for p in rupture["trace"]]
+        folium.PolyLine(tr, color="#7a0000", weight=5, opacity=0.95, tooltip=rupture["label"], popup=rupture["label"],
+                        name=rupture["label"]).add_to(m)
+        return tr
+    if rupture.get("radius_km"):
+        folium.Circle(list(rupture["center"]), radius=rupture["radius_km"] * 1000, color="#7a0000", weight=2,
+                      dash_array="6 6", fill=False, tooltip=rupture["label"]).add_to(m)
+    return []
+
+
 def make_station_mmi_map(stations, out_html, epicenter, field=None, title="ระดับความรุนแรงแผ่นดินไหว",
-                         subtitle="ที่สถานีตรวจวัด (หน่วยวัด MMI)", basemap="light"):
+                         subtitle="", basemap="natgeo", rupture=None, reference=None):
     """
-    แผนที่ MMI ที่วัดได้ของแต่ละสถานี (ตัวเลขใหญ่ + ชื่อสถานี) บนพื้นสี MMI แบบ ShakeMap
+    แผนที่ MMI แบบ USGS ShakeMap: แผนที่ภูมิศาสตร์ + พื้นสี MMI โปร่งใส + แนวรอยแตก + สถานีสีตาม MMI ที่วัดได้
     stations : list ของ dict {"name", "lat", "lon", "mmi": MMI วัดได้ (หรือ None), "popup"}
     epicenter: dict {"lat", "lon", "popup"}
     field    : dict {"uri": ภาพ PNG (data URI), "bounds": [[lat_s, lon_w], [lat_n, lon_e]]}  พื้นสี MMI ที่คาด
+    rupture  : dict จาก run_intensity.rupture_info   reference : ค่าอ้างอิงของ USGS (lat, lon)
     """
     try:
         import folium
+        from folium.plugins import MousePosition
     except ImportError:
         print("(ไม่ได้ติดตั้ง folium จึงไม่วาดแผนที่จริง: pip install folium)")
         return None
     m = _new_map([epicenter["lat"], epicenter["lon"]], zoom_start=6, basemap=basemap)
     if field:
-        folium.raster_layers.ImageOverlay(image=field["uri"], bounds=field["bounds"], opacity=0.65,
-                                          name="พื้นสี MMI ที่คาด (ShakeMap)", interactive=False,
-                                          zindex=1).add_to(m)
-    folium.Marker([epicenter["lat"], epicenter["lon"]], tooltip="จุดศูนย์กลาง",
-                  popup=folium.Popup(epicenter.get("popup", "จุดศูนย์กลาง"), max_width=320),
-                  icon=folium.Icon(color="red", icon="star")).add_to(m)
-    layer = folium.FeatureGroup(name="สถานี (MMI วัดได้)")
-    lats, lons = [epicenter["lat"]], [epicenter["lon"]]
+        folium.raster_layers.ImageOverlay(image=field["uri"], bounds=field["bounds"], opacity=0.72,
+                                          name="พื้นสี MMI ที่คาด", interactive=False, zindex=1).add_to(m)
+    lats, lons = [], []
+    for la, lo in _add_rupture(m, rupture):
+        lats.append(la); lons.append(lo)
+    stg = folium.FeatureGroup(name="สถานี (สีตาม MMI ที่วัดได้)")
+    num = folium.FeatureGroup(name="ตัวเลข MMI ที่สถานี", show=False)
     for p in stations:
         v = p.get("mmi")
-        col = MMI_COLORS[mmi_level(v)] if v is not None else "#bbbbbb"
-        txt = f"{v:.1f}" if v is not None else "-"
-        tip = f"{p['name']}: MMI {txt}" + (f" ({MMI_ROMAN[mmi_level(v)]} {MMI_TEXT[mmi_level(v)][0]})"
-                                           if v is not None else " (ไม่มีข้อมูล)")
-        folium.CircleMarker([p["lat"], p["lon"]], radius=7, color="#333333", weight=1.5, fill=True,
-                            fill_color=col, fill_opacity=1.0, tooltip=tip,
-                            popup=folium.Popup(f"<b>{p['name']}</b><br>{p.get('popup', '')}", max_width=360)
-                            ).add_to(layer)
-        folium.Marker([p["lat"], p["lon"]], icon=folium.DivIcon(
-            icon_size=(160, 60), icon_anchor=(80, 62),
-            html=("<div style='width:160px;text-align:center;font-family:Tahoma,sans-serif;"
-                  "text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 6px #fff;line-height:1.05'>"
-                  f"<div style='font-size:26px;font-weight:bold;color:#333'>{txt}</div>"
-                  f"<div style='font-size:15px;color:#222'>{p['name']}</div></div>"))).add_to(layer)
+        txt = f"{v:.1f}" if v is not None else "ไม่ผ่าน QC"
+        tip = f"{p['name']}: MMI {txt}" + (f" ({MMI_ROMAN[mmi_level(v)]} {MMI_TEXT[mmi_level(v)][0]})" if v is not None else "")
+        folium.CircleMarker([p["lat"], p["lon"]], radius=6 if v is not None else 3.5, color="#222222",
+                            weight=1.2, fill=True, fill_color=MMI_COLORS[mmi_level(v)] if v is not None else "#555555",
+                            fill_opacity=1.0 if v is not None else 0.6, tooltip=tip,
+                            popup=folium.Popup(p.get("popup", ""), max_width=360)).add_to(stg)
+        if v is not None:
+            folium.Marker([p["lat"], p["lon"]], icon=folium.DivIcon(
+                icon_size=(50, 18), icon_anchor=(25, 26),
+                html=("<div style='text-align:center;font:bold 13px Tahoma,sans-serif;color:#222;"
+                      f"text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff'>{v:.1f}</div>"))).add_to(num)
         lats.append(p["lat"]); lons.append(p["lon"])
-    layer.add_to(m)
-    legend = "".join(f"<td style='background:{MMI_COLORS[k]};width:34px;text-align:center;border:1px solid #999'>"
-                     f"{MMI_ROMAN[k]}</td>" for k in range(1, 11))
+    stg.add_to(m)
+    num.add_to(m)
+    star = ("<svg width='34' height='34' viewBox='0 0 24 24'><path fill='#ffd21f' stroke='#222' stroke-width='1.2' "
+            "d='M12 1.8l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17l-6.4 3.5 1.4-7.1-5.3-5 7.2-.9z'/></svg>")
+    folium.Marker([epicenter["lat"], epicenter["lon"]], tooltip="จุดเหนือศูนย์กลางจากระบบ",
+                  popup=folium.Popup(epicenter.get("popup", "จุดเหนือศูนย์กลาง"), max_width=320),
+                  icon=folium.DivIcon(icon_size=(34, 34), icon_anchor=(17, 17), html=star)).add_to(m)
+    lats.append(epicenter["lat"]); lons.append(epicenter["lon"])
+    if reference:
+        folium.RegularPolygonMarker([reference["lat"], reference["lon"]], number_of_sides=4, radius=9, rotation=0,
+                                    color="#111111", weight=2, fill=False,
+                                    tooltip=f"จุดเหนือศูนย์กลางจาก USGS: {reference['mag_type']} {reference['mag']:g}").add_to(m)
+    MousePosition(position="bottomright", separator=" : ", num_digits=3, prefix="").add_to(m)
+    cells = "".join(f"<td style='background:{MMI_COLORS[k]};width:30px;text-align:center;border:1px solid #888;padding:1px'>"
+                    f"{MMI_ROMAN[k]}</td>" for k in range(1, 11))
+    rows = ["<span style='color:#c79a00;font-size:15px'>★</span> จุดเหนือศูนย์กลางจากระบบ"]
+    if reference:
+        rows.append("◇ จุดเหนือศูนย์กลางจาก USGS")
+    if rupture and rupture.get("trace"):
+        rows.append(f"<span style='color:#7a0000;font-weight:bold'>━━</span> {rupture['label']} (ข้อมูลหลังเหตุการณ์)")
+    elif rupture and rupture.get("radius_km"):
+        rows.append(f"<span style='color:#7a0000'>╌╌</span> {rupture['label']}")
+    elif rupture and rupture.get("note"):
+        rows.append(rupture["note"])
+    rows += ["● สถานี สีตาม MMI ที่วัดได้  (จุดเทาเล็ก = ไม่ผ่าน QC)",
+             "พื้นสี = MMI ที่คาด จาก IPE + ค่าปรับจากสถานี"]
     m.get_root().html.add_child(folium.Element(
-        "<div style='position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:9999;text-align:center;"
-        "font-family:Tahoma,sans-serif;text-shadow:0 0 4px #fff,0 0 4px #fff;pointer-events:none'>"
-        f"<div style='font-size:28px;font-weight:bold;color:#e02020'>{title}</div>"
-        f"<div style='font-size:17px;color:#222'>{subtitle}</div></div>"))
+        "<div style='position:fixed;top:12px;left:60px;z-index:9999;background:rgba(255,255,255,.92);padding:7px 13px;"
+        "border-radius:6px;box-shadow:0 1px 5px #777;font-family:Tahoma,sans-serif'>"
+        f"<div style='font-size:19px;font-weight:bold;color:#222'>{title}</div>"
+        f"<div style='font-size:13px;color:#444'>{subtitle}</div></div>"))
     m.get_root().html.add_child(folium.Element(
-        "<div style='position:fixed;bottom:25px;left:10px;z-index:9999;background:rgba(255,255,255,.9);"
-        "padding:6px 10px;border-radius:6px;box-shadow:0 1px 4px #888;font-size:12px'>"
-        "<b>หน่วยวัด: MMI (Modified Mercalli Intensity)</b>"
-        f"<table style='border-collapse:collapse;margin-top:4px'><tr>{legend}</tr></table>"
-        "ตัวเลข = MMI ที่วัดได้ที่สถานี (จาก PGV, Worden et al. 2012)<br>"
-        "พื้นสี = MMI ที่คาดจากขนาดและระยะ (ปรับด้วยค่าที่สถานีวัดได้)</div>"))
-    m.fit_bounds([[min(lats) - 1, min(lons) - 1], [max(lats) + 1, max(lons) + 1]])
-    return _finish(m, out_html)
+        "<div style='position:fixed;bottom:34px;left:10px;z-index:9999;background:rgba(255,255,255,.93);"
+        "padding:7px 10px;border-radius:6px;box-shadow:0 1px 5px #777;font:12px/1.5 Tahoma,sans-serif'>"
+        "<b>มาตรา MMI (USGS)</b>"
+        f"<table style='border-collapse:collapse;margin:3px 0 5px'><tr>{cells}</tr></table>"
+        + "<br>".join(rows) + "</div>"))
+    m.fit_bounds([[min(lats) - 0.8, min(lons) - 1.5], [max(lats) + 0.8, max(lons) + 1.5]])
+    return _finish(m, out_html, collapsed=True)
 
 
 def make_travel_map(epicenter, sites, out_html, blind_km=None, stations=None, s_fronts=None):

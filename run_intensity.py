@@ -1,6 +1,6 @@
 """
 run_intensity.py
-ประมาณความรุนแรงแผ่นดินไหว (MMI แบบ USGS และ JMA) ที่แต่ละสถานีและตำแหน่งที่สนใจ
+ประมาณความรุนแรงแผ่นดินไหว (MMI แบบ USGS) ที่แต่ละสถานีและตำแหน่งที่สนใจ
 แล้วแจ้งเตือนก่อนคลื่นมาถึง  ใช้ผลชุดเดียวกับ run_magnitude.py และ run_travel_time.py
 
   ขั้น 1  ตำแหน่ง เวลาเกิด ขนาด และเวลาที่ระบบรู้ข้อมูลแต่ละขั้น      (run_travel_time.analyse / system_stages)
@@ -10,7 +10,7 @@ run_intensity.py
             - ทำนาย MMI ที่ทุกตำแหน่ง (intensity.predict_mmi)
             - แจ้งเตือนตำแหน่งที่เข้าเกณฑ์ ShakeAlert (M >= 4.5 และ MMI >= III / M >= 5 และ MMI >= IV)
               ครั้งแรกที่เข้าเกณฑ์ = เวลาส่งคำเตือน   Lead time = เวลาคลื่น S (และ Lg) มาถึง − เวลาส่งคำเตือน
-  ขั้น 3  ความรุนแรงที่วัดได้จริงที่สถานี (MMI จาก PGV ตาม Worden 2012, JMA I) เทียบกับค่าทำนาย
+  ขั้น 3  ความรุนแรงที่วัดได้จริงที่สถานี (MMI จาก PGV ตาม Worden 2012) เทียบกับค่าทำนาย
 
   OUTPUT_MODE = "public" : การ์ดแจ้งเตือนของแต่ละตำแหน่ง (รายละเอียดบันทึกใน DETAIL_FILE)
   OUTPUT_MODE = "detail" : ลำดับเวลาการอัปเดตและตารางเทียบทั้งหมด
@@ -45,11 +45,10 @@ except ImportError:
 # ======================================================================
 #  ตั้งค่าตรงนี้
 # ======================================================================
-SELECTED_STATIONS = "2025-08-21_M4.6_AllTMD"    # "auto" = ทุกไฟล์ในโฟลเดอร์ station, ชื่อโฟลเดอร์เหตุการณ์ เช่น "2026-05-18_M5.2_AllTMD", หรือรหัส ["BKKA", "CMMT"]
+SELECTED_STATIONS = "2025-03-29_M5.9_AllTMD"    # "auto" = ทุกไฟล์ในโฟลเดอร์ station, ชื่อโฟลเดอร์เหตุการณ์ เช่น "2026-05-18_M5.2_AllTMD", หรือรหัส ["BKKA", "CMMT"]
 PROFILE = "regional"
 EPICENTER = None              # None = คำนวณเอง (แนะนำ)  หรือ (lat, lon, ความลึก km, "เวลาเกิด UTC")
 DEPTH_KM = 10.0
-EQ_TYPE = "crustal"           # "crustal" (ในเปลือกโลก), "interplate" (ระหว่างแผ่น), "intraplate" (ภายในแผ่น)
 
 # Vs30 (m/s) ของสถานี  ลำดับที่ใช้: STATION_VS30 -> คอลัมน์ vs30 ใน stations.csv -> DEFAULT_VS30 ใน config.py
 STATION_VS30 = {}             # เช่น {"BKKA": 180}
@@ -62,6 +61,11 @@ STATION_TYPE_SOURCE = "csv"
 #   ตัวอย่าง (โดยประมาณ) รอยเลื่อนสะกาย 28 มี.ค. 2568 ยาว ~475 km เหนือจุดศูนย์กลาง ~100 km ใต้ ~375 km:
 #   FAULT_TRACE = [(22.90, 95.98), (22.01, 95.94), (21.0, 96.03), (20.0, 96.15), (19.0, 96.25), (18.63, 96.27)]
 FAULT_TRACE = None
+USE_KNOWN_RUPTURE = True      # True = ใช้แนวรอยแตกจาก config.KNOWN_RUPTURES กับแผนที่และค่า MMI สุดท้าย
+                              #   การจำลองเวลาแจ้งเตือนยังใช้จุดกำเนิด เพราะตอนเกิดเหตุจริงยังไม่รู้แนวรอยแตก
+_USER_TRACE = FAULT_TRACE
+RUPTURE_LABEL = None          # ชื่อแนวรอยแตกที่ใช้อยู่ (compute ตั้งให้)
+RUPTURE_HINDSIGHT = False     # True = แนวรอยแตกเป็นข้อมูลหลังเหตุการณ์ ไม่ใช้ตอนจำลองการแจ้งเตือน
 
 # ตำแหน่งที่ต้องการแจ้งเตือน (พิกัดเป็นค่าโดยประมาณ)   Vs30 ดินอ่อนกรุงเทพฯ/ปริมณฑล ประมาณ 150-250 m/s
 TARGET_SITES = [
@@ -227,7 +231,7 @@ def is_clipped(x, n_min=None):
 
 def observed(st, hypo=None):
     """
-    ความรุนแรงที่วัดได้ที่สถานี: PGA, PGV แนวราบ, MMI (Worden 2012), JMA I และเวลาที่สั่นแรงสุด
+    ความรุนแรงที่วัดได้ที่สถานี: PGA, PGV แนวราบ, MMI (Worden 2012) และเวลาที่สั่นแรงสุด
     QC 4 ขั้น (เพื่อไม่ให้ noise / สัญญาณผิดปกติกลายเป็น "แรงสั่น")
       0) สัญญาณขาด (clip): เครื่องวัดแผ่นดินไหว (HH/EH) ขาดง่ายเมื่อสั่นแรง  ไม่ใช้ค่าสูงสุดของสถานีนั้น
       1) วัดเฉพาะช่วงที่คลื่นแผ่นดินไหวผ่านสถานี: Tp(คาด) − 5 s ถึง T0 + Δ/2.0 + 120 s
@@ -268,12 +272,10 @@ def observed(st, hypo=None):
     snr = pga_h / noise if noise > 0 else None
     if snr is not None and snr < QC_MIN_SNR:
         flags.append(f"SNR ต่ำ ({snr:.1f}) แยกแรงสั่นจาก noise ไม่ได้")
-    zw, nw, ew = (comp[k][i0:i1] for k in ("z", "n", "e"))
-    det = INT.jma_intensity_detail(zw, nw, ew, fs)
-    mm = INT.observed_mmi(pga_h, pgv_h)
-    return dict(pga=pga_h, pgv=pgv_h, jma=det["I"], jma_class=INT.jma_intensity_class(det["I"]),
-                t_peak=rec["t0"] + (i0 + det["i_peak"]) / fs, snr=snr, n_spike=n_spk, flags=flags,
-                usable=not (snr is not None and snr < QC_MIN_SNR) and not clipped, **mm)
+    i_peak = int(np.argmax(np.hypot(vn[win], ve[win])))     # เวลาที่ความเร็วแนวราบสูงสุด
+    return dict(pga=pga_h, pgv=pgv_h, mmi=INT.mmi_from_pgv(pgv_h), sigma=INT.WGRW12_SIGMA,
+                t_peak=rec["t0"] + (i0 + i_peak) / fs, snr=snr, n_spike=n_spk, flags=flags,
+                usable=not (snr is not None and snr < QC_MIN_SNR) and not clipped)
 
 
 def build_sites(res):
@@ -331,8 +333,7 @@ def magnitude_at(res, t):
         sts.append(dict(st, mags=mags, w={}))
     with contextlib.redirect_stdout(io.StringIO()):
         net = M.network_by_type(sts)
-        _, scores = M.type_scores(net)
-        pick = M.choose_preferred(net, scores)
+        pick = M.choose_preferred(net)
     if pick is None:
         return None, None
     used = [s for s in sts if s["w"].get(pick["type"], 0) > 0]
@@ -359,7 +360,8 @@ def simulate(res, stages, sites):
         preds = {}
         for s in sites:
             d = float(haversine_km(loc["lat"], loc["lon"], s["lat"], s["lon"]))
-            preds[s["name"]] = INT.predict_mmi(pick["mag"], d, loc["depth"], s["vs30"], EQ_TYPE, unc, s.get("rjb"))
+            preds[s["name"]] = INT.predict_mmi(pick["mag"], d, loc["depth"], s["vs30"], unc,
+                                               None if RUPTURE_HINDSIGHT else s.get("rjb"))
         cm = correction_model(sites, preds, t)
         n_obs = cm["n"] if cm else 0
         corrs = {s["name"]: site_corr(cm, s, preds[s["name"]]["R"]) for s in sites}
@@ -387,7 +389,7 @@ def simulate(res, stages, sites):
     # ค่าทำนายสุดท้าย (ขนาดหลัก + ตำแหน่งสุดท้าย + ปรับด้วยสถานีทั้งหมด)
     pick, (_, _, unc) = res["preferred"], res["reliability"]
     for s in sites:
-        s["final_raw"] = INT.predict_mmi(pick["mag"], s["delta"], hypo["depth"], s["vs30"], EQ_TYPE, unc,
+        s["final_raw"] = INT.predict_mmi(pick["mag"], s["delta"], hypo["depth"], s["vs30"], unc,
                                          s.get("rjb"))
     flag_gross_outliers(sites)
     cm = correction_model(sites, {s["name"]: s["final_raw"] for s in sites}, np.inf)
@@ -638,12 +640,10 @@ def public_report(res, sites):
                 print(f"     ควรทำ     : {INT.action_text(f['mmi'])}")
             if s["obs"]:
                 o = s["obs"]
-                print(f"     วัดได้จริง : {_mmi_txt(o['mmi'])}  JMA {o['jma_class']}"
+                print(f"     วัดได้จริง : {_mmi_txt(o['mmi'])}"
                       + ("" if o.get("usable", True) else "   (ข้อมูลใช้ไม่ได้)"))
                 for fl in o.get("flags", []):
                     print(f"     ⚠ ข้อมูล: {fl}")
-            for fl in f["flags"]:
-                print(f"     ⚠ {fl}")
     print(line)
     cm = res.get("correction")
     if cm and cm.get("method") not in (None, "none"):
@@ -697,8 +697,7 @@ def detail_report(res, stages, updates, sites):
         r = np.array([obs_mmi(s) - s["final_raw"]["mmi"] for s in ok])
         print(f"\nความแม่นของค่าทำนายก่อนปรับ (สิ่งที่ใช้แจ้งเตือนก่อนคลื่นถึง) {len(ok)} สถานี:"
               f"  bias (วัด − ทำนาย) {r.mean():+.2f}  SD {r.std():.2f}  RMSE {np.sqrt(np.mean(r ** 2)):.2f} MMI")
-        print("  ระยะที่ใช้: " + ("ถึงแนวรอยแตก FAULT_TRACE" if FAULT_TRACE else "ถึงจุดศูนย์กลาง (จุดกำเนิด)")
-              + f"   น้ำหนัก GMPE: 1 ที่ <= {INT.GMPE_TAPER_KM[0]:.0f} km -> 0 ที่ {INT.GMPE_TAPER_KM[1]:.0f} km")
+        print("  ระยะที่ใช้: " + (f"ถึง{RUPTURE_LABEL}" if FAULT_TRACE else "ถึงจุดศูนย์กลาง (จุดกำเนิด)"))
     diff = [(s["name"], s.get("sensor_file"), s.get("sensor")) for s in sites
             if s.get("sensor_file") and s.get("sensor") and s["sensor_file"] != s["sensor"]]
     if diff:
@@ -708,17 +707,16 @@ def detail_report(res, stages, updates, sites):
                            for n, a, b in diff))
 
     print("\n================ ค่าทำนายสุดท้าย เทียบกับค่าที่วัดได้ ================")
-    print(f"{'ตำแหน่ง':<12}{'ชนิด':<20}{'Δ km':>6}{'Vs30':>6}{'PGV ทำนาย':>11}{'MMI GMPE':>9}{'MMI IPE':>8}{'MMI':>6}"
-          f"{'±':>5}{'JMA':>5}{'| PGA วัด':>10}{'PGV วัด':>9}{'MMI วัด':>8}{'JMA วัด':>8}{'ปรับแล้ว':>9}")
-    print("  (MMI GMPE / IPE / MMI = ก่อนปรับ,  ปรับแล้ว = หลังปรับด้วยค่าที่สถานีวัดได้)")
+    print(f"{'ตำแหน่ง':<12}{'ชนิด':<20}{'Δ km':>6}{'Vs30':>6}{'MMI ทำนาย':>10}"
+          f"{'±':>5}{'| PGA วัด':>10}{'PGV วัด':>9}{'MMI วัด':>8}{'ปรับแล้ว':>9}")
+    print("  (MMI ทำนาย = ก่อนปรับ,  ปรับแล้ว = หลังปรับด้วยค่าที่สถานีวัดได้)")
     for s in sorted(sites, key=lambda q: (q["kind"] != "station", q["delta"])):
         f, o = s["final_raw"], s["obs"]
-        obs = (f"{o['pga']:10.2f}{o['pgv']:9.3f}{o['mmi']:8.1f}{o['jma_class']:>8}" if o
-               else f"{'-':>10}{'-':>9}{'-':>8}{'-':>8}")
+        obs = (f"{o['pga']:10.2f}{o['pgv']:9.3f}{o['mmi']:8.1f}" if o
+               else f"{'-':>10}{'-':>9}{'-':>8}")
         obs += f"{s['final']['mmi']:9.1f}" + ("  QC" if o and o.get("flags") else "")
         kind = sensor_name(s, short=True) if s["kind"] == "station" else "★ ตำแหน่งแจ้งเตือน"
-        print(f"{s['name'][:11]:<12}{kind:<20}{s['delta']:6.0f}{s['vs30']:6.0f}{f['pgv_surface']:11.3f}{f['mmi_gmpe']:9.1f}"
-              f"{f['mmi_ipe']:8.1f}{f['mmi']:6.1f}{f['sigma']:5.1f}{f['jma_class']:>5}{obs}")
+        print(f"{s['name'][:11]:<12}{kind:<20}{s['delta']:6.0f}{s['vs30']:6.0f}{f['mmi']:10.1f}{f['sigma']:5.1f}{obs}")
     res_ = [s["obs"]["mmi"] - s["final_raw"]["mmi"] for s in sites if s["obs"]]
     if res_:
         print(f"MMI วัด − ทำนาย ที่สถานี: ค่ากลาง {np.median(res_):+.1f}  (ช่วง {min(res_):+.1f} ถึง {max(res_):+.1f})")
@@ -804,14 +802,12 @@ def plot_distance(res, sites, out="intensity_distance.png"):
     d = np.linspace(5, dmax, 200)
     fig, ax = plt.subplots(figsize=(10, 6))
     for vs, ls in ((C.DEFAULT_VS30, "-"), (200.0, "--")):
-        pr = [INT.predict_mmi(p["mag"], x, hypo["depth"], vs, EQ_TYPE, unc) for x in d]
+        pr = [INT.predict_mmi(p["mag"], x, hypo["depth"], vs, unc) for x in d]
         m = np.array([q["mmi"] for q in pr])
         ax.plot(d, m, "k" + ls, label=f"MMI ทำนาย Vs30 {vs:.0f} m/s (ก่อนปรับ)")
         if vs == C.DEFAULT_VS30:
             ax.fill_between(d, [q["mmi_low"] for q in pr], [q["mmi_high"] for q in pr], color="0.85",
                             label="± 1 ส่วนเบี่ยงเบนมาตรฐาน (รวมความไม่แน่นอนของขนาด)")
-            ax.plot(d, [q["mmi_gmpe"] for q in pr], color="#1f77b4", lw=1, label="วิธี GMPE -> GMICE (Worden 2012)")
-            ax.plot(d, [q["mmi_ipe"] for q in pr], color="#2ca02c", lw=1, label="วิธี IPE (Allen 2012)")
     for s in sites:
         if s["obs"]:
             ax.plot(s["delta"], s["obs"]["mmi"], "o", color="#d62728", mec="k", ms=8)
@@ -825,8 +821,6 @@ def plot_distance(res, sites, out="intensity_distance.png"):
     ax.plot([], [], "*", color="#ff7f0e", mec="k", ms=12, label="ตำแหน่งที่แจ้งเตือน (ทำนาย)")
     for k in range(1, 10):
         ax.axhspan(k - 0.5, k + 0.5, color=MMI_COLORS[k], alpha=0.25, lw=0)
-    ax.axvline(INT.SM99_MAX_X, color="0.5", ls=":", lw=1)
-    ax.text(INT.SM99_MAX_X, 9.3, "ช่วงที่สมการปรับเทียบไว้ | ", ha="right", fontsize=8, color="0.4")
     ax.set_yticks(range(1, 11))
     ax.set_yticklabels([INT.MMI_TABLE[k][0] for k in range(1, 11)])
     ax.set_ylim(0.5, 9.8)
@@ -851,7 +845,7 @@ def _mmi_rings(res, sites, vs30=None):
     vs30 = vs30 or C.DEFAULT_VS30
     cm = res.get("correction")
     d = np.linspace(1, 3000, 1500)
-    m = np.array([INT.predict_mmi(p["mag"], x, hypo["depth"], vs30, EQ_TYPE, unc)["mmi"] for x in d])
+    m = np.array([INT.predict_mmi(p["mag"], x, hypo["depth"], vs30, unc)["mmi"] for x in d])
     base = _base(cm, np.log10(np.hypot(d, hypo["depth"])), np.full(len(d), "target", object)) if cm else 0.0
     m = m + base
     corr = float(np.median(base)) if cm else 0.0
@@ -883,7 +877,7 @@ def make_map(res, sites, out=MAP_FILE):
         epi = dict(lat=h["lat"], lon=h["lon"], popup=_epi_html(res))
         note = (f"วงกลม = ขอบเขตที่คาดว่าสั่นถึงแต่ละระดับ (Vs30 {vs_ring:.0f} m/s"
                 + (f", ปรับจากสถานี {corr:+.1f} MMI" if corr else "") + ")")
-        html = make_mmi_map(pts, out, epi, rings, title=f"ความรุนแรงแผ่นดินไหว (MMI)  Mw {p['mag']:.1f}", note=note)
+        html = make_mmi_map(pts, out, epi, rings, rupture=rupture_info(res), title=f"ความรุนแรงแผ่นดินไหว (MMI)  Mw {p['mag']:.1f}", note=note)
         if html:
             return html
     return _make_map_leaflet(res, sites, out)
@@ -1110,8 +1104,7 @@ def mmi_field(res, sites, pad_deg=10.0, n=420):
         from PIL import Image
     except ImportError:
         return None
-    hypo, p, (_, _, unc) = res["hypo"], res["preferred"], res["reliability"]
-    cm = res.get("correction")
+    hypo = res["hypo"]
     corr = float(np.median([s["final"].get("corr", 0.0) for s in sites])) if sites else 0.0
     la = [hypo["lat"]] + [s["lat"] for s in sites]
     lo = [hypo["lon"]] + [s["lon"] for s in sites]
@@ -1122,16 +1115,7 @@ def mmi_field(res, sites, pad_deg=10.0, n=420):
     lats = np.degrees(2 * np.arctan(np.exp(ys)) - np.pi / 2)
     lons = np.linspace(west, east, n)
     LA, LO = np.meshgrid(lats, lons, indexing="ij")
-    D = _trace_dist_grid(LA, LO) if FAULT_TRACE else haversine_km(hypo["lat"], hypo["lon"], LA, LO)
-    d = np.linspace(0.0, float(D.max()) + 10, 500)
-    m = np.array([INT.predict_mmi(p["mag"], x, hypo["depth"], C.DEFAULT_VS30, EQ_TYPE, unc,
-                                  x if FAULT_TRACE else None)["mmi"] for x in d])
-    if cm and cm.get("method") not in (None, "none"):     # ค่าปรับตามตำแหน่ง (แนวโน้มระยะ + kriging)
-        Rg = np.hypot(D, hypo["depth"])
-        corr_g = model_corr(cm, LA, LO, Rg, np.full(D.shape, "target", object))
-    else:
-        corr_g = 0.0
-    F = np.clip(np.interp(D, d, m) + corr_g, 1.0, 10.0)
+    F = _mmi_on_grid(res, sites, LA, LO)
     # จางลงที่ขอบภาพ (15% ของความกว้าง) จะได้ไม่เห็นเป็นกรอบสี่เหลี่ยม
     u = np.minimum(np.arange(n), np.arange(n)[::-1]) / (0.15 * n)
     edge = np.clip(np.minimum.outer(u, u), 0.0, 1.0)
@@ -1140,6 +1124,278 @@ def mmi_field(res, sites, pad_deg=10.0, n=420):
     Image.fromarray(_mmi_rgba(F, 0.75 * edge)).save(buf, format="PNG")
     return {"uri": "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode(),
             "bounds": [[float(south), float(west)], [float(north), float(east)]], "corr": corr}
+
+
+# ======================================================================
+#  แผนที่ MMI แบบภาพนิ่ง (พร้อมใช้ในสไลด์)
+# ======================================================================
+BORDER_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "ne_10m_admin_0_countries_asia.geojson")
+MMI_MAP_FILE = "intensity_mmi_map.png"
+MMI_MAP_FAR_KM = 150.0        # พื้นที่ไกลจากสถานีที่ใช้ได้เกินนี้ = ค่าประมาณ (แรเงา, ป้าย ~)
+MAP_LABELS = [                # เรียงตามลำดับความสำคัญ ถ้าป้ายทับกันจะข้ามตัวหลัง
+    ("กรุงเทพฯ", 13.756, 100.502), ("เชียงใหม่", 18.788, 98.985), ("เชียงราย", 19.910, 99.841),
+    ("ขอนแก่น", 16.442, 102.836), ("นครราชสีมา", 14.980, 102.098), ("ภูเก็ต", 7.880, 98.392),
+    ("สงขลา", 7.190, 100.595), ("อุบลราชธานี", 15.229, 104.856), ("พิษณุโลก", 16.821, 100.266),
+    ("แม่ฮ่องสอน", 19.302, 97.965), ("ตาก", 16.884, 99.126), ("ลำปาง", 18.289, 99.492),
+    ("ลำพูน", 18.574, 99.008), ("สุโขทัย", 17.007, 99.823), ("กำแพงเพชร", 16.483, 99.522),
+    ("นครสวรรค์", 15.704, 100.137), ("อุทัยธานี", 15.379, 100.024), ("ลพบุรี", 14.799, 100.653),
+    ("สุพรรณบุรี", 14.474, 100.117), ("อยุธยา", 14.353, 100.569), ("กาญจนบุรี", 14.023, 99.533),
+    ("ราชบุรี", 13.536, 99.817), ("ชลบุรี", 13.361, 100.985), ("ชุมพร", 10.493, 99.180),
+    ("สุราษฎร์ธานี", 9.139, 99.333), ("เพชรบูรณ์", 16.419, 101.160), ("ชัยภูมิ", 15.806, 102.032),
+    ("บุรีรัมย์", 14.993, 103.103), ("อุดรธานี", 17.415, 102.787), ("เวียงจันทน์", 17.975, 102.633),
+    ("พิจิตร", 16.442, 100.349), ("มัณฑะเลย์", 21.959, 96.089), ("เนปิดอว์", 19.763, 96.078),
+    ("ย่างกุ้ง", 16.867, 96.195), ("ทวาย", 14.083, 98.198), ("พะเยา", 19.169, 99.902), ("น่าน", 18.776, 100.773),
+]
+
+
+def _mmi_on_grid(res, sites, LA, LO):
+    """MMI ที่คาดบนตาราง (ค่าทำนายสุดท้าย + ค่าปรับจากสถานี, Vs30 ค่าตั้งต้น)"""
+    hypo, p, (_, _, unc) = res["hypo"], res["preferred"], res["reliability"]
+    cm = res.get("correction")
+    D = _trace_dist_grid(LA, LO) if FAULT_TRACE else haversine_km(hypo["lat"], hypo["lon"], LA, LO)
+    d = np.linspace(0.0, float(D.max()) + 10, 500)
+    m = np.array([INT.predict_mmi(p["mag"], x, hypo["depth"], C.DEFAULT_VS30, unc,
+                                  x if FAULT_TRACE else None)["mmi"] for x in d])
+    corr = 0.0
+    if cm and cm.get("method") not in (None, "none"):
+        corr = model_corr(cm, LA, LO, np.hypot(D, hypo["depth"]), np.full(D.shape, "target", object))
+    return np.clip(np.interp(D, d, m) + corr, 1.0, 10.0)
+
+
+def _load_land(west, east, south, north):
+    """รูปหลายเหลี่ยมประเทศจาก BORDER_FILE -> list ของ ring (N x 2)  ไม่มีไฟล์ = []"""
+    import json
+    if not os.path.exists(BORDER_FILE):
+        return []
+    with open(BORDER_FILE, encoding="utf-8") as fh:
+        gj = json.load(fh)
+    rings = []
+    for ft in gj["features"]:
+        g = ft["geometry"]
+        polys = g["coordinates"] if g["type"] == "MultiPolygon" else [g["coordinates"]]
+        for poly in polys:
+            for ring in poly:
+                r = np.asarray(ring, float)[:, :2]
+                if r[:, 0].max() >= west and r[:, 0].min() <= east and r[:, 1].max() >= south and r[:, 1].min() <= north:
+                    rings.append(r)
+    return rings
+
+
+def _usgs_reference(hypo):
+    """ค่าอ้างอิงของเหตุการณ์ทดสอบ (เวลาเกิดต่างจาก T0 ไม่เกิน 5 นาที)  ไม่พบ = None"""
+    try:
+        import run_validation as V
+    except ImportError:
+        return None
+    for ev in V.EVENTS:
+        if ev.get("time") and abs(V._epoch(ev["time"]) - hypo["origin_time"]) < 300:
+            return dict(ev, mw=V.ref_mw(ev))
+    return None
+
+
+def plot_mmi_map(res, sites, out=MMI_MAP_FILE):
+    """แผนที่ MMI: พื้นสี MMI ที่คาด, สถานีสีตาม MMI ที่วัดได้, ค่าที่จังหวัด และแผงสรุปด้านขวา"""
+    plt = _plt()
+    if plt is None:
+        return None
+    from matplotlib.colors import LinearSegmentedColormap
+    from matplotlib.patches import PathPatch, Rectangle
+    from matplotlib.path import Path
+    hypo, p = res["hypo"], res["preferred"]
+    sts = [s for s in sites if s["kind"] == "station"]
+    if not sts:
+        return None
+    tele = RM.is_teleseism(hypo)
+    ref = _usgs_reference(hypo)
+    ok = [s for s in sts if obs_mmi(s) is not None]
+    lons = [s["lon"] for s in sts] + ([] if tele else [hypo["lon"]])
+    lats = [s["lat"] for s in sts] + ([] if tele else [hypo["lat"]])
+    west, east = min(lons) - 1.5, max(lons) + 1.5
+    south, north = min(lats) - 1.0, max(lats) + 1.5
+    aspect = 1.0 / np.cos(np.radians(0.5 * (south + north)))
+
+    fig = plt.figure(figsize=(13.5, 13.5 * (north - south) * aspect / (east - west) * 0.72 + 1.2))
+    ax = fig.add_axes([0.05, 0.05, 0.68, 0.87])
+    pn = fig.add_axes([0.75, 0.05, 0.24, 0.87])
+    pn.axis("off")
+    pn.set_xlim(0, 1)
+    pn.set_ylim(0, 1)
+    ax.set_facecolor("#dfe3e8")
+    rings = _load_land(west, east, south, north)
+    land = None
+    if rings:
+        verts, codes = [], []
+        for r in rings:
+            verts.append(r)
+            codes.append([Path.MOVETO] + [Path.LINETO] * (len(r) - 2) + [Path.CLOSEPOLY])
+        land = PathPatch(Path(np.vstack(verts), np.concatenate(codes)), facecolor="#f2f2f2", edgecolor="none", zorder=1)
+        ax.add_patch(land)
+
+    F = None
+    if not tele:
+        glon = np.linspace(west, east, 420)
+        glat = np.linspace(south, north, int(420 * (north - south) * aspect / (east - west)))
+        LO, LA = np.meshgrid(glon, glat)
+        F = _mmi_on_grid(res, sites, LA, LO)
+        cmap = LinearSegmentedColormap.from_list(
+            "mmi", [((k - 1) / 9.0, MMI_COLORS[k]) for k in range(1, 11)])
+        im = ax.imshow(F, origin="lower", extent=(west, east, south, north), cmap=cmap, vmin=1, vmax=10,
+                       interpolation="bilinear", zorder=2, aspect=aspect)
+        cn = ax.contour(LO, LA, F, levels=np.arange(1.5, 10), colors="k", linewidths=0.4, alpha=0.35, zorder=3)
+        layers = [im, cn]
+        if ok:
+            near = np.full(LA.shape, np.inf)
+            for s in ok:
+                near = np.minimum(near, haversine_km(s["lat"], s["lon"], LA, LO))
+            with plt.rc_context({"hatch.linewidth": 0.4, "hatch.color": "#55606b"}):
+                hc = ax.contourf(LO, LA, near > MMI_MAP_FAR_KM, levels=[0.5, 1.5], colors="none", hatches=["////"], zorder=3)
+            layers.append(hc)
+        if land is not None:
+            for lay in layers:
+                lay.set_clip_path(land)
+    if rings:
+        for r in rings:
+            ax.plot(r[:, 0], r[:, 1], color="#3c4650", lw=0.7, zorder=4)
+
+    rup = rupture_info(res)
+    if rup and rup.get("trace"):
+        tr = np.asarray(rup["trace"], float)
+        ax.plot(tr[:, 1], tr[:, 0], color="#111111", lw=3, zorder=5, solid_capstyle="round")
+    elif rup and rup.get("radius_km"):
+        th = np.linspace(0, 2 * np.pi, 120)
+        rr = rup["radius_km"] / 111.195
+        ax.plot(rup["center"][1] + rr * np.sin(th) * aspect, rup["center"][0] + rr * np.cos(th), color="#111111",
+                lw=1.6, ls="--", zorder=5)
+    for s in sts:
+        v = obs_mmi(s)
+        if v is None:
+            ax.plot(s["lon"], s["lat"], "x", color="k", ms=6, mew=1.2, zorder=6)
+        else:
+            ax.plot(s["lon"], s["lat"], "o", mfc=MMI_COLORS[INT.mmi_class(v)[0]], mec="#222222", mew=0.7, ms=7, zorder=6)
+    if not tele:
+        ax.plot(hypo["lon"], hypo["lat"], "*", ms=23, mfc="#ff6a13", mec="k", mew=1.0, zorder=8)
+    if ref and ref.get("lat") is not None and not tele:
+        ax.plot(ref["lon"], ref["lat"], "D", ms=9, mfc="none", mec="k", mew=1.5, zorder=8)
+
+    # ป้ายจังหวัด: ข้ามป้ายที่ทับกัน
+    if F is not None:
+        boxes = []
+        w, h = 0.9, 0.48
+        for name, la, lo in MAP_LABELS:
+            if not (west + 0.3 < lo < east - 0.3 and south + 0.3 < la < north - 0.3):
+                continue
+            box = (lo - w / 2, la - h * 0.65, lo + w / 2, la + h * 0.75)
+            if any(box[0] < b[2] and box[2] > b[0] and box[1] < b[3] and box[3] > b[1] for b in boxes):
+                continue
+            boxes.append(box)
+            i, j = np.searchsorted(glat, la), np.searchsorted(glon, lo)
+            v = F[min(i, F.shape[0] - 1), min(j, F.shape[1] - 1)]
+            far = not ok or min(float(haversine_km(s["lat"], s["lon"], la, lo)) for s in ok) > MMI_MAP_FAR_KM
+            halo = dict(path_effects=[_halo()])
+            ax.text(lo, la + 0.09, ("~" if far else "") + f"{v:.1f}", ha="center", va="bottom", fontsize=11.5,
+                    fontweight="bold", zorder=9, **halo)
+            ax.text(lo, la + 0.07, name, ha="center", va="top", fontsize=7.5, zorder=9, **halo)
+
+    ax.set_xlim(west, east)
+    ax.set_ylim(south, north)
+    ax.set_aspect(aspect)
+    ax.xaxis.set_major_locator(plt.MultipleLocator(2))
+    ax.yaxis.set_major_locator(plt.MultipleLocator(2))
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"{x:.0f}°E"))
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0f}°N"))
+    ax.tick_params(labelsize=9, colors="#55606b")
+
+    from datetime import datetime, timezone
+    t0 = datetime.fromtimestamp(hypo["origin_time"], timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    fig.text(0.05, 0.965, "ระดับความรุนแรงแผ่นดินไหว (MMI)", fontsize=24, fontweight="bold", color="#222222")
+    depth = f"ลึก {hypo['depth']:.0f} ±{hypo['err_z_km']:.0f} km" if hypo.get("depth_measured") else f"ความลึกตรึง {hypo['depth']:.0f} km"
+    sub = "แผ่นดินไหวไกลมาก (teleseism): ไม่แสดงพื้นสี" if tele else f"{hypo['lat']:.2f}°N {hypo['lon']:.2f}°E  ·  {t0}  ·  {depth}"
+    fig.text(0.05, 0.94, sub, fontsize=11.5, color="#55606b")
+
+    # แผงสรุป
+    y = 0.985
+    def line(txt, dy, **kw):
+        nonlocal y
+        pn.text(0, y, txt, va="top", **{"fontsize": 10, "color": "#333333", **kw})
+        y -= dy
+    if tele:
+        line("ผลการตรวจ", 0.03, color="#666666", fontsize=11)
+        line("แผ่นดินไหวไกลมาก", 0.05, fontsize=19, fontweight="bold")
+        line("ระบบไม่ออกคำเตือน", 0.05)
+    else:
+        line("ขนาดแผ่นดินไหว", 0.03, color="#666666", fontsize=11)
+        line(f"Mw {p['mag']:.1f}" + (" ขึ้นไป" if p.get("lower_bound") else ""), 0.07, fontsize=31, fontweight="bold")
+        line(f"จาก {p['type']}  ·  ความน่าเชื่อถือ {res['reliability'][0]}  ·  ±{res['reliability'][2]:.1f}", 0.027, fontsize=9.5, color="#666666")
+    if ref and ref.get("mw") is not None:
+        d = [] if tele else [f"ต่าง {p['mag'] - ref['mw']:+.1f}"]
+        if ref.get("lat") is not None and not tele:
+            d.append(f"ตำแหน่งคลาด {float(haversine_km(hypo['lat'], hypo['lon'], ref['lat'], ref['lon'])):.0f} km")
+        line(f"USGS: {ref['mag_type']} {ref['mag']:g}" + ("  ·  " + "  ·  ".join(d) if d else ""), 0.04, fontsize=9.5, color="#666666")
+    else:
+        y -= 0.015
+    if ok:
+        top = max(ok, key=obs_mmi)
+        _, rom, shake, _ = INT.mmi_class(obs_mmi(top))
+        line("ความรุนแรงสูงสุดที่วัดได้", 0.03, color="#666666", fontsize=11)
+        line(f"MMI {obs_mmi(top):.1f}", 0.055, fontsize=25, fontweight="bold")
+        line(f"สถานี {top['name']}  ·  {rom} {shake}", 0.04, fontsize=9.5, color="#666666")
+    pub = sum(1 for s in sts if max((s.get("alert") or {}).get("level", 0), (s.get("upgrade") or {}).get("level", 0)) == 2)
+    app = sum(1 for s in sts if s.get("alert"))
+    line("การแจ้งเตือนที่สถานี", 0.03, color="#666666", fontsize=11)
+    line(f"สาธารณะ {pub}  ·  ผ่านแอป {app - pub}  ·  ไม่แจ้ง {len(sts) - app}", 0.045, fontsize=10.5, fontweight="bold")
+
+    line("มาตรา MMI (USGS)", 0.024, color="#666666", fontsize=11)
+    pn.text(0.21, y, "การสั่น", fontsize=8, color="#666666", va="top")
+    pn.text(0.60, y, "ความเสียหาย", fontsize=8, color="#666666", va="top")
+    y -= 0.018
+    for k in range(10, 0, -1):
+        rom, shake, dmg = INT.MMI_TABLE[k]
+        pn.add_patch(Rectangle((0, y - 0.024), 0.16, 0.024, facecolor=MMI_COLORS[k], edgecolor="#999999", lw=0.5))
+        pn.text(0.08, y - 0.012, rom, ha="center", va="center", fontsize=8.5, fontweight="bold")
+        pn.text(0.21, y - 0.012, shake, va="center", fontsize=8.5)
+        pn.text(0.60, y - 0.012, dmg, va="center", fontsize=8.5)
+        y -= 0.026
+    y -= 0.012
+    items = [("*", "#ff6a13", 15, "จุดเหนือศูนย์กลางจากระบบ"), ("o", "#7aff93", 7, "สถานี สีตาม MMI ที่วัดได้"),
+             ("x", "k", 6, "สถานีที่ไม่ผ่าน QC ไม่ได้ใช้")]
+    if ref and ref.get("lat") is not None:
+        items.insert(1, ("D", "none", 7, "จุดเหนือศูนย์กลางจาก USGS"))
+    for mk, col, ms, txt in items:
+        pn.plot(0.06, y - 0.01, mk, mfc=col, mec="k", color="k", ms=ms, mew=0.8, clip_on=False)
+        pn.text(0.14, y - 0.01, txt, va="center", fontsize=8.5)
+        y -= 0.024
+    if not tele:
+        pn.add_patch(Rectangle((0.02, y - 0.018), 0.08, 0.016, facecolor="none", edgecolor="#55606b", hatch="////", lw=0.5))
+        pn.text(0.14, y - 0.01, f"ไกลจากสถานีเกิน {MMI_MAP_FAR_KM:.0f} km (ค่าประมาณ ~)", va="center", fontsize=8.5)
+        y -= 0.024
+    if rup and rup.get("trace"):
+        pn.plot([0.02, 0.10], [y - 0.01, y - 0.01], color="#111111", lw=3)
+        pn.text(0.14, y - 0.01, rup["label"], va="center", fontsize=8.5)
+        y -= 0.024
+    elif rup and rup.get("radius_km"):
+        pn.plot([0.02, 0.10], [y - 0.01, y - 0.01], color="#111111", lw=1.6, ls="--")
+        pn.text(0.14, y - 0.01, "ขอบเขตรอยแตกโดยประมาณจากขนาด", va="center", fontsize=8.5)
+        y -= 0.024
+    y -= 0.008
+    notes = [] if tele else ["พื้นสีและตัวเลขจังหวัด = MMI ที่คาด จาก IPE (Allen 2012) +",
+                             "ค่าปรับจากสถานี, Vs30 ค่าตั้งต้น " + f"{C.DEFAULT_VS30:.0f} m/s"]
+    notes.append("MMI ที่สถานี = PGV ตาม Worden (2012)")
+    if RUPTURE_HINDSIGHT:
+        notes.append("แนวรอยแตกเป็นข้อมูลหลังเหตุการณ์ ไม่ได้ใช้ตอนจำลองการแจ้งเตือน")
+    elif rup and rup.get("note"):
+        notes.append(rup["note"])
+    notes.append("ผลจากระบบอัตโนมัติ ไม่ใช่ ShakeMap ทางการของ USGS")
+    if not rings:
+        notes.append("ไม่มีไฟล์เส้นเขตแดน จึงไม่แสดงแผ่นดินและพรมแดน")
+    pn.text(0, y, "\n".join(notes), va="top", fontsize=8, color="#666666", linespacing=1.35)
+    fig.savefig(out, dpi=170)
+    plt.close(fig)
+    return out
+
+
+def _halo():
+    import matplotlib.patheffects as pe
+    return pe.withStroke(linewidth=2.5, foreground="white", alpha=0.85)
 
 
 def make_station_map(res, sites, out=STATION_MAP_FILE):
@@ -1156,8 +1412,7 @@ def make_station_map(res, sites, out=STATION_MAP_FILE):
         if o:
             _, rom, shake, dmg = INT.mmi_class(o["mmi"])
             rows += [f"<b>MMI วัดได้ {o['mmi']:.1f} ({rom} {shake})</b>", f"ความเสียหาย: {dmg}",
-                     f"PGA {o['pga']:.2f} gal, PGV {o['pgv']:.3f} cm/s", f"MMI จาก PGA {o['mmi_pga']:.1f}",
-                     f"JMA ระดับ {o['jma_class']}"]
+                     f"PGA {o['pga']:.2f} gal, PGV {o['pgv']:.3f} cm/s"]
         else:
             rows.append("ไม่มีข้อมูลคลื่นที่ใช้ได้")
         rows.append(f"MMI ทำนาย {s['final']['mmi']:.1f}")
@@ -1168,13 +1423,15 @@ def make_station_map(res, sites, out=STATION_MAP_FILE):
                         sensor=sensor_key(s), popup="<br>".join(rows)))
     epi = dict(lat=h["lat"], lon=h["lon"], popup=_epi_html(res))
     title = "ระดับความรุนแรงแผ่นดินไหว"
-    sub = f"{RM.thai_time(h['origin_time'])}   Mw {p['mag']:.1f}   ที่สถานีตรวจวัด (หน่วยวัด MMI)"
+    sub = f"{RM.thai_time(h['origin_time'])}   Mw {p['mag']:.1f} (จาก {p['type']})"
     try:
         from map_plot import make_station_mmi_map
     except (ImportError, AttributeError):
         make_station_mmi_map = None
     if make_station_mmi_map is not None:
-        html = make_station_mmi_map(pts, out, epi, field, title=title, subtitle=sub)
+        ref = _usgs_reference(h)
+        html = make_station_mmi_map(pts, out, epi, field, title=title, subtitle=sub, rupture=rupture_info(res),
+                                    reference=ref if ref and ref.get("lat") is not None else None)
         if html:
             return html
     import json
@@ -1267,6 +1524,32 @@ leg.addTo(map);
 # ======================================================================
 #  ฟังก์ชันหลัก
 # ======================================================================
+def select_rupture(hypo):
+    """เลือกแนวรอยแตก: ค่าที่กำหนดเอง -> เหตุการณ์ที่รู้แล้วใน config.KNOWN_RUPTURES -> ไม่มี"""
+    global FAULT_TRACE, RUPTURE_LABEL, RUPTURE_HINDSIGHT
+    FAULT_TRACE, RUPTURE_LABEL, RUPTURE_HINDSIGHT = _USER_TRACE, "แนวรอยแตกที่กำหนด" if _USER_TRACE else None, False
+    if _USER_TRACE or not USE_KNOWN_RUPTURE or RM.is_teleseism(hypo):
+        return
+    for r in getattr(C, "KNOWN_RUPTURES", []):
+        if abs(RM._epoch(r["time"]) - hypo["origin_time"]) < 300:
+            FAULT_TRACE, RUPTURE_LABEL, RUPTURE_HINDSIGHT = r["trace"], r["label"], True
+            return
+
+
+def rupture_info(res):
+    """สิ่งที่วาดแทนจุด: แนวรอยแตกที่รู้ หรือขอบเขตโดยประมาณจากขนาด  (เล็กกว่า ~20 km = แสดงเป็นจุด)"""
+    hypo, mag = res["hypo"], res["preferred"]["mag"]
+    if RM.is_teleseism(hypo):
+        return None
+    if FAULT_TRACE:
+        return dict(trace=FAULT_TRACE, label=RUPTURE_LABEL)
+    L = 10 ** (0.5 * min(mag, INT.FAULT_MAX_M) - 1.85)
+    if L >= 20.0:
+        return dict(center=(hypo["lat"], hypo["lon"]), radius_km=L / 2.0,
+                    label=f"ขอบเขตรอยแตกโดยประมาณจากขนาด (ยาว ~{L:.0f} km) ไม่รู้แนวจริง")
+    return dict(note=f"รอยแตกยาวราว {L:.0f} km เล็กกว่ามาตราส่วนแผนที่ จึงแสดงเป็นจุด")
+
+
 def compute():
     RTT.SELECTED_STATIONS, RTT.PROFILE = SELECTED_STATIONS, PROFILE
     RTT.EPICENTER, RTT.DEPTH_KM = EPICENTER, DEPTH_KM
@@ -1274,6 +1557,7 @@ def compute():
     if res is None or res.get("hypo") is None or res.get("preferred") is None or not res["stations"]:
         print("ยังคำนวณตำแหน่งและขนาดไม่ได้ จึงประมาณความรุนแรงไม่ได้")
         return None
+    select_rupture(res["hypo"])
     stages = RTT.system_stages(res)
     sites = build_sites(res)
     updates = simulate(res, stages, sites)
@@ -1298,7 +1582,7 @@ def main(mode=None, plot=PLOT):
         public_report(res, sites)
         print(f"(ลำดับการอัปเดตและตารางเทียบ: {DETAIL_FILE})")
     if plot:
-        for f in (plot_alert(res, sites), plot_distance(res, sites)):
+        for f in (plot_mmi_map(res, sites), plot_alert(res, sites), plot_distance(res, sites)):
             if f:
                 print(f"บันทึกกราฟ: {f}")
     if MAKE_MAP:
