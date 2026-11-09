@@ -567,8 +567,8 @@ def _text_on(color):
 
 def make_magnitude_map(stations, out_html, summary, epicenter=None, rupture=None, classes=(), basemap="natgeo"):
     """
-    แผนที่ขนาดแผ่นดินไหว: จุดกำเนิดจากขั้น epicenter + ป้ายขนาด + สถานีสีตามขนาดที่แต่ละสถานีวัดได้
-    stations : list ของ dict {"name", "lat", "lon", "mag": Mw ของสถานี (หรือ None), "color", "popup"}
+    แผนที่ขนาดแผ่นดินไหว: จุดกำเนิดจากขั้น epicenter + ป้ายขนาด + สถานีสีเทา (เหตุการณ์หนึ่งมีขนาดเดียว จึงไม่แยกสีตามสถานี)
+    stations : list ของ dict {"name", "lat", "lon", "used": ได้ใช้คำนวณขนาดหรือไม่}
     summary  : dict {"mag_text", "color", "word", "rows": [(หัวข้อ, ข้อความ)], "note"}
     epicenter: dict {"lat", "lon", "popup"}  None = ไม่มีตำแหน่งที่เชื่อถือได้ (เช่น teleseism) จึงไม่วาดจุดกำเนิด
     rupture  : dict {"trace", "label"} แนวรอยแตกที่รู้แล้ว   classes : (ต่ำสุด, สูงสุด, คำบอกขนาด, สี) ของคำอธิบายสี
@@ -587,22 +587,13 @@ def make_magnitude_map(stations, out_html, summary, epicenter=None, rupture=None
     m = _new_map(center, zoom_start=6, basemap=basemap)
     for la, lo in _add_rupture(m, rupture):
         lats.append(la); lons.append(lo)
-    stg = folium.FeatureGroup(name="สถานี (สีตามขนาดที่วัดได้)")
-    num = folium.FeatureGroup(name="ตัวเลขขนาดที่สถานี", show=False)
+    stg = folium.FeatureGroup(name="สถานี")
     for p in stations:
-        v = p.get("mag")
-        tip = f"{p['name']}: Mw {v:.1f}" if v is not None else f"{p['name']}: ไม่ได้ใช้คำนวณขนาด"
-        folium.CircleMarker([p["lat"], p["lon"]], radius=6 if v is not None else 3.5, color="#222222", weight=1.2,
-                            fill=True, fill_color=p.get("color", "#555555") if v is not None else "#555555",
-                            fill_opacity=1.0 if v is not None else 0.6, tooltip=tip,
-                            popup=folium.Popup(p.get("popup", ""), max_width=320)).add_to(stg)
-        if v is not None:
-            folium.Marker([p["lat"], p["lon"]], icon=folium.DivIcon(
-                icon_size=(50, 18), icon_anchor=(25, 26),
-                html=("<div style='text-align:center;font:bold 13px Tahoma,sans-serif;color:#222;"
-                      f"text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff'>{v:.1f}</div>"))).add_to(num)
+        used = p["used"]
+        folium.CircleMarker([p["lat"], p["lon"]], radius=6 if used else 3.5, color="#222222", weight=1.2,
+                            fill=True, fill_color="#8c8c8c", fill_opacity=1.0 if used else 0.6,
+                            tooltip=p["name"], popup=folium.Popup(f"<b>{p['name']}</b>", max_width=320)).add_to(stg)
     stg.add_to(m)
-    num.add_to(m)
     color, ink = summary["color"], _text_on(summary["color"])
     if epicenter:
         star = ("<svg width='34' height='34' viewBox='0 0 24 24' style='display:block;margin:2px auto 0'>"
@@ -635,7 +626,7 @@ def make_magnitude_map(stations, out_html, summary, epicenter=None, rupture=None
               else "ไม่แสดงจุดกำเนิด เพราะไม่มีตำแหน่งที่เชื่อถือได้"]
     if rupture and rupture.get("trace"):
         legend.append(f"<span style='color:#7a0000;font-weight:bold'>━━</span> {rupture['label']} (ข้อมูลหลังเหตุการณ์)")
-    legend.append("● สถานี สีตามขนาดที่วัดได้  (จุดเทาเล็ก = ไม่ได้ใช้คำนวณ)")
+    legend.append("<span style='color:#8c8c8c'>●</span> สถานีที่ใช้คำนวณขนาด  (จุดเล็ก = ไม่ได้ใช้คำนวณ)")
     m.get_root().html.add_child(folium.Element(
         "<div style='position:fixed;bottom:34px;left:10px;z-index:9999;max-width:calc(100vw - 20px);overflow:auto;"
         "background:rgba(255,255,255,.93);padding:7px 10px;border-radius:6px;box-shadow:0 1px 5px #777;"

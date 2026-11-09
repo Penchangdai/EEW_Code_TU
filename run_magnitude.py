@@ -547,21 +547,9 @@ def known_rupture(hypo):
     return None
 
 
-def _station_map_point(st, pick, show_distance=True):
-    """ค่าของสถานีบนแผนที่: สีตามขนาดชนิดเดียวกับขนาดหลัก แปลงเป็น Mw แล้ว (teleseism ไม่บอกระยะ เพราะตำแหน่งใช้ไม่ได้)"""
-    rows = [f"<b>{st['code']}</b>"]
-    if show_distance:
-        rows.append(f"ห่างจากจุดกำเนิด {st['delta']:,.0f} km")
-    for t in M.TYPES:
-        v = st["mags"].get(t)
-        if st["w"].get(t, 0) > 0:
-            rows.append(f"{t}: Mw {M.to_mw(t, v['mag'])[0]:.1f}  (น้ำหนัก {st['w'][t]:.2f})")
-        else:
-            rows.append(f"{t}: ใช้ไม่ได้" + (f" ({v['reason']})" if v and v.get("reason") else ""))
-    used = st["w"].get(pick["type"], 0) > 0
-    mag = M.to_mw(pick["type"], st["mags"][pick["type"]]["mag"])[0] if used else None
-    return dict(name=st["code"], lat=st["lat"], lon=st["lon"], mag=mag,
-                color=mag_color(mag) if used else None, popup="<br>".join(rows))
+def _station_map_point(st, pick):
+    """ค่าของสถานีบนแผนที่: ชื่อ ตำแหน่ง และได้ใช้คำนวณขนาดหลักหรือไม่ (เหตุการณ์หนึ่งมีขนาดเดียว จึงไม่แสดงขนาดรายสถานี)"""
+    return dict(name=st["code"], lat=st["lat"], lon=st["lon"], used=st["w"].get(pick["type"], 0) > 0)
 
 
 def make_map(res, out=MAP_FILE):
@@ -595,7 +583,7 @@ def make_map(res, out=MAP_FILE):
     rows.append(("Mw แต่ละชนิด", "  ·  ".join(others)))
     mag_text = f"{pick['mag']:.1f}" + ("+" if pick.get("lower_bound") else "")
     summary = dict(mag_text=mag_text, color=mag_color(pick["mag"]), word=M.size_class(pick["mag"]), rows=rows, note=note)
-    points = [_station_map_point(st, pick, epicenter is not None) for st in res["stations"]]
+    points = [_station_map_point(st, pick) for st in res["stations"]]
     classes = [(lo, hi, word, col) for lo, hi, word, _, col in MAG_CLASSES]
     return make_magnitude_map(points, out, summary, epicenter, rupture, classes)
 
