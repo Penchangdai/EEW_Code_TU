@@ -16,7 +16,7 @@
 | 6 ความรุนแรง | `intensity.py`, `vs30_tool.py` | IPE ของ Allen (2012) + ผลของ Vs30, MMI วัดจาก PGV ตาม Worden (2012), เกณฑ์ ShakeAlert |
 | ประกอบ | `eew_system.py` (`EEWSystem`), `main.py`, `synthetic.py` | demo แบบข้อมูลสังเคราะห์ (M6.3 เชียงราย → มธ.รังสิต) |
 | แผนที่/ภาพ | `map_plot.py` | folium → `*.html`, `*.kml`, matplotlib → `*.png` |
-| แผนที่ MMI HTML | `map_plot.make_station_mmi_map` | `intensity_station_map.html` แบบ ShakeMap: พื้นสี MMI + แนวรอยแตก + สถานี |
+| แผนที่ MMI HTML | `map_plot.make_station_mmi_map` | `intensity_station_map.html` แบบ ShakeMap: พื้นสี MMI + แนวรอยแตก + สถานีสีตาม MMI + ป้ายจังหวัดเด่นพร้อมค่า MMI (`run_intensity.PROVINCE_STATIONS`) + MMI คาดที่จุดศูนย์กลาง (teleseism ไม่แสดง) |
 | แผนที่ขนาด HTML | `run_magnitude.make_map` → `map_plot.make_magnitude_map` | `magnitude_map.html` ขนาด + จุดกำเนิดจาก `hypo` + สถานีสีเทา (เหตุการณ์หนึ่งมีขนาดเดียว); teleseism/ไม่มีตำแหน่ง = ไม่วาดจุดกำเนิดและไม่บอกระยะ |
 | แผนที่ MMI ภาพนิ่ง | `run_intensity.plot_mmi_map` | `intensity_mmi_map.png` พื้นสี MMI + สถานี + ค่าที่จังหวัด + แผงสรุป; เส้นเขตแดนจาก `data/ne_10m_admin_0_countries_asia.geojson` (ไม่มีไฟล์ก็ยังวาดได้ แต่ไม่มีพรมแดน) |
 

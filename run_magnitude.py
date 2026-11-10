@@ -33,7 +33,7 @@ from station_db import get_coords
 #  ตั้งค่า
 # ======================================================================
 # รหัสสถานี เช่น ["BKKA", "CMMT", "PHIT"]  หรือ "auto" = ทุกไฟล์ในโฟลเดอร์ station
-SELECTED_STATIONS = "2025-3-28_Mw7.7_station"
+SELECTED_STATIONS = "EEW_/station/2025-03-29_M5.9_AllTMD"
 DATA_FILE = ""      # ใช้เมื่อ SELECTED_STATIONS = []
 PROFILE = "regional"      # "regional" = สถานีไกล (> ~300 km), "local" = สถานีใกล้
 

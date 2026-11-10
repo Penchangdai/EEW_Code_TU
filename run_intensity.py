@@ -45,7 +45,7 @@ except ImportError:
 # ======================================================================
 #  ตั้งค่าตรงนี้
 # ======================================================================
-SELECTED_STATIONS = "2025-3-28_Mw7.7_station"    # "auto" = ทุกไฟล์ในโฟลเดอร์ station, ชื่อโฟลเดอร์เหตุการณ์ เช่น "2026-05-18_M5.2_AllTMD", หรือรหัส ["BKKA", "CMMT"]
+SELECTED_STATIONS = "EEW_/station/2026-05-18_M5.2_AllTMD"    # "auto" = ทุกไฟล์ในโฟลเดอร์ station, ชื่อโฟลเดอร์เหตุการณ์ เช่น "2026-05-18_M5.2_AllTMD", หรือรหัส ["BKKA", "CMMT"]
 PROFILE = "regional"
 EPICENTER = None              # None = คำนวณเอง (แนะนำ)  หรือ (lat, lon, ความลึก km, "เวลาเกิด UTC")
 DEPTH_KM = 10.0
@@ -1398,13 +1398,37 @@ def _halo():
     return pe.withStroke(linewidth=2.5, foreground="white", alpha=0.85)
 
 
+PROVINCE_STATIONS = [         # จังหวัดเด่นที่แสดงป้ายบนแผนที่: (ชื่อ, สถานีในจังหวัดตามลำดับที่เลือก)
+    ("กรุงเทพฯ", ("PWNA", "BKSI", "TMDA", "TMDB", "BKKA", "KMUA", "DONA", "DONB")),
+    ("เชียงใหม่", ("CMCA", "CMMT", "SANA")), ("เชียงราย", ("CRAA", "CRAG", "CRMJ", "CRAI")),
+    ("แม่ฮ่องสอน", ("MAEA", "MHIT")), ("ลำปาง", ("LPGA",)), ("น่าน", ("NANA", "NANS", "NAN")),
+    ("สุโขทัย", ("SUKH",)), ("ตาก", ("TAKA", "MUSE", "TADM")), ("พิษณุโลก", ("NKTA", "PHIT")),
+    ("นครสวรรค์", ("SAWA",)), ("นครราชสีมา", ("KRDT",)), ("ขอนแก่น", ("KHON",)),
+    ("อุดรธานี", ("UDON",)), ("อุบลราชธานี", ("UBPT",)), ("ชลบุรี", ("PATY",)), ("ระยอง", ("RAYA",)),
+    ("ชุมพร", ("CHUM",)), ("สุราษฎร์ธานี", ("SURA", "SUTA", "SRKA")), ("ภูเก็ต", ("PKTM", "PKDT")),
+    ("สงขลา", ("SKLC", "SKLT", "SKLK")),
+]
+
+
+def province_labels(sts):
+    """{ชื่อสถานี: จังหวัด} ของสถานีตัวแทน: ตัวแรกที่ไม่มีคำเตือน QC ถ้าไม่มีใช้ตัวแรกที่ผ่าน QC  ไม่มีสถานีผ่าน = ไม่มีป้าย"""
+    usable = {s["name"]: s["obs"] for s in sts if obs_mmi(s) is not None}
+    labels = {}
+    for province, codes in PROVINCE_STATIONS:
+        ok = [c for c in codes if c in usable]
+        if ok:
+            labels[next((c for c in ok if not usable[c].get("flags")), ok[0])] = province
+    return labels
+
+
 def make_station_map(res, sites, out=STATION_MAP_FILE):
-    """MMI ที่วัดได้ของแต่ละสถานีที่ input เข้าไป (ตัวเลขใหญ่ + ชื่อ) บนพื้นสี MMI  แบบภาพ ShakeMap"""
+    """MMI ที่วัดได้ของแต่ละสถานีที่ input เข้าไป บนพื้นสี MMI แบบภาพ ShakeMap  จังหวัดเด่นมีป้ายชื่อ + ค่า MMI"""
     sts = [s for s in sites if s["kind"] == "station"]
     if not sts:
         return None
     h, p = res["hypo"], res["preferred"]
     field = mmi_field(res, sts)
+    provinces = province_labels(sts)
     pts = []
     for s in sts:
         o = s["obs"]
@@ -1416,12 +1440,17 @@ def make_station_map(res, sites, out=STATION_MAP_FILE):
         else:
             rows.append("ไม่มีข้อมูลคลื่นที่ใช้ได้")
         rows.append(f"MMI ทำนาย {s['final']['mmi']:.1f}")
-        rows.insert(0, f"<b>{sensor_name(s)}</b>" + (f" &nbsp;ช่อง {s['channels']}" if s.get("channels") else ""))
+        rows.insert(0, f"<b>สถานี {s['name']}</b>")
+        rows.insert(1, sensor_name(s) + (f" &nbsp;ช่อง {s['channels']}" if s.get("channels") else ""))
         if o and o.get("flags"):
             rows.append("⚠ QC: " + "; ".join(o["flags"]))
         pts.append(dict(name=s["name"], lat=s["lat"], lon=s["lon"], mmi=obs_mmi(s),
-                        sensor=sensor_key(s), popup="<br>".join(rows)))
+                        sensor=sensor_key(s), province=provinces.get(s["name"]), popup="<br>".join(rows)))
     epi = dict(lat=h["lat"], lon=h["lon"], popup=_epi_html(res))
+    if not RM.is_teleseism(h):      # ไม่มีสถานีที่จุดศูนย์กลาง จึงเป็นค่าคาดจากสูตรเดียวกับพื้นสี  teleseism ตำแหน่งใช้ไม่ได้
+        epi["mmi"] = float(_mmi_on_grid(res, sts, np.array([[h["lat"]]]), np.array([[h["lon"]]]))[0, 0])
+        _, rom, shake, dmg = INT.mmi_class(epi["mmi"])
+        epi["popup"] += f"<br><b>MMI คาด {epi['mmi']:.1f} ({rom} {shake})</b><br>ความเสียหายที่คาด: {dmg}"
     title = "ระดับความรุนแรงแผ่นดินไหว"
     sub = f"{RM.thai_time(h['origin_time'])}   Mw {p['mag']:.1f} (จาก {p['type']})"
     try:

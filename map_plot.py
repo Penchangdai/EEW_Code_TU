@@ -480,12 +480,25 @@ def _add_rupture(m, rupture):
     return []
 
 
+def _mmi_tag(folium, lat, lon, text, mmi, lift_px):
+    """ป้าย "ข้อความ + ค่า MMI" เหนือจุดที่กำหนด lift_px พิกเซล  เมาส์ทะลุผ่านได้ จึงไม่บังจุดข้างใต้"""
+    col = MMI_COLORS[mmi_level(mmi)]
+    return folium.Marker([lat, lon], interactive=False, icon=folium.DivIcon(
+        icon_size=(190, 22), icon_anchor=(95, lift_px),
+        html=("<div style='text-align:center;pointer-events:none'><span style='display:inline-block;"
+              "background:rgba(255,255,255,.92);border:1px solid #555;border-radius:4px;padding:0 3px 0 5px;"
+              f"font:bold 12px/18px Tahoma,sans-serif;color:#222;white-space:nowrap'>{text} "
+              f"<span style='background:{col};color:{_text_on(col)};border-radius:3px;padding:0 4px'>{mmi:.1f}</span>"
+              "</span></div>")))
+
+
 def make_station_mmi_map(stations, out_html, epicenter, field=None, title="ระดับความรุนแรงแผ่นดินไหว",
                          subtitle="", basemap="natgeo", rupture=None, reference=None):
     """
     แผนที่ MMI แบบ USGS ShakeMap: แผนที่ภูมิศาสตร์ + พื้นสี MMI โปร่งใส + แนวรอยแตก + สถานีสีตาม MMI ที่วัดได้
-    stations : list ของ dict {"name", "lat", "lon", "mmi": MMI วัดได้ (หรือ None), "popup"}
-    epicenter: dict {"lat", "lon", "popup"}
+    stations : list ของ dict {"name", "lat", "lon", "mmi": MMI วัดได้ (หรือ None), "popup", "province": ชื่อจังหวัดบนป้าย (หรือ None)}
+               สถานีที่ไม่มีป้ายแสดงเฉพาะสี  รายละเอียดดูได้เมื่อชี้เมาส์หรือคลิก
+    epicenter: dict {"lat", "lon", "popup", "mmi": MMI คาดที่จุดศูนย์กลาง (ไม่มี = ไม่แสดงป้าย)}
     field    : dict {"uri": ภาพ PNG (data URI), "bounds": [[lat_s, lon_w], [lat_n, lon_e]]}  พื้นสี MMI ที่คาด
     rupture  : dict จาก run_intensity.rupture_info   reference : ค่าอ้างอิงของ USGS (lat, lon)
     """
@@ -504,6 +517,7 @@ def make_station_mmi_map(stations, out_html, epicenter, field=None, title="ร�
         lats.append(la); lons.append(lo)
     stg = folium.FeatureGroup(name="สถานี (สีตาม MMI ที่วัดได้)")
     num = folium.FeatureGroup(name="ตัวเลข MMI ที่สถานี", show=False)
+    prov = folium.FeatureGroup(name="ชื่อจังหวัด + MMI")
     for p in stations:
         v = p.get("mmi")
         txt = f"{v:.1f}" if v is not None else "ไม่ผ่าน QC"
@@ -517,14 +531,19 @@ def make_station_mmi_map(stations, out_html, epicenter, field=None, title="ร�
                 icon_size=(50, 18), icon_anchor=(25, 26),
                 html=("<div style='text-align:center;font:bold 13px Tahoma,sans-serif;color:#222;"
                       f"text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff'>{v:.1f}</div>"))).add_to(num)
+        if v is not None and p.get("province"):
+            _mmi_tag(folium, p["lat"], p["lon"], p["province"], v, 30).add_to(prov)
         lats.append(p["lat"]); lons.append(p["lon"])
     stg.add_to(m)
     num.add_to(m)
+    prov.add_to(m)
     star = ("<svg width='34' height='34' viewBox='0 0 24 24'><path fill='#ffd21f' stroke='#222' stroke-width='1.2' "
             "d='M12 1.8l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17l-6.4 3.5 1.4-7.1-5.3-5 7.2-.9z'/></svg>")
     folium.Marker([epicenter["lat"], epicenter["lon"]], tooltip="จุดเหนือศูนย์กลางจากระบบ",
                   popup=folium.Popup(epicenter.get("popup", "จุดเหนือศูนย์กลาง"), max_width=320),
                   icon=folium.DivIcon(icon_size=(34, 34), icon_anchor=(17, 17), html=star)).add_to(m)
+    if epicenter.get("mmi") is not None:
+        _mmi_tag(folium, epicenter["lat"], epicenter["lon"], "จุดศูนย์กลาง (คาด)", epicenter["mmi"], 42).add_to(m)
     lats.append(epicenter["lat"]); lons.append(epicenter["lon"])
     if reference:
         folium.RegularPolygonMarker([reference["lat"], reference["lon"]], number_of_sides=4, radius=9, rotation=0,
@@ -543,6 +562,8 @@ def make_station_mmi_map(stations, out_html, epicenter, field=None, title="ร�
     elif rupture and rupture.get("note"):
         rows.append(rupture["note"])
     rows += ["● สถานี สีตาม MMI ที่วัดได้  (จุดเทาเล็ก = ไม่ผ่าน QC)",
+             "ป้าย = จังหวัด + MMI ที่วัดได้จากสถานีตัวแทน",
+             "สถานีอื่น: ชี้เมาส์หรือคลิกเพื่อดูชื่อสถานีและค่า MMI",
              "พื้นสี = MMI ที่คาด จาก IPE + ค่าปรับจากสถานี"]
     m.get_root().html.add_child(folium.Element(
         "<div style='position:fixed;top:12px;left:60px;z-index:9999;background:rgba(255,255,255,.92);padding:7px 13px;"
